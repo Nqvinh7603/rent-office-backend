@@ -31,7 +31,6 @@ public class UserController {
         return ApiResponse.<Page<UserDto>>builder()
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.FETCHED_SUCCESS.getMessage("Users"))
-                .error(MessageEnums.FETCH_ERROR.getError("Users"))
                 .payload(userService.getUsers(params))
                 .build();
     }
@@ -41,7 +40,6 @@ public class UserController {
         return ApiResponse.<UserDto>builder()
                 .status(HttpStatus.CREATED.value())
                 .message(MessageEnums.CREATED_SUCCESS.getMessage("User"))
-                .error(MessageEnums.CREATION_ERROR.getError("User"))
                 .payload(userService.createUser(userDto))
                 .build();
     }
@@ -51,7 +49,6 @@ public class UserController {
         return ApiResponse.<UserDto>builder()
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.UPDATED_SUCCESS.getMessage("User"))
-                .error(MessageEnums.UPDATE_ERROR.getError("User"))
                 .payload(userService.updateUser(id, userDto))
                 .build();
     }
@@ -62,8 +59,6 @@ public class UserController {
         return ApiResponse.<Void>builder()
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.DELETED_SUCCESS.getMessage("User"))
-                .error(MessageEnums.DELETION_ERROR.getError("User"))
-                .message("User deleted successfully")
                 .build();
     }
 }

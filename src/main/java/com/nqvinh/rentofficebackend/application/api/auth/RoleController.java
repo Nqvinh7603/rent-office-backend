@@ -29,7 +29,6 @@ public class RoleController {
         return ApiResponse.<RoleDto>builder()
                 .status(HttpStatus.CREATED.value())
                 .message(MessageEnums.CREATED_SUCCESS.getMessage("Role"))
-                .error(MessageEnums.CREATION_ERROR.getError("Role"))
                 .payload(roleService.createRole(roleRequestDTO))
                 .build();
     }
@@ -39,17 +38,15 @@ public class RoleController {
         return ApiResponse.<Page<RoleDto>>builder()
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.FETCHED_SUCCESS.getMessage("Roles"))
-                .error(MessageEnums.FETCH_ERROR.getError("Roles"))
                 .payload(roleService.getRoles(params))
                 .build();
     }
 
-    @GetMapping(UrlConstant.GET_ALL_ROLE)
+    @GetMapping(UrlConstant.GET_ROLE_BY_ID)
     public ApiResponse<RoleDto> getRoleById(@PathVariable Long id) throws ResourceNotFoundException {
         return ApiResponse.<RoleDto>builder()
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.FETCHED_SUCCESS.getMessage("Role"))
-                .error(MessageEnums.FETCH_ERROR.getError("Role"))
                 .payload(roleService.getRoleById(id))
                 .build();
     }
@@ -60,7 +57,6 @@ public class RoleController {
         return ApiResponse.<Void>builder()
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.DELETED_SUCCESS.getMessage("Role"))
-                .error(MessageEnums.DELETION_ERROR.getError("Role"))
                 .build();
     }
 
@@ -69,7 +65,6 @@ public class RoleController {
         return ApiResponse.<RoleDto>builder()
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.UPDATED_SUCCESS.getMessage("Role"))
-                .error(MessageEnums.UPDATE_ERROR.getError("Role"))
                 .payload(roleService.updateRole(id, roleRequestDTO))
                 .build();
     }
@@ -79,7 +74,6 @@ public class RoleController {
         return ApiResponse.<List<RoleDto>>builder()
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.FETCHED_SUCCESS.getMessage("Roles"))
-                .error(MessageEnums.FETCH_ERROR.getError("Roles"))
                 .payload(roleService.getAllRoles())
                 .build();
     }
