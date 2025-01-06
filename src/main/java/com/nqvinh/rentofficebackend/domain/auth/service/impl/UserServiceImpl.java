@@ -8,7 +8,6 @@ import com.nqvinh.rentofficebackend.domain.auth.entity.User;
 import com.nqvinh.rentofficebackend.domain.auth.mapper.UserMapper;
 import com.nqvinh.rentofficebackend.domain.auth.repository.UserRepository;
 import com.nqvinh.rentofficebackend.domain.auth.service.UserService;
-import com.nqvinh.rentofficebackend.domain.auth.utils.PasswordUtils;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -31,14 +30,13 @@ public class UserServiceImpl implements UserService {
 
     UserRepository userRepository;
     UserMapper userMapper;
+    PasswordEncoder passwordEncoder;
 
     @Transactional
     @Override
     public UserDto createUser(UserDto userDto) throws NoSuchAlgorithmException, InvalidKeySpecException {
         User user = userMapper.toUser(userDto);
-        String salt = PasswordUtils.generateSalt();
-        user.setSalt(salt);
-        user.setPassword(PasswordUtils.hashPassword(userDto.getPassword(), salt));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userMapper.toUserDto(userRepository.save(user));
     }
 

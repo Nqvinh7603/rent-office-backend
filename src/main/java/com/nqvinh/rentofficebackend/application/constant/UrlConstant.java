@@ -25,4 +25,12 @@ public class UrlConstant {
     public static final String DELETE_PERMISSION = "/{id}";
     public static final String GET_ALL_PERMISSION = "/all";
 
+    //Auth
+    public static final String AUTH = API_BASE + "/auth";
+    public static final String LOGIN = "/login";
+    public static final String LOGOUT = "/logout";
+    public static final String REFRESH_TOKEN = "/refresh-token";
+    public static final String FAILURE = "/failure";
+
+
 }

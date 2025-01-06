@@ -33,9 +33,6 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "username", unique = true)
     String username;
 
-    @Column(name = "salt")
-    String salt;
-
     @Column(name = "password")
     String password;
 
