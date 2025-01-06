@@ -9,10 +9,9 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Meta {
-    int page;
-    int pageSize;
-    int pages;
-    long total;
+    Integer page;
+    Integer pageSize;
+    Integer pages;
+    Long total;
 }

@@ -1,9 +1,8 @@
 package com.nqvinh.rentofficebackend.application.constant;
 
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
+import lombok.experimental.UtilityClass;
 
-@FieldDefaults(level = AccessLevel.PUBLIC)
+@UtilityClass
 public class UrlConstant {
     public static final String API_BASE = "/api/v1";
 
@@ -18,5 +17,12 @@ public class UrlConstant {
     public static final String USERS = API_BASE + "/users";
     public static final String UPDATE_USER ="/{id}";
     public static final String DELETE_USER ="/{id}";
+
+
+    //Permission
+    public static final String PERMISSIONS = API_BASE + "/permissions";
+    public static final String UPDATE_PERMISSION = "/{id}";
+    public static final String DELETE_PERMISSION = "/{id}";
+    public static final String GET_ALL_PERMISSION = "/all";
 
 }

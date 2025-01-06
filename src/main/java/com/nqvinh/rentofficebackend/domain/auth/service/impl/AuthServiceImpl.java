@@ -24,73 +24,73 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthServiceImpl implements AuthService {
-
-    AuthenticationManager authenticationManager;
-    UserRepository userRepository;
-    JwtUtils jwtUtils;
-    JwtDecoder jwtDecoder;
-    AuditAwareImpl auditAware;
-
-    @Override
-    public AuthResponseDto login(AuthRequestDto authRequest, HttpServletResponse response) throws ResourceNotFoundException {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword())
-        );
-
-        User user = userRepository.findByEmail(authRequest.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        String accessToken = jwtUtils.generateAccessToken(user);
-        String refreshToken = jwtUtils.generateRefreshToken(user);
-
-        // Store refresh token in http only cookie
-        Cookie refreshTokenCookie = new Cookie("refresh_token", refreshToken);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setAttribute("SameSite", "Strict");
-        refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
-
-        response.addCookie(refreshTokenCookie);
-        return AuthResponseDto.builder()
-                .accessToken(accessToken)
-                .build();
-    }
-
-    @Override
-    public AuthResponseDto refreshAccessToken(String refreshToken) throws ResourceNotFoundException {
-        Jwt jwtRefreshToken = jwtDecoder.decode(refreshToken);
-        String username = jwtUtils.getUsername(jwtRefreshToken);
-        User user = userRepository.findByEmail(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        return AuthResponseDto.builder()
-                .accessToken(jwtUtils.generateAccessToken(user))
-                .build();
-    }
-
-    @Override
-    public void logout(HttpServletResponse httpServletResponse) throws ResourceNotFoundException {
-        String email = auditAware.getCurrentAuditor().orElse("");
-
-        if (email.isEmpty()) {
-            throw new ResourceNotFoundException("Access Token not valid");
-        }
-        SecurityContextHolder.clearContext();
-        Cookie refreshTokenCookie = new Cookie("refresh_token", null);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(0);
-
-        httpServletResponse.addCookie(refreshTokenCookie);
-
-    }
-
-//    @Override
-//    public void resetPassword(String token, String newPassword) throws ResourceNotFoundException {
 //
+//    AuthenticationManager authenticationManager;
+//    UserRepository userRepository;
+//    JwtUtils jwtUtils;
+//    JwtDecoder jwtDecoder;
+//    AuditAwareImpl auditAware;
+//
+//    @Override
+//    public AuthResponseDto login(AuthRequestDto authRequest, HttpServletResponse response) throws ResourceNotFoundException {
+//        authenticationManager.authenticate(
+//                new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword())
+//        );
+//
+//        User user = userRepository.findByEmail(authRequest.getEmail())
+//                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+//        String accessToken = jwtUtils.generateAccessToken(user);
+//        String refreshToken = jwtUtils.generateRefreshToken(user);
+//
+//        // Store refresh token in http only cookie
+//        Cookie refreshTokenCookie = new Cookie("refresh_token", refreshToken);
+//        refreshTokenCookie.setHttpOnly(true);
+//        refreshTokenCookie.setPath("/");
+//        refreshTokenCookie.setAttribute("SameSite", "Strict");
+//        refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
+//
+//        response.addCookie(refreshTokenCookie);
+//        return AuthResponseDto.builder()
+//                .accessToken(accessToken)
+//                .build();
 //    }
 //
 //    @Override
-//    public void verifyResetToken(String token) throws ResourceNotFoundException {
+//    public AuthResponseDto refreshAccessToken(String refreshToken) throws ResourceNotFoundException {
+//        Jwt jwtRefreshToken = jwtDecoder.decode(refreshToken);
+//        String username = jwtUtils.getUsername(jwtRefreshToken);
+//        User user = userRepository.findByEmail(username)
+//                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+//
+//        return AuthResponseDto.builder()
+//                .accessToken(jwtUtils.generateAccessToken(user))
+//                .build();
+//    }
+//
+//    @Override
+//    public void logout(HttpServletResponse httpServletResponse) throws ResourceNotFoundException {
+//        String email = auditAware.getCurrentAuditor().orElse("");
+//
+//        if (email.isEmpty()) {
+//            throw new ResourceNotFoundException("Access Token not valid");
+//        }
+//        SecurityContextHolder.clearContext();
+//        Cookie refreshTokenCookie = new Cookie("refresh_token", null);
+//        refreshTokenCookie.setHttpOnly(true);
+//        refreshTokenCookie.setPath("/");
+//        refreshTokenCookie.setMaxAge(0);
+//
+//        httpServletResponse.addCookie(refreshTokenCookie);
 //
 //    }
+//
+////    @Override
+////    public void resetPassword(String token, String newPassword) throws ResourceNotFoundException {
+////
+////    }
+////
+////    @Override
+////    public void verifyResetToken(String token) throws ResourceNotFoundException {
+////
+////    }
 }
