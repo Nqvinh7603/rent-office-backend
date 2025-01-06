@@ -1,7 +1,6 @@
 package com.nqvinh.rentofficebackend.infrastructure.config.context;
 
 import io.github.cdimascio.dotenv.Dotenv;
-
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;

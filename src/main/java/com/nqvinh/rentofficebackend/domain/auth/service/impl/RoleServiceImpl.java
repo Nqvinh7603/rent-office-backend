@@ -66,9 +66,8 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void deleteRole(Long id) throws ResourceNotFoundException {
-        if (!roleRepository.existsRoleByRoleId(id)) {
-            throw new ResourceNotFoundException("Role ID " + id + " is invalid.");
-        }
+       Role role = roleRepository.findById(id)
+               .orElseThrow(() -> new ResourceNotFoundException("Not found role with ID " + id));
         roleRepository.deleteById(id);
     }
 

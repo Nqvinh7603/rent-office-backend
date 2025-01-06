@@ -1,6 +1,5 @@
 package com.nqvinh.rentofficebackend.domain.common.entity;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -17,11 +16,9 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class BaseEntity {
-
     @CreatedDate
-    @Column(updatable = false)
+    @Column(updatable = false, nullable = false)
     LocalDateTime createdAt;
 
     @CreatedBy
@@ -39,7 +36,7 @@ public class BaseEntity {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        updatedAt = null;
     }
 
     @PreUpdate

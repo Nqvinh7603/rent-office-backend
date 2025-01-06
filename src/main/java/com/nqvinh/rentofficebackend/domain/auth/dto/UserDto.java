@@ -36,7 +36,6 @@ public class UserDto {
 
     @NotBlank(message = "Phone number is required")
     String phoneNumber;
-
     boolean active;
 
     @NotNull(message = "Roles are required")

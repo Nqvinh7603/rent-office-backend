@@ -28,8 +28,8 @@ public class Role extends BaseEntity implements GrantedAuthority {
     @Column (name = "description")
     String description;
 
-    @Column (name = "is_active")
-    boolean isActive;
+    @Column (name = "active")
+    boolean active;
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "roles", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     List<User> users;

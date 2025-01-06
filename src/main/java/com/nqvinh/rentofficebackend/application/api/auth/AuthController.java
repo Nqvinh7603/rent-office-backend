@@ -1,4 +1,4 @@
-package com.nqvinh.rentofficebackend.application.api;
+package com.nqvinh.rentofficebackend.application.api.auth;
 import com.nqvinh.rentofficebackend.application.dto.response.ApiResponse;
 import com.nqvinh.rentofficebackend.application.exception.ResourceNotFoundException;
 import com.nqvinh.rentofficebackend.domain.auth.dto.request.AuthRequestDto;

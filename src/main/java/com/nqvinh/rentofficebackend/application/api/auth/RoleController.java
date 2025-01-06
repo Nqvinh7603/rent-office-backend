@@ -1,7 +1,9 @@
-package com.nqvinh.rentofficebackend.application.api;
+package com.nqvinh.rentofficebackend.application.api.auth;
 
+import com.nqvinh.rentofficebackend.application.constant.UrlConstant;
 import com.nqvinh.rentofficebackend.application.dto.response.ApiResponse;
 import com.nqvinh.rentofficebackend.application.dto.response.Page;
+import com.nqvinh.rentofficebackend.application.enums.MessageEnums;
 import com.nqvinh.rentofficebackend.application.exception.ResourceNotFoundException;
 import com.nqvinh.rentofficebackend.domain.auth.dto.RoleDto;
 import com.nqvinh.rentofficebackend.domain.auth.service.RoleService;
@@ -16,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/roles")
+@RequestMapping(UrlConstant.ROLES)
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class RoleController {
@@ -26,6 +28,8 @@ public class RoleController {
     public ApiResponse<RoleDto> createRole(@Valid @RequestBody RoleDto roleRequestDTO) {
         return ApiResponse.<RoleDto>builder()
                 .status(HttpStatus.CREATED.value())
+                .message(MessageEnums.CREATED_SUCCESS.getMessage("Role"))
+                .error(MessageEnums.CREATION_ERROR.getError("Role"))
                 .payload(roleService.createRole(roleRequestDTO))
                 .build();
     }
@@ -34,41 +38,49 @@ public class RoleController {
     public ApiResponse<Page<RoleDto>> getRoles(@RequestParam Map<String,  String> params) {
         return ApiResponse.<Page<RoleDto>>builder()
                 .status(HttpStatus.OK.value())
+                .message(MessageEnums.FETCHED_SUCCESS.getMessage("Roles"))
+                .error(MessageEnums.FETCH_ERROR.getError("Roles"))
                 .payload(roleService.getRoles(params))
                 .build();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(UrlConstant.GET_ALL_ROLE)
     public ApiResponse<RoleDto> getRoleById(@PathVariable Long id) throws ResourceNotFoundException {
         return ApiResponse.<RoleDto>builder()
                 .status(HttpStatus.OK.value())
+                .message(MessageEnums.FETCHED_SUCCESS.getMessage("Role"))
+                .error(MessageEnums.FETCH_ERROR.getError("Role"))
                 .payload(roleService.getRoleById(id))
                 .build();
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping(UrlConstant.DELETE_ROLE)
     public ApiResponse<Void> deleteRole(@PathVariable Long id) throws ResourceNotFoundException {
         roleService.deleteRole(id);
         return ApiResponse.<Void>builder()
                 .status(HttpStatus.OK.value())
+                .message(MessageEnums.DELETED_SUCCESS.getMessage("Role"))
+                .error(MessageEnums.DELETION_ERROR.getError("Role"))
                 .build();
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(UrlConstant.UPDATE_ROLE)
     public ApiResponse<RoleDto> updateRole(@PathVariable Long id, @Valid @RequestBody RoleDto roleRequestDTO) throws ResourceNotFoundException {
         return ApiResponse.<RoleDto>builder()
                 .status(HttpStatus.OK.value())
+                .message(MessageEnums.UPDATED_SUCCESS.getMessage("Role"))
+                .error(MessageEnums.UPDATE_ERROR.getError("Role"))
                 .payload(roleService.updateRole(id, roleRequestDTO))
                 .build();
     }
 
-    @GetMapping("/all")
+    @GetMapping(UrlConstant.GET_ALL_ROLE)
     public ApiResponse<List<RoleDto>> getAllRoles() {
         return ApiResponse.<List<RoleDto>>builder()
                 .status(HttpStatus.OK.value())
+                .message(MessageEnums.FETCHED_SUCCESS.getMessage("Roles"))
+                .error(MessageEnums.FETCH_ERROR.getError("Roles"))
                 .payload(roleService.getAllRoles())
                 .build();
     }
-
-
 }

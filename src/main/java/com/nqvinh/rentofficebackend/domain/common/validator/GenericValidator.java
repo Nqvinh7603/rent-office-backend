@@ -1,7 +1,7 @@
 package com.nqvinh.rentofficebackend.domain.common.validator;
 
-import com.nqvinh.rentofficebackend.domain.common.annotation.GenericValidation;
 import com.nqvinh.rentofficebackend.domain.auth.dto.request.AuthRequestDto;
+import com.nqvinh.rentofficebackend.domain.common.annotation.GenericValidation;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

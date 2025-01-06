@@ -33,6 +33,9 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "username", unique = true)
     String username;
 
+    @Column(name = "salt")
+    String salt;
+
     @Column(name = "password")
     String password;
 
@@ -48,8 +51,8 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "phone_number", length = 20)
     String phoneNumber;
 
-    @Column(name = "is_active")
-    boolean isActive;
+    @Column(name = "active")
+    boolean active;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
@@ -67,6 +70,6 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return isActive;
+        return active;
     }
 }

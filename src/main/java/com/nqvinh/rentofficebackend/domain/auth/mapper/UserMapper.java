@@ -10,11 +10,11 @@ import org.mapstruct.MappingTarget;
 public interface UserMapper {
 
     @Mapping(target = "password", ignore = true)
-    UserDto toUserDTO(User user);
+    UserDto toUserDto(User user);
 
-    User toUser(UserDto userDTO);
+    User toUser(UserDto userDto);
 
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "role.permissions", ignore = true)
-    void updateUserFromDTO( @MappingTarget User user,UserDto userDTO);
+    void updateUserFromDto( @MappingTarget User user,UserDto userDto);
 }

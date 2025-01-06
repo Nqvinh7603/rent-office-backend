@@ -1,0 +1,80 @@
+package com.nqvinh.rentofficebackend.domain.auth.service.impl;
+
+import com.nqvinh.rentofficebackend.application.dto.response.Meta;
+import com.nqvinh.rentofficebackend.application.dto.response.Page;
+import com.nqvinh.rentofficebackend.application.exception.ResourceNotFoundException;
+import com.nqvinh.rentofficebackend.domain.auth.dto.UserDto;
+import com.nqvinh.rentofficebackend.domain.auth.entity.User;
+import com.nqvinh.rentofficebackend.domain.auth.mapper.UserMapper;
+import com.nqvinh.rentofficebackend.domain.auth.repository.UserRepository;
+import com.nqvinh.rentofficebackend.domain.auth.service.UserService;
+import com.nqvinh.rentofficebackend.domain.auth.utils.PasswordUtils;
+import jakarta.transaction.Transactional;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PACKAGE, makeFinal = true)
+public class UserServiceImpl implements UserService {
+
+    UserRepository userRepository;
+    UserMapper userMapper;
+
+    @Transactional
+    @Override
+    public UserDto createUser(UserDto userDto) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        User user = userMapper.toUser(userDto);
+        String salt = PasswordUtils.generateSalt();
+        user.setSalt(salt);
+        user.setPassword(PasswordUtils.hashPassword(userDto.getPassword(), salt));
+        return userMapper.toUserDto(userRepository.save(user));
+    }
+
+    @Override
+    public Page<UserDto> getUsers(Map<String, String> params) {
+        int page = Integer.parseInt(params.getOrDefault("page", "1"));
+        int pageSize = Integer.parseInt(params.getOrDefault("pageSize", "10"));
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+        org.springframework.data.domain.Page<User> userPage = userRepository.findAll(pageable);
+        Meta meta = Meta.builder()
+                .page(pageable.getPageNumber() + 1)
+                .pageSize(pageable.getPageSize())
+                .pages(userPage.getTotalPages())
+                .total(userPage.getTotalElements())
+                .build();
+
+        return Page.<UserDto>builder()
+                .meta(meta)
+                .content(userPage.getContent().stream()
+                        .map(userMapper::toUserDto)
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+    @Override
+    public void deleteUser(UUID id) throws ResourceNotFoundException {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        userRepository.delete(user);
+    }
+
+    @Override
+    public UserDto updateUser(UUID id, UserDto userDto) throws ResourceNotFoundException {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        userMapper.updateUserFromDto(user,userDto);
+        return userMapper.toUserDto(userRepository.save(user));
+    }
+}
