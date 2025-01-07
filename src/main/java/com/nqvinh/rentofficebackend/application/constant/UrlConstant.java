@@ -17,6 +17,8 @@ public class UrlConstant {
     public static final String USERS = API_BASE + "/users";
     public static final String UPDATE_USER ="/{id}";
     public static final String DELETE_USER ="/{id}";
+    public static final String LOGGED_IN_USER = "/logged-in";
+
 
 
     //Permission

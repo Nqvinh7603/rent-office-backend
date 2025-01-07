@@ -14,4 +14,5 @@ public interface UserService {
     Page<UserDto> getUsers(Map<String, String> params);
     void deleteUser(UUID id) throws ResourceNotFoundException;
     UserDto updateUser(UUID id, UserDto userDto) throws ResourceNotFoundException;
+    UserDto getLoggedInUser() throws ResourceNotFoundException;
 }

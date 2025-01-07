@@ -61,4 +61,13 @@ public class UserController {
                 .message(MessageEnums.DELETED_SUCCESS.getMessage("User"))
                 .build();
     }
+
+    @GetMapping(UrlConstant.LOGGED_IN_USER)
+    public ApiResponse<UserDto> getLoggedInUser() throws ResourceNotFoundException {
+        return ApiResponse.<UserDto>builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageEnums.FETCHED_SUCCESS.getMessage("User"))
+                .payload(userService.getLoggedInUser())
+                .build();
+    }
 }

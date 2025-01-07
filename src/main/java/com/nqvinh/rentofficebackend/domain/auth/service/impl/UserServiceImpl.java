@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -74,5 +76,15 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         userMapper.updateUserFromDto(user,userDto);
         return userMapper.toUserDto(userRepository.save(user));
+    }
+
+    @Override
+    public UserDto getLoggedInUser() throws ResourceNotFoundException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication != null){
+            User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+            return userMapper.toUserDto(user);
+        }
+        return null;
     }
 }
