@@ -81,6 +81,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getLoggedInUser() throws ResourceNotFoundException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         if(authentication != null){
             User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new ResourceNotFoundException("User not found"));
             return userMapper.toUserDto(user);

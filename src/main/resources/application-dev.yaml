@@ -10,13 +10,18 @@ spring:
 #      username: ${POSTGRES_USER}
 #      password: ${POSTGRES_PASSWORD}
 
+  data:
+    web:
+      pageable:
+        one-indexed-parameters: true
+
   jpa:
     show-sql: false
     properties:
       hibernate:
         format_sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     defer-datasource-initialization: true
 
   threads:

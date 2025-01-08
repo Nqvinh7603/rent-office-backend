@@ -38,8 +38,10 @@ public class UserDto {
     String phoneNumber;
     boolean active;
 
-    @NotNull(message = "Roles are required")
-    List<RoleDto> roles;
+    String avatar;
+
+    @NotNull(message = "Role are required")
+    RoleDto role;
 
     @PastOrPresent(message = "Created at must be in the past or present")
     LocalDateTime createdAt;

@@ -6,11 +6,13 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -51,13 +53,15 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "active")
     boolean active;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-    List<Role> roles;
+    String avatar;
+
+    @ManyToOne
+    @JoinColumn(name = "role_id", nullable = false)
+    Role role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles;
+        return List.of(role);
     }
 
     @Override

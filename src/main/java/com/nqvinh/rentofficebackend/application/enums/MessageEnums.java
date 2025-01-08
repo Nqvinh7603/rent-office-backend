@@ -17,7 +17,7 @@ public enum MessageEnums {
     }
 
     public String getMessage(String moduleName) {
-        return moduleName + message;
+        return moduleName+ " " + message;
     }
 
     public String getError(String moduleName) {

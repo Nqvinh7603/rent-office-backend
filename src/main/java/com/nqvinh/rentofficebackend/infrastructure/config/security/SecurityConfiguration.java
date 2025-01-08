@@ -61,8 +61,8 @@ public class SecurityConfiguration {
                 }))
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/","/api/v1/auth/**",
-                                "/api/v1/roles/**",
                                 "/api/v1/users/**",
+                                "/api/v1/roles/**",
                                 "/api/v1/permissions/**"
                                 ).permitAll()
                         .anyRequest().authenticated())
