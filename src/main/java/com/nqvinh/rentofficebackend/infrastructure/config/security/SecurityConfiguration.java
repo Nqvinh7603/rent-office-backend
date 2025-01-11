@@ -6,7 +6,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import com.nqvinh.rentofficebackend.infrastructure.filter.JwtAuthFilter;
+import com.nqvinh.rentofficebackend.infrastructure.config.security.filter.JwtAuthFilter;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -60,11 +60,7 @@ public class SecurityConfiguration {
                     return config;
                 }))
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/","/api/v1/auth/**",
-                                "/api/v1/users/**",
-                                "/api/v1/roles/**",
-                                "/api/v1/permissions/**"
-                                ).permitAll()
+                        .requestMatchers("/","/api/v1/auth/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults())

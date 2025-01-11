@@ -90,6 +90,7 @@ public class PermissionServiceImpl implements PermissionService {
         permissionRepository.delete(permission);
     }
 
+    @Transactional
     @Override
     public PermissionDto updatePermission(Long id, PermissionDto permissionDto) throws ResourceNotFoundException {
         Permission permission = permissionRepository.findById(id)

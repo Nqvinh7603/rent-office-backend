@@ -18,8 +18,7 @@ public class UrlConstant {
     public static final String UPDATE_USER ="/{id}";
     public static final String DELETE_USER ="/{id}";
     public static final String LOGGED_IN_USER = "/logged-in";
-
-
+    public static final String GET_USER_BY_ID = "/{id}";
 
     //Permission
     public static final String PERMISSIONS = API_BASE + "/permissions";
@@ -33,6 +32,5 @@ public class UrlConstant {
     public static final String LOGOUT = "/logout";
     public static final String REFRESH_TOKEN = "/refresh-token";
     public static final String FAILURE = "/failure";
-
 
 }

@@ -6,7 +6,7 @@ spring:
     name: rent-office-backend
 
   datasource:
-      url: ${DB_URL_CLOUD}
+      url: ${DB_URL_AIVEN_CLOUD}
 #      username: ${POSTGRES_USER}
 #      password: ${POSTGRES_PASSWORD}
 
@@ -23,6 +23,7 @@ spring:
     hibernate:
       ddl-auto: update
     defer-datasource-initialization: true
+
 
   threads:
     virtual:

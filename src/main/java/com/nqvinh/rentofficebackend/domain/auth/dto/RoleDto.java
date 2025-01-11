@@ -1,7 +1,7 @@
 package com.nqvinh.rentofficebackend.domain.auth.dto;
 
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -17,12 +17,9 @@ import java.util.List;
 public class RoleDto {
 
     Long roleId;
-
-    @NotNull(message = "Role name is required")
+    @NotBlank(message = "Role name is required")
     String roleName;
-
     String description;
-
     boolean active;
 
     List<PermissionDto> permissions;

@@ -15,4 +15,5 @@ public interface UserService {
     void deleteUser(UUID id) throws ResourceNotFoundException;
     UserDto updateUser(UUID id, UserDto userDto) throws ResourceNotFoundException;
     UserDto getLoggedInUser() throws ResourceNotFoundException;
+    UserDto getUserById(UUID id) throws ResourceNotFoundException;
 }

@@ -1,8 +1,8 @@
 package com.nqvinh.rentofficebackend.application.api.auth;
+
 import com.nqvinh.rentofficebackend.application.constant.UrlConstant;
 import com.nqvinh.rentofficebackend.application.dto.response.ApiResponse;
 import com.nqvinh.rentofficebackend.application.exception.ResourceNotFoundException;
-import com.nqvinh.rentofficebackend.domain.auth.dto.UserDto;
 import com.nqvinh.rentofficebackend.domain.auth.dto.request.AuthRequestDto;
 import com.nqvinh.rentofficebackend.domain.auth.dto.response.AuthResponseDto;
 import com.nqvinh.rentofficebackend.domain.auth.service.AuthService;
@@ -12,8 +12,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.NoSuchAlgorithmException;

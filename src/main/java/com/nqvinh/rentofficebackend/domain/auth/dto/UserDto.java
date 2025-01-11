@@ -6,8 +6,8 @@ import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -39,6 +39,8 @@ public class UserDto {
     boolean active;
 
     String avatar;
+
+    LocalDate dateOfBirth;
 
     @NotNull(message = "Role are required")
     RoleDto role;

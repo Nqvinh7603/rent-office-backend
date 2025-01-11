@@ -22,7 +22,7 @@ public class Role extends BaseEntity implements GrantedAuthority {
     @SequenceGenerator(name = "role_id_seq", sequenceName = "roles_seq", allocationSize = 1)
     Long roleId;
 
-    @Column (name = "role_name")
+    @Column (name = "role_name", unique = true, nullable = false)
     String roleName;
 
     @Column (name = "description")
@@ -31,7 +31,7 @@ public class Role extends BaseEntity implements GrantedAuthority {
     @Column (name = "active")
     boolean active;
 
-    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY,cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     List<User> users;
 
     @ManyToMany(fetch = FetchType.LAZY)

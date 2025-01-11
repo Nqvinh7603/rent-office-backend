@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @SpringBootApplication
 @EnableJpaAuditing(auditorAwareRef = "auditorAware")
 @EnableConfigurationProperties(RSAKeyRecord.class)
-public class RentOfficeBackendApplication {
+public class RentOfficeBackendApplication{
     public static void main(String[] args) {
         SpringApplication springApplication =  new SpringApplication(RentOfficeBackendApplication.class);
         springApplication.addInitializers(new DotEnvApplicationContextInitializer());

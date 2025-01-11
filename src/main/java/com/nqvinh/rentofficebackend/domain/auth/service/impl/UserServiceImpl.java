@@ -6,6 +6,7 @@ import com.nqvinh.rentofficebackend.application.exception.ResourceNotFoundExcept
 import com.nqvinh.rentofficebackend.domain.auth.dto.UserDto;
 import com.nqvinh.rentofficebackend.domain.auth.entity.User;
 import com.nqvinh.rentofficebackend.domain.auth.mapper.UserMapper;
+import com.nqvinh.rentofficebackend.domain.auth.repository.RoleRepository;
 import com.nqvinh.rentofficebackend.domain.auth.repository.UserRepository;
 import com.nqvinh.rentofficebackend.domain.auth.service.UserService;
 import jakarta.transaction.Transactional;
@@ -34,9 +35,10 @@ public class UserServiceImpl implements UserService {
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
 
-    @Transactional
+
     @Override
-    public UserDto createUser(UserDto userDto) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    @Transactional
+    public UserDto createUser(UserDto userDto) {
         User user = userMapper.toUser(userDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userMapper.toUserDto(userRepository.save(user));
@@ -63,6 +65,7 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+
     @Override
     public void deleteUser(UUID id) throws ResourceNotFoundException {
         User user = userRepository.findById(id)
@@ -70,11 +73,13 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
+
     @Override
+    @Transactional
     public UserDto updateUser(UUID id, UserDto userDto) throws ResourceNotFoundException {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        userMapper.updateUserFromDto(user,userDto);
+        userMapper.updateUserFromDto(user, userDto);
         return userMapper.toUserDto(userRepository.save(user));
     }
 
@@ -87,5 +92,12 @@ public class UserServiceImpl implements UserService {
             return userMapper.toUserDto(user);
         }
         return null;
+    }
+
+    @Override
+    public UserDto getUserById(UUID id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User ID " + id + " is invalid."));
+        return userMapper.toUserDto(user);
     }
 }

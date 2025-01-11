@@ -14,7 +14,7 @@ import lombok.experimental.FieldDefaults;
 public class AuthRequestDto {
     String username;
     String email;
-    @NotNull
+    @NotNull(message = "Password is required")
     String password;
 }
 

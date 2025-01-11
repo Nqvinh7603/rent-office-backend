@@ -45,7 +45,7 @@ public class UserController {
     }
 
     @PutMapping(UrlConstant.UPDATE_USER)
-    public ApiResponse<UserDto> updateUser(@PathVariable UUID id, @Valid @RequestBody UserDto userDto) throws ResourceNotFoundException {
+    public ApiResponse<UserDto> updateUser(@PathVariable UUID id, @RequestBody UserDto userDto) throws ResourceNotFoundException {
         return ApiResponse.<UserDto>builder()
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.UPDATED_SUCCESS.getMessage("User"))
@@ -68,6 +68,15 @@ public class UserController {
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.FETCHED_SUCCESS.getMessage("User"))
                 .payload(userService.getLoggedInUser())
+                .build();
+    }
+
+    @GetMapping(UrlConstant.GET_USER_BY_ID)
+    public ApiResponse<UserDto> getUserById(@PathVariable UUID id) throws ResourceNotFoundException {
+        return ApiResponse.<UserDto>builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageEnums.FETCHED_SUCCESS.getMessage("User"))
+                .payload(userService.getUserById(id))
                 .build();
     }
 }

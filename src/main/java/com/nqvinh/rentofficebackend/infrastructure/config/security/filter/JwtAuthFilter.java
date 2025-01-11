@@ -1,4 +1,4 @@
-package com.nqvinh.rentofficebackend.infrastructure.filter;
+package com.nqvinh.rentofficebackend.infrastructure.config.security.filter;
 
 import com.nqvinh.rentofficebackend.infrastructure.utils.JwtUtils;
 import jakarta.servlet.FilterChain;
