@@ -6,7 +6,6 @@ import com.nqvinh.rentofficebackend.application.exception.ResourceNotFoundExcept
 import com.nqvinh.rentofficebackend.domain.auth.dto.UserDto;
 import com.nqvinh.rentofficebackend.domain.auth.entity.User;
 import com.nqvinh.rentofficebackend.domain.auth.mapper.UserMapper;
-import com.nqvinh.rentofficebackend.domain.auth.repository.RoleRepository;
 import com.nqvinh.rentofficebackend.domain.auth.repository.UserRepository;
 import com.nqvinh.rentofficebackend.domain.auth.service.UserService;
 import jakarta.transaction.Transactional;
@@ -20,8 +19,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;

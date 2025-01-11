@@ -1,4 +1,4 @@
-package com.nqvinh.rentofficebackend.infrastructure.service;
+package com.nqvinh.rentofficebackend.infrastructure.service.impl;
 
 import com.nqvinh.rentofficebackend.domain.auth.repository.UserRepository;
 import lombok.AccessLevel;

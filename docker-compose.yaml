@@ -1,26 +1,26 @@
 services:
-  postgres:
-    container_name: postgres
-    image: postgres:16.4-alpine
-    restart: always
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - ${DOCKER_DATA}/databases/postgres:/var/lib/postgresql/data
-
-#  redis:
-#    image: redis/redis-stack-server:latest
-#    container_name: redis
+#  postgres:
+#    container_name: postgres
+#    image: postgres:16.4-alpine
 #    restart: always
-#    volumes:
-#      - ${DOCKER_DATA}/databases/redis:/data
 #    ports:
-#      - "6379:6379"
-#    command: ["redis-server", "--notify-keyspace-events", "Ex", "--protected-mode", "no"]
+#      - "5432:5432"
+#    environment:
+#      POSTGRES_DB: ${POSTGRES_DB}
+#      POSTGRES_USER: ${POSTGRES_USER}
+#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+#    volumes:
+#      - ${DOCKER_DATA}/databases/postgres:/var/lib/postgresql/data
+
+  redis:
+    image: redis/redis-stack-server:latest
+    container_name: redis
+    restart: always
+    volumes:
+      - ${DOCKER_DATA}/databases/redis:/data
+    ports:
+      - "6379:6379"
+   # command: ["redis-server", "--notify-keyspace-events", "Ex", "--protected-mode", "no"]
 
 networks:
   default:
