@@ -8,12 +8,15 @@ import com.nqvinh.rentofficebackend.domain.auth.entity.Role;
 import com.nqvinh.rentofficebackend.domain.auth.mapper.RoleMapper;
 import com.nqvinh.rentofficebackend.domain.auth.repository.RoleRepository;
 import com.nqvinh.rentofficebackend.domain.auth.service.RoleService;
+import com.nqvinh.rentofficebackend.infrastructure.utils.RequestParamUtils;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +29,7 @@ import java.util.stream.Collectors;
 public class RoleServiceImpl implements RoleService {
     RoleMapper roleMapper;
     RoleRepository roleRepository;
+    RequestParamUtils requestParamUtils;
 
     @Transactional
     @Override
@@ -38,24 +42,34 @@ public class RoleServiceImpl implements RoleService {
     public Page<RoleDto> getRoles(Map<String, String> params) {
         int page = Integer.parseInt(params.getOrDefault("page", "1"));
         int pageSize = Integer.parseInt(params.getOrDefault("pageSize", "10"));
-        Pageable pageable = PageRequest.of(page - 1, pageSize);
-        org.springframework.data.domain.Page<Role> pageRole = roleRepository.findAll(pageable);
+        Specification<Role> spec = getRoleSpec(params);
+        List<Sort.Order> sortOrders = requestParamUtils.toSortOrders(params, Role.class);
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(sortOrders));
+        org.springframework.data.domain.Page<Role> rolePage = roleRepository.findAll(spec, pageable);
         Meta meta = Meta.builder()
-                .page(pageRole.getNumber() + 1)
-                .pageSize(pageRole.getSize())
-                .pages(pageRole.getTotalPages())
-                .total(pageRole.getTotalElements())
-                .build();
 
+                .page(pageable.getPageNumber() + 1)
+                .pageSize(pageable.getPageSize())
+                .pages(rolePage.getTotalPages())
+                .total(rolePage.getTotalElements())
+                .build();
         return Page.<RoleDto>builder()
                 .meta(meta)
-                .content(pageRole.getContent().stream()
+                .content(rolePage.getContent().stream()
                         .map(roleMapper::toRoleDto)
                         .collect(Collectors.toList()))
                 .build();
     }
 
+    private Specification<Role> getRoleSpec(Map<String, String> params) {
+        Specification<Role> spec = Specification.where(null);
 
+        if (params.containsKey("active")) {
+            boolean isActive = Boolean.parseBoolean(params.get("active"));
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("active"), isActive));
+        }
+        return spec;
+    }
 
     @Override
     public RoleDto getRoleById(Long id) throws ResourceNotFoundException {

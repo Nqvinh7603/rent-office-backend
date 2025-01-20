@@ -20,7 +20,6 @@ public interface UserMapper {
     @Mapping(target = "role", expression = "java(updateRole(user, userDto.getRole()))")
     void updateUserFromDto(@MappingTarget User user, UserDto userDto);
 
-
     default Role updateRole(User user, RoleDto roleDto) {
         if (roleDto == null || (user.getRole() != null && user.getRole().getRoleId().equals(roleDto.getRoleId()))) {
             return user.getRole();

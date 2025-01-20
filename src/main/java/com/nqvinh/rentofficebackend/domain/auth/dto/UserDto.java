@@ -1,5 +1,6 @@
 package com.nqvinh.rentofficebackend.domain.auth.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
@@ -16,7 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserDto {
-
+    @JsonAlias({"user_id", "userId"})
     UUID userId;
 
     @NotBlank(message = "Email is required")
@@ -25,21 +26,28 @@ public class UserDto {
     @NotBlank(message = "Password is required")
     String password;
 
+
+    @JsonAlias({"first_name", "firstName"})
     @NotBlank(message = "First name is required")
     String firstName;
 
+    @JsonAlias({"last_name", "lastName"})
     @NotBlank(message = "Last name is required")
     String lastName;
 
     @NotBlank(message = "Gender is required")
     String gender;
 
+    @JsonAlias({"phone_number", "phoneNumber"})
     @NotBlank(message = "Phone number is required")
     String phoneNumber;
+
     boolean active;
 
-    String avatar;
+    @JsonAlias({"avatar_url", "avatarUrl"})
+    String avatarUrl;
 
+    @JsonAlias({"date_of_birth", "dateOfBirth"})
     LocalDate dateOfBirth;
 
     @NotNull(message = "Role are required")

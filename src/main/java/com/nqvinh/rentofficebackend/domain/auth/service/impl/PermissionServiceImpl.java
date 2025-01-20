@@ -6,10 +6,8 @@ import com.nqvinh.rentofficebackend.application.dto.response.Page;
 import com.nqvinh.rentofficebackend.application.exception.ResourceNotFoundException;
 import com.nqvinh.rentofficebackend.domain.auth.dto.PermissionDto;
 import com.nqvinh.rentofficebackend.domain.auth.entity.Permission;
-import com.nqvinh.rentofficebackend.domain.auth.entity.User;
 import com.nqvinh.rentofficebackend.domain.auth.mapper.PermissionMapper;
 import com.nqvinh.rentofficebackend.domain.auth.repository.PermissionRepository;
-import com.nqvinh.rentofficebackend.domain.auth.repository.UserRepository;
 import com.nqvinh.rentofficebackend.domain.auth.service.PermissionService;
 import com.nqvinh.rentofficebackend.infrastructure.utils.RequestParamUtils;
 import jakarta.transaction.Transactional;
@@ -20,13 +18,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,7 +31,6 @@ public class PermissionServiceImpl implements PermissionService {
     PermissionRepository permissionRepository;
     RequestParamUtils requestParamUtils;
     PermissionMapper permissionMapper;
-    UserRepository userRepository;
 
     @Override
     public Page<PermissionDto> getPermissions(Map<String, String> params) {
@@ -110,22 +104,5 @@ public class PermissionServiceImpl implements PermissionService {
         return permissionRepository.findAll().stream()
                 .map(permissionMapper::toPermissionDTO)
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public void checkPermission(String email, String path, String method) {
-        if (!hasPermission(email, path, method)) {
-            throw new AccessDeniedException("You do not have permission to access endpoint: " + path);
-        }
-    }
-
-    @Override
-    public boolean hasPermission(String email, String path, String method) {
-        User user = userRepository.findUserByEmail(email).orElse(null);
-        if (user != null) {
-            return user.getRole().getPermissions().stream()
-                    .anyMatch(item -> item.getApiPath().equals(path) && item.getMethod().equals(method));
-        }
-        return false;
     }
 }

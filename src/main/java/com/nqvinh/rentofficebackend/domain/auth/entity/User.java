@@ -52,7 +52,8 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "active")
     boolean active;
 
-    String avatar;
+    @Column(name = "avatar_url")
+    private String avatarUrl;
 
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)

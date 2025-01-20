@@ -58,3 +58,7 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
+
+
+cloudinary:
+  url: ${CLOUDINARY_URL}

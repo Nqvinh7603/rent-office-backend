@@ -10,12 +10,12 @@ import com.nqvinh.rentofficebackend.domain.auth.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Map;
 import java.util.UUID;
 
@@ -36,20 +36,21 @@ public class UserController {
     }
 
     @PostMapping
-    public ApiResponse<UserDto> createUser(@Valid @RequestBody UserDto userDto) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    @SneakyThrows
+    public ApiResponse<UserDto> createUser(@Valid @RequestPart("user") UserDto userDto, @RequestParam(value = "user_img", required = false) MultipartFile userImg) {
         return ApiResponse.<UserDto>builder()
                 .status(HttpStatus.CREATED.value())
                 .message(MessageEnums.CREATED_SUCCESS.getMessage("User"))
-                .payload(userService.createUser(userDto))
+                .payload(userService.createUser(userDto, userImg))
                 .build();
     }
 
-    @PutMapping(UrlConstant.UPDATE_USER)
-    public ApiResponse<UserDto> updateUser(@PathVariable UUID id, @RequestBody UserDto userDto) throws ResourceNotFoundException {
+    @PutMapping( UrlConstant.UPDATE_USER)
+    public ApiResponse<UserDto> updateUser(@PathVariable UUID id, @RequestPart("user") UserDto userDto, @RequestParam(value = "user_img", required = false) MultipartFile userImg) throws ResourceNotFoundException {
         return ApiResponse.<UserDto>builder()
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.UPDATED_SUCCESS.getMessage("User"))
-                .payload(userService.updateUser(id, userDto))
+                .payload(userService.updateUser(id, userDto, userImg))
                 .build();
     }
 

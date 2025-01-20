@@ -20,6 +20,7 @@ public class UrlConstant {
     public static final String LOGGED_IN_USER = "/logged-in";
     public static final String GET_USER_BY_ID = "/{id}";
 
+
     //Permission
     public static final String PERMISSIONS = API_BASE + "/permissions";
     public static final String UPDATE_PERMISSION = "/{id}";
