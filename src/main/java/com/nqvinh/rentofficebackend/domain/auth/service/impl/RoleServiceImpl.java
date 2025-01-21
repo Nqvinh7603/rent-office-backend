@@ -34,8 +34,8 @@ public class RoleServiceImpl implements RoleService {
     @Transactional
     @Override
     public RoleDto createRole(RoleDto roleDTO) {
-        Role role = roleMapper.toRole(roleDTO);
-        return roleMapper.toRoleDto(roleRepository.save(role));
+        Role role = roleMapper.toEntity(roleDTO);
+        return roleMapper.toDto(roleRepository.save(role));
     }
 
     @Override
@@ -56,7 +56,7 @@ public class RoleServiceImpl implements RoleService {
         return Page.<RoleDto>builder()
                 .meta(meta)
                 .content(rolePage.getContent().stream()
-                        .map(roleMapper::toRoleDto)
+                        .map(roleMapper::toDto)
                         .collect(Collectors.toList()))
                 .build();
     }
@@ -74,7 +74,7 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public RoleDto getRoleById(Long id) throws ResourceNotFoundException {
         return roleRepository.findById(id)
-                .map(roleMapper::toRoleDto)
+                .map(roleMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Not found role with ID " + id));
     }
 
@@ -94,13 +94,13 @@ public void deleteRole(Long id) throws ResourceNotFoundException {
     public RoleDto updateRole(Long id, RoleDto roleDTO) throws ResourceNotFoundException {
         Role roleToUpdate = roleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Not found role with ID " + id));
-        roleMapper.updateRoleFromDTO(roleToUpdate, roleDTO);
-        return roleMapper.toRoleDto(roleRepository.save(roleToUpdate));
+        roleMapper.partialUpdate(roleToUpdate, roleDTO);
+        return roleMapper.toDto(roleRepository.save(roleToUpdate));
     }
 
     @Override
     public List<RoleDto> getAllRoles() {
         List<Role> roles = roleRepository.findAll();
-        return roles.stream().map(roleMapper::toRoleDto).collect(Collectors.toList());
+        return roles.stream().map(roleMapper::toDto).collect(Collectors.toList());
     }
 }

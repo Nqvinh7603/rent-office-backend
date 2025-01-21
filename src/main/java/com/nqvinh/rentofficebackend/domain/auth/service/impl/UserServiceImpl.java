@@ -50,9 +50,9 @@ public class UserServiceImpl implements UserService {
     @SneakyThrows
     public UserDto createUser(UserDto userDto, MultipartFile userImg) {
         userDto.setAvatarUrl(imageService.handleImageUpload(userImg, userDto.getAvatarUrl()));
-        User user = userMapper.toUser(userDto);
+        User user = userMapper.toEntity(userDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userMapper.toUserDto(userRepository.save(user));
+        return userMapper.toDto(userRepository.save(user));
     }
 
 
@@ -73,7 +73,7 @@ public class UserServiceImpl implements UserService {
         return Page.<UserDto>builder()
                 .meta(meta)
                 .content(userPage.getContent().stream()
-                        .map(userMapper::toUserDto)
+                        .map(userMapper::toDto)
                         .collect(Collectors.toList()))
                 .build();
     }
@@ -141,8 +141,8 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         userDto.setAvatarUrl(imageService.handleImageUpload(userImg, userDto.getAvatarUrl()));
-        userMapper.updateUserFromDto(user, userDto);
-        return userMapper.toUserDto(userRepository.save(user));
+        userMapper.partialUpdate(user, userDto);
+        return userMapper.toDto(userRepository.save(user));
     }
 
     @Override
@@ -151,7 +151,7 @@ public class UserServiceImpl implements UserService {
 
         if (authentication != null) {
             User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new ResourceNotFoundException("User not found"));
-            return userMapper.toUserDto(user);
+            return userMapper.toDto(user);
         }
         return null;
     }
@@ -160,6 +160,6 @@ public class UserServiceImpl implements UserService {
     public UserDto getUserById(UUID id) throws ResourceNotFoundException {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        return userMapper.toUserDto(user);
+        return userMapper.toDto(user);
     }
 }

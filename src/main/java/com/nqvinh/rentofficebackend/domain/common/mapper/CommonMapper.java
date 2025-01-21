@@ -5,26 +5,26 @@ import org.mapstruct.MappingTarget;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class AbstractEntityMapper<D, E> {
+public interface CommonMapper<D, E> {
 
-    public abstract D toDto(E entity);
-    public abstract E toEntity(D dto);
+     D toDto(E entity);
+     E toEntity(D dto);
 
-    public List<D> toDtoList(List<E> entities) {
+    default List<D> toDtoList(List<E> entities) {
         if (entities == null) {
             return null;
         }
         return entities.stream().map(this::toDto).collect(Collectors.toList());
     }
 
-    public List<E> toEntityList(List<D> dtos) {
-        if (dtos == null) {
+    default List<E> toEntityList(List<D> dto) {
+        if (dto == null) {
             return null;
         }
-        return dtos.stream().map(this::toEntity).collect(Collectors.toList());
+        return dto.stream().map(this::toEntity).collect(Collectors.toList());
     }
 
-    public void partialUpdate(@MappingTarget E entity, D dto) {
+    default void partialUpdate(@MappingTarget E entity, D dto) {
         if (dto == null) {
             return;
         }

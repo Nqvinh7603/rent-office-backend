@@ -50,7 +50,7 @@ public class PermissionServiceImpl implements PermissionService {
         return Page.<PermissionDto>builder()
                 .meta(meta)
                 .content(permissionPage.getContent().stream()
-                        .map(permissionMapper::toPermissionDTO)
+                        .map(permissionMapper::toDto)
                         .collect(Collectors.toList()))
                 .build();
     }
@@ -79,8 +79,8 @@ public class PermissionServiceImpl implements PermissionService {
         if (permissionRepository.existsByModuleAndApiPathAndMethod(permissionDto.getModule(), permissionDto.getApiPath(), permissionDto.getMethod())) {
             throw new ResourceNotFoundException("Permission already exists");
         }
-        Permission newPermission = permissionRepository.save(permissionMapper.toPermission(permissionDto));
-        return permissionMapper.toPermissionDTO(newPermission);
+        Permission newPermission = permissionRepository.save(permissionMapper.toEntity(permissionDto));
+        return permissionMapper.toDto(newPermission);
     }
 
     @Override
@@ -95,14 +95,14 @@ public class PermissionServiceImpl implements PermissionService {
     public PermissionDto updatePermission(Long id, PermissionDto permissionDto) throws ResourceNotFoundException {
         Permission permission = permissionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Permission not found"));
-        permissionMapper.updatePermissionFromDTO(permission, permissionDto);
-        return permissionMapper.toPermissionDTO(permissionRepository.save(permission));
+        permissionMapper.partialUpdate(permission, permissionDto);
+        return permissionMapper.toDto(permissionRepository.save(permission));
     }
 
     @Override
     public List<PermissionDto> getAllPermissions() {
         return permissionRepository.findAll().stream()
-                .map(permissionMapper::toPermissionDTO)
+                .map(permissionMapper::toDto)
                 .collect(Collectors.toList());
     }
 }
