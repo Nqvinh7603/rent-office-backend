@@ -19,6 +19,7 @@ public class UrlConstant {
     public static final String DELETE_USER ="/{id}";
     public static final String LOGGED_IN_USER = "/logged-in";
     public static final String GET_USER_BY_ID = "/{id}";
+    public static final String CHANGE_PASSWORD = "/{id}/change-password";
 
 
     //Permission

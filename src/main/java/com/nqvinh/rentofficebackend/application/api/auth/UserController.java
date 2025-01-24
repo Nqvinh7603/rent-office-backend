@@ -6,6 +6,7 @@ import com.nqvinh.rentofficebackend.application.dto.response.Page;
 import com.nqvinh.rentofficebackend.application.enums.MessageEnums;
 import com.nqvinh.rentofficebackend.application.exception.ResourceNotFoundException;
 import com.nqvinh.rentofficebackend.domain.auth.dto.UserDto;
+import com.nqvinh.rentofficebackend.domain.auth.dto.request.ChangePasswordReq;
 import com.nqvinh.rentofficebackend.domain.auth.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -31,7 +32,7 @@ public class UserController {
         return ApiResponse.<Page<UserDto>>builder()
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.FETCHED_SUCCESS.getMessage("Users"))
-                .payload(userService.getUsers(params))
+                .payload(userService. getUsers(params))
                 .build();
     }
 
@@ -78,6 +79,15 @@ public class UserController {
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.FETCHED_SUCCESS.getMessage("User"))
                 .payload(userService.getUserById(id))
+                .build();
+    }
+
+    @PutMapping(UrlConstant.CHANGE_PASSWORD)
+    public ApiResponse<Void> changePassword(@PathVariable UUID id, @Valid @RequestBody ChangePasswordReq changePasswordReq) {
+        userService.changePassword(id, changePasswordReq);
+        return ApiResponse.<Void>builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageEnums.UPDATED_SUCCESS.getMessage("Password"))
                 .build();
     }
 }

@@ -3,6 +3,7 @@ package com.nqvinh.rentofficebackend.domain.auth.service;
 import com.nqvinh.rentofficebackend.application.dto.response.Page;
 import com.nqvinh.rentofficebackend.application.exception.ResourceNotFoundException;
 import com.nqvinh.rentofficebackend.domain.auth.dto.UserDto;
+import com.nqvinh.rentofficebackend.domain.auth.dto.request.ChangePasswordReq;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.NoSuchAlgorithmException;
@@ -17,4 +18,5 @@ public interface UserService {
     UserDto updateUser(UUID id, UserDto userDto, MultipartFile userImg) throws ResourceNotFoundException;
     UserDto getLoggedInUser() throws ResourceNotFoundException;
     UserDto getUserById(UUID id) throws ResourceNotFoundException;
+    void changePassword(UUID id, ChangePasswordReq changePasswordReq);
 }

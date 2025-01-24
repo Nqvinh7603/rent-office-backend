@@ -4,6 +4,7 @@ import com.nqvinh.rentofficebackend.application.dto.response.Meta;
 import com.nqvinh.rentofficebackend.application.dto.response.Page;
 import com.nqvinh.rentofficebackend.application.exception.ResourceNotFoundException;
 import com.nqvinh.rentofficebackend.domain.auth.dto.UserDto;
+import com.nqvinh.rentofficebackend.domain.auth.dto.request.ChangePasswordReq;
 import com.nqvinh.rentofficebackend.domain.auth.entity.User;
 import com.nqvinh.rentofficebackend.domain.auth.mapper.UserMapper;
 import com.nqvinh.rentofficebackend.domain.auth.repository.RoleRepository;
@@ -139,8 +140,7 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(UUID id, UserDto userDto, MultipartFile userImg) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        userDto.setAvatarUrl(imageService.handleImageUpload(userImg, userDto.getAvatarUrl()));
+       userDto.setAvatarUrl(userImg == null ? "" : imageService.handleImageUpload(userImg, userDto.getAvatarUrl()));
         userMapper.partialUpdate(user, userDto);
         return userMapper.toDto(userRepository.save(user));
     }
@@ -157,9 +157,29 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto getUserById(UUID id) throws ResourceNotFoundException {
+    @SneakyThrows
+    public UserDto getUserById(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return userMapper.toDto(user);
+    }
+
+    @Override
+    @SneakyThrows
+    @Transactional
+    public void changePassword(UUID id, ChangePasswordReq changePasswordReq) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (!passwordEncoder.matches(changePasswordReq.getCurrentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+
+        if (passwordEncoder.matches(changePasswordReq.getNewPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("New password must be different from the current password");
+        }
+
+        user.setPassword(passwordEncoder.encode(changePasswordReq.getNewPassword()));
+        userRepository.save(user);
     }
 }
