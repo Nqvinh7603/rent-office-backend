@@ -83,8 +83,8 @@ public class UserController {
     }
 
     @PutMapping(UrlConstant.CHANGE_PASSWORD)
-    public ApiResponse<Void> changePassword(@PathVariable UUID id, @Valid @RequestBody ChangePasswordReq changePasswordReq) {
-        userService.changePassword(id, changePasswordReq);
+    public ApiResponse<Void> changePassword(@Valid @RequestBody ChangePasswordReq changePasswordReq) {
+        userService.changePassword(changePasswordReq);
         return ApiResponse.<Void>builder()
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.UPDATED_SUCCESS.getMessage("Password"))

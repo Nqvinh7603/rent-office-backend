@@ -18,5 +18,5 @@ public interface UserService {
     UserDto updateUser(UUID id, UserDto userDto, MultipartFile userImg) throws ResourceNotFoundException;
     UserDto getLoggedInUser() throws ResourceNotFoundException;
     UserDto getUserById(UUID id) throws ResourceNotFoundException;
-    void changePassword(UUID id, ChangePasswordReq changePasswordReq);
+    void changePassword(ChangePasswordReq changePasswordReq);
 }

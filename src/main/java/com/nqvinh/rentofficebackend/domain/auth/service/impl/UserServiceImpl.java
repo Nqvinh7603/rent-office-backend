@@ -166,20 +166,28 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @SneakyThrows
-    @Transactional
-    public void changePassword(UUID id, ChangePasswordReq changePasswordReq) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    public void changePassword(ChangePasswordReq changePasswordReq) {
+        User loggedInUser = userRepository.findByEmail(
+                SecurityContextHolder.getContext().getAuthentication().getName()
+        ).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        if (!passwordEncoder.matches(changePasswordReq.getCurrentPassword(), user.getPassword())) {
+        validateChangePassword(changePasswordReq, loggedInUser);
+
+        loggedInUser.setPassword(passwordEncoder.encode(changePasswordReq.getNewPassword()));
+        userRepository.save(loggedInUser);
+    }
+
+    private void validateChangePassword(ChangePasswordReq req, User user) {
+        if (!passwordEncoder.matches(req.getCurrentPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Current password is incorrect");
         }
 
-        if (passwordEncoder.matches(changePasswordReq.getNewPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("New password must be different from the current password");
+        if (!req.getNewPassword().equals(req.getConfirmPassword())) {
+            throw new IllegalArgumentException("New password and confirm password do not match");
         }
 
-        user.setPassword(passwordEncoder.encode(changePasswordReq.getNewPassword()));
-        userRepository.save(user);
+        if (passwordEncoder.matches(req.getNewPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("New password must be different from the current password");
+        }
     }
 }

@@ -19,4 +19,7 @@ public class ChangePasswordReq {
 
     @NotBlank(message = "New password is required")
     String newPassword;
+
+    @NotBlank(message = "Confirm password is required")
+    String confirmPassword;
 }
