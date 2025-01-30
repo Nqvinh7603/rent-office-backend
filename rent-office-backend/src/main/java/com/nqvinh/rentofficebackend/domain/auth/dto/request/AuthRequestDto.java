@@ -10,11 +10,11 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@GenericValidation(type = GenericValidation.ValidationType.USERNAME_OR_EMAIL)
+@GenericValidation(type = GenericValidation.ValidationType.EMAIL)
 public class AuthRequestDto {
-    String username;
     String email;
     @NotNull(message = "Password is required")
     String password;
+    boolean rememberMe;
 }
 

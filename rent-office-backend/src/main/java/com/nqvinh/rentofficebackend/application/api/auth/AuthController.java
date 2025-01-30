@@ -5,6 +5,7 @@ import com.nqvinh.rentofficebackend.application.dto.response.ApiResponse;
 import com.nqvinh.rentofficebackend.application.exception.ResourceNotFoundException;
 import com.nqvinh.rentofficebackend.domain.auth.dto.request.AuthRequestDto;
 import com.nqvinh.rentofficebackend.domain.auth.dto.request.ForgotPasswordRequest;
+import com.nqvinh.rentofficebackend.domain.auth.dto.request.ResetPasswordRequest;
 import com.nqvinh.rentofficebackend.domain.auth.dto.response.AuthResponseDto;
 import com.nqvinh.rentofficebackend.domain.auth.service.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -51,7 +52,6 @@ public class AuthController {
                 .build();
     }
 
-
     @GetMapping("/failure")
     public ApiResponse<String> loginFailure() {
         return ApiResponse.<String>builder()
@@ -62,11 +62,33 @@ public class AuthController {
 
     @PostMapping(UrlConstant.FORGOT_PASSWORD)
     public ApiResponse<String> forgotPassword(@RequestBody @Valid ForgotPasswordRequest forgotPasswordRequest) {
+        try {
             authService.forgotPassword(forgotPasswordRequest);
             return ApiResponse.<String>builder()
                     .status(HttpStatus.OK.value())
                     .payload("Password reset link has been sent to your email.")
                     .build();
+        } catch (Exception e) {
+            return ApiResponse.<String>builder()
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .payload(e.getMessage())
+                    .build();
+        }
     }
 
+    @PostMapping(UrlConstant.RESET_PASSWORD)
+    public ApiResponse<String> resetPassword(@RequestBody @Valid ResetPasswordRequest forgotPasswordRequest) {
+        try {
+            authService.resetPassword(forgotPasswordRequest);
+            return ApiResponse.<String>builder()
+                    .status(HttpStatus.OK.value())
+                    .payload("Password has been reset successfully.")
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.<String>builder()
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .payload(e.getMessage())
+                    .build();
+        }
+    }
 }

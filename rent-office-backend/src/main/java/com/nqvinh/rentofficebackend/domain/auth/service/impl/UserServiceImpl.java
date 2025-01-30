@@ -32,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,18 +46,16 @@ public class UserServiceImpl implements UserService {
     RequestParamUtils requestParamUtils;
     StringUtils stringUtils;
     ImageService imageService;
-    RoleRepository roleRepository;
 
     @Override
     @Transactional
     @SneakyThrows
     public UserDto createUser(UserDto userDto, MultipartFile userImg) {
-        userDto.setAvatarUrl(imageService.handleImageUpload(userImg, userDto.getAvatarUrl()));
+        userDto.setAvatarUrl(imageService.handleImageUpload(userImg, userDto.getAvatarUrl()).get());
         User user = userMapper.toEntity(userDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userMapper.toDto(userRepository.save(user));
     }
-
 
     @Override
     public Page<UserDto> getUsers(Map<String, String> params) {
@@ -141,10 +140,11 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(UUID id, UserDto userDto, MultipartFile userImg) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-       userDto.setAvatarUrl(userImg == null ? "" : imageService.handleImageUpload(userImg, userDto.getAvatarUrl()));
+       userDto.setAvatarUrl(userImg == null ? "" : imageService.handleImageUpload(userImg, userDto.getAvatarUrl()).get());
         userMapper.partialUpdate(user, userDto);
         return userMapper.toDto(userRepository.save(user));
     }
+
 
     @Override
     public UserDto getLoggedInUser() throws ResourceNotFoundException {

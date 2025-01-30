@@ -22,9 +22,9 @@ public class GenericValidator implements ConstraintValidator<GenericValidation, 
     case NOT_EMPTY_COLLECTION -> {
         return value instanceof Collection  && !((Collection<?>) value).isEmpty();
     }
-    case USERNAME_OR_EMAIL -> {
+    case EMAIL -> {
         if (value instanceof AuthRequestDto authRequest) {
-            return authRequest.getUsername() != null || authRequest.getEmail() != null;
+            return authRequest.getEmail() != null;
         }
         return false;
     }

@@ -18,6 +18,6 @@ public @interface GenericValidation {
 
     enum ValidationType {
         NOT_EMPTY_COLLECTION,
-        USERNAME_OR_EMAIL
+        EMAIL
     }
 }
