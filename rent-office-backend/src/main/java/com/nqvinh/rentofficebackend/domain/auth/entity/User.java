@@ -1,6 +1,6 @@
 package com.nqvinh.rentofficebackend.domain.auth.entity;
 
-import com.nqvinh.rentofficebackend.domain.auth.enums.GenderEnum;
+import com.nqvinh.rentofficebackend.domain.auth.constant.GenderEnum;
 import com.nqvinh.rentofficebackend.domain.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;

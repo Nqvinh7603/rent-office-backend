@@ -1,4 +1,4 @@
-package com.nqvinh.rentofficebackend.domain.building.enums;
+package com.nqvinh.rentofficebackend.domain.building.constant;
 
 public enum OrientationEnum {
     EAST, // Đông

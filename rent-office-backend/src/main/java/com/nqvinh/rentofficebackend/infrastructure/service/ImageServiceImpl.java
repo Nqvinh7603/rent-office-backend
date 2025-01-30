@@ -1,6 +1,6 @@
-package com.nqvinh.rentofficebackend.infrastructure.service.impl;
+package com.nqvinh.rentofficebackend.infrastructure.service;
 
-import com.nqvinh.rentofficebackend.infrastructure.service.ImageService;
+import com.nqvinh.rentofficebackend.domain.common.service.ImageService;
 import com.nqvinh.rentofficebackend.infrastructure.utils.CloudinaryUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;

@@ -1,4 +1,4 @@
-package com.nqvinh.rentofficebackend.infrastructure.service;
+package com.nqvinh.rentofficebackend.domain.common.service;
 
 public interface RedisService {
     void set(String key, Object value);

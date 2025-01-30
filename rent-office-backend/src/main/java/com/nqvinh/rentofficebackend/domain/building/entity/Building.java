@@ -1,7 +1,7 @@
 package com.nqvinh.rentofficebackend.domain.building.entity;
 
-import com.nqvinh.rentofficebackend.domain.building.enums.OfficeStatusEnum;
-import com.nqvinh.rentofficebackend.domain.building.enums.OrientationEnum;
+import com.nqvinh.rentofficebackend.domain.building.constant.OfficeStatusEnum;
+import com.nqvinh.rentofficebackend.domain.building.constant.OrientationEnum;
 import com.nqvinh.rentofficebackend.domain.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;

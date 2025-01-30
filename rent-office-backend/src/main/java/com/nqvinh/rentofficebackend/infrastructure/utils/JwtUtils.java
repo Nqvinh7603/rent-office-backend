@@ -56,5 +56,9 @@ public class JwtUtils {
     public boolean isTokenValid(Jwt jwtToken, UserDetails userDetails) {
         return !isTokenExpired(jwtToken) && getUsername(jwtToken).equals(userDetails.getUsername());
     }
+
+    public String generateResetPasswordToken(UserDetails userDetails) {
+        return generateJwtToken(userDetails, 30 * 60); // 30 minutes
+    }
 }
 

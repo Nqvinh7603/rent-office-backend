@@ -2,16 +2,24 @@ package com.nqvinh.rentofficebackend.domain.auth.service.impl;
 
 import com.nqvinh.rentofficebackend.application.exception.ResourceNotFoundException;
 import com.nqvinh.rentofficebackend.domain.auth.dto.request.AuthRequestDto;
+import com.nqvinh.rentofficebackend.domain.auth.dto.request.ForgotPasswordRequest;
 import com.nqvinh.rentofficebackend.domain.auth.dto.response.AuthResponseDto;
 import com.nqvinh.rentofficebackend.domain.auth.entity.User;
 import com.nqvinh.rentofficebackend.domain.auth.repository.UserRepository;
 import com.nqvinh.rentofficebackend.domain.auth.service.AuthService;
+import com.nqvinh.rentofficebackend.domain.common.constant.MailStatus;
+import com.nqvinh.rentofficebackend.domain.common.constant.MailType;
+import com.nqvinh.rentofficebackend.domain.common.constant.MessageCode;
+import com.nqvinh.rentofficebackend.domain.common.event.MailEvent;
+import com.nqvinh.rentofficebackend.domain.common.service.MailProducer;
 import com.nqvinh.rentofficebackend.infrastructure.audit.AuditAwareImpl;
+import com.nqvinh.rentofficebackend.domain.common.service.RedisService;
 import com.nqvinh.rentofficebackend.infrastructure.utils.JwtUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +27,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +40,8 @@ public class AuthServiceImpl implements AuthService {
     JwtDecoder jwtDecoder;
     AuditAwareImpl auditAware;
     JwtUtils jwtUtils;
+    MailProducer mailProducer;
+    RedisService redisService;
 
     @Override
     public AuthResponseDto login(AuthRequestDto authRequest, HttpServletResponse response) throws ResourceNotFoundException {
@@ -84,13 +96,36 @@ public class AuthServiceImpl implements AuthService {
 
     }
 
-////    @Override
-////    public void resetPassword(String token, String newPassword) throws ResourceNotFoundException {
-////
-////    }
-////
-////    @Override
-////    public void verifyResetToken(String token) throws ResourceNotFoundException {
-////
-////    }
+
+    @Override
+    @SneakyThrows
+    public void forgotPassword(ForgotPasswordRequest forgotPasswordRequest) {
+        User user = userRepository.findByEmail(forgotPasswordRequest.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        if (!user.isActive()) throw new ResourceNotFoundException("User is not active");
+        redisService.delete("forgot-password:" + user.getEmail());
+
+        String token = jwtUtils.generateResetPasswordToken(user);
+        redisService.set("forgot-password:" + user.getEmail(),token , 30 * 60 * 1000); // 30 minutes
+        String resetPasswordLink = forgotPasswordRequest.getSiteUrl() + "/reset-password?token=" + token;
+
+        Map<String, Object> context = Map.of(
+                "firstName", user.getFirstName(),
+                "lastName", user.getLastName(),
+                "resetPasswordLink", resetPasswordLink
+        );
+
+        var mailResetPassword = MailEvent.builder()
+                .toAddress(user.getEmail())
+                .subject("Yêu cầu đặt lại mật khẩu")
+                .templateName("password-reset-template")
+                .context(context)
+                .status(MailStatus.INIT.getStatus())
+                .code(MessageCode.MAIL_RESET_PASSWORD.getCode())
+                .type(MailType.RESET_PASSWORD.getType())
+                .build();
+
+        mailProducer.send(mailResetPassword);
+    }
+
 }

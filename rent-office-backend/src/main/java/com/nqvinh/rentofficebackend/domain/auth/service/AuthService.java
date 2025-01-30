@@ -2,6 +2,7 @@ package com.nqvinh.rentofficebackend.domain.auth.service;
 
 import com.nqvinh.rentofficebackend.application.exception.ResourceNotFoundException;
 import com.nqvinh.rentofficebackend.domain.auth.dto.request.AuthRequestDto;
+import com.nqvinh.rentofficebackend.domain.auth.dto.request.ForgotPasswordRequest;
 import com.nqvinh.rentofficebackend.domain.auth.dto.response.AuthResponseDto;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -15,4 +16,5 @@ public interface AuthService {
     //void forgotPassword(String email, String siteUrl) throws ResourceNotFoundException, MessagingException, UnsupportedEncodingException;
 //    void resetPassword(String token, String newPassword) throws ResourceNotFoundException;
 //    void verifyResetToken(String token) throws ResourceNotFoundException;
+    void forgotPassword(ForgotPasswordRequest forgotPasswordRequest);
 }

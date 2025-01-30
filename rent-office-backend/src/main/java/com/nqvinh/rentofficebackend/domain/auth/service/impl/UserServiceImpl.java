@@ -11,7 +11,7 @@ import com.nqvinh.rentofficebackend.domain.auth.mapper.UserMapper;
 import com.nqvinh.rentofficebackend.domain.auth.repository.RoleRepository;
 import com.nqvinh.rentofficebackend.domain.auth.repository.UserRepository;
 import com.nqvinh.rentofficebackend.domain.auth.service.UserService;
-import com.nqvinh.rentofficebackend.infrastructure.service.ImageService;
+import com.nqvinh.rentofficebackend.domain.common.service.ImageService;
 import com.nqvinh.rentofficebackend.infrastructure.utils.RequestParamUtils;
 import com.nqvinh.rentofficebackend.infrastructure.utils.StringUtils;
 import jakarta.transaction.Transactional;

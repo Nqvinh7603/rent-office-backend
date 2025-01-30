@@ -1,4 +1,4 @@
-package com.nqvinh.rentofficebackend.infrastructure.service;
+package com.nqvinh.rentofficebackend.domain.common.service;
 
 import org.springframework.web.multipart.MultipartFile;
 

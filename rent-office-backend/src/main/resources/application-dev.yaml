@@ -56,6 +56,10 @@ spring:
 
 
 
+kafka:
+  email: nqv-email-service-dev
+
+
 
 
 application:
@@ -68,12 +72,12 @@ application:
       refresh-token-validity-in-seconds: 604800 # 7 days
 
 
+cloudinary:
+  url: ${CLOUDINARY_URL}
+
+
 
 logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
-
-
-cloudinary:
-  url: ${CLOUDINARY_URL}

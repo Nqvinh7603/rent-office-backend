@@ -1,6 +1,6 @@
-package com.nqvinh.rentofficebackend.infrastructure.service.impl;
+package com.nqvinh.rentofficebackend.infrastructure.service;
 
-import com.nqvinh.rentofficebackend.infrastructure.service.RedisService;
+import com.nqvinh.rentofficebackend.domain.common.service.RedisService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
