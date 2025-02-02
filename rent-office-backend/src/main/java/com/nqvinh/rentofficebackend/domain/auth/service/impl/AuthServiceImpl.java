@@ -64,7 +64,7 @@ public class AuthServiceImpl implements AuthService {
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setAttribute("SameSite", "Strict");
-        refreshTokenCookie.setMaxAge(authRequest.isRememberMe() ? 30 * 24 * 60 * 60 : -1); // 30 days if rememberMe is true, otherwise 0 days
+        refreshTokenCookie.setMaxAge(30 * 24 * 60 * 60); // 30 days if rememberMe is true, otherwise 0 days
 
         response.addCookie(refreshTokenCookie);
         return AuthResponseDto.builder()
@@ -138,11 +138,11 @@ public class AuthServiceImpl implements AuthService {
     @SneakyThrows
     @Transactional
     public void resetPassword(ResetPasswordRequest resetPasswordRequest) {
-        String email = jwtUtils.getUsername(jwtDecoder.decode(resetPasswordRequest.getToken()));
-        String token = redisService.get("forgot-password:" + email).toString();
-        if (!resetPasswordRequest.getToken().equals(token)) {
-            throw new ResourceNotFoundException("Token is invalid");
+        if (!resetPasswordRequest.getPassword().equals(resetPasswordRequest.getConfirmPassword())) {
+            throw new ResourceNotFoundException("Passwords do not match");
         }
+        verifyResetToken(resetPasswordRequest.getToken());
+        String email = jwtUtils.getUsername(jwtDecoder.decode(resetPasswordRequest.getToken()));
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         if (!user.isActive()) {
@@ -151,6 +151,16 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(resetPasswordRequest.getPassword()));
         userRepository.save(user);
         redisService.delete("forgot-password:" + email);
+    }
+
+    @Override
+    @SneakyThrows
+    public void verifyResetToken(String token) {
+        String email = jwtUtils.getUsername(jwtDecoder.decode(token));
+        String tokenInRedis = redisService.get("forgot-password:" + email).toString();
+        if (!token.equals(tokenInRedis) || tokenInRedis.isEmpty()) {
+            throw new ResourceNotFoundException("Token is invalid");
+        }
     }
 
 }

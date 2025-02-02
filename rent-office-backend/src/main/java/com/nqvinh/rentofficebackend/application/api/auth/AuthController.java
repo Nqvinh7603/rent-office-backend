@@ -91,4 +91,13 @@ public class AuthController {
                     .build();
         }
     }
+
+    @GetMapping(UrlConstant.VERIFY_RESET_TOKEN)
+    public ApiResponse<String> verifyResetToken(@RequestParam String token) {
+        authService.verifyResetToken(token);
+        return ApiResponse.<String>builder()
+                .status(HttpStatus.OK.value())
+                .payload("Token is valid")
+                .build();
+    }
 }

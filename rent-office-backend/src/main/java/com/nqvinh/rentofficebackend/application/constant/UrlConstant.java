@@ -34,6 +34,7 @@ public class UrlConstant {
     public static final String REFRESH_TOKEN = "/refresh-token";
     public static final String FORGOT_PASSWORD = "/forgot-password";
     public static final String RESET_PASSWORD = "/reset-password";
+    public static final String VERIFY_RESET_TOKEN = "/verify-reset-token";
 
 
 }

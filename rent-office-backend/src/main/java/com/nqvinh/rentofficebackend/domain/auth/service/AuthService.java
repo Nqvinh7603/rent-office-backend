@@ -13,4 +13,5 @@ public interface AuthService {
     void logout(HttpServletResponse httpServletResponse) throws ResourceNotFoundException;
     void resetPassword(ResetPasswordRequest resetPasswordRequest);
     void forgotPassword(ForgotPasswordRequest forgotPasswordRequest);
+    void verifyResetToken(String token);
 }

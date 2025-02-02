@@ -1,6 +1,7 @@
 package com.nqvinh.rentofficebackend.domain.auth.dto.request;
 
 import com.nqvinh.rentofficebackend.domain.common.annotation.GenericValidation;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -13,8 +14,7 @@ import lombok.experimental.FieldDefaults;
 @GenericValidation(type = GenericValidation.ValidationType.EMAIL)
 public class AuthRequestDto {
     String email;
-    @NotNull(message = "Password is required")
+    @NotBlank(message = "Password is required")
     String password;
-    boolean rememberMe;
 }
 
