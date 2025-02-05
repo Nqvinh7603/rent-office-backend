@@ -8,14 +8,13 @@ import com.nqvinh.rentofficebackend.domain.auth.entity.Role;
 import com.nqvinh.rentofficebackend.domain.auth.mapper.RoleMapper;
 import com.nqvinh.rentofficebackend.domain.auth.repository.RoleRepository;
 import com.nqvinh.rentofficebackend.domain.auth.service.RoleService;
+import com.nqvinh.rentofficebackend.infrastructure.utils.PaginationUtils;
 import com.nqvinh.rentofficebackend.infrastructure.utils.RequestParamUtils;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -29,8 +28,9 @@ import java.util.stream.Collectors;
 public class RoleServiceImpl implements RoleService {
     RoleMapper roleMapper;
     RoleRepository roleRepository;
-    RequestParamUtils requestParamUtils;
+    PaginationUtils paginationUtils;
 
+    RequestParamUtils requestParamUtils;
     @Transactional
     @Override
     public RoleDto createRole(RoleDto roleDTO) {
@@ -40,25 +40,11 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public Page<RoleDto> getRoles(Map<String, String> params) {
-        int page = Integer.parseInt(params.getOrDefault("page", "1"));
-        int pageSize = Integer.parseInt(params.getOrDefault("pageSize", "10"));
         Specification<Role> spec = getRoleSpec(params);
-        List<Sort.Order> sortOrders = requestParamUtils.toSortOrders(params);
-        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(sortOrders));
+        Pageable pageable = paginationUtils.buildPageable(params);
         org.springframework.data.domain.Page<Role> rolePage = roleRepository.findAll(spec, pageable);
-        Meta meta = Meta.builder()
-
-                .page(pageable.getPageNumber() + 1)
-                .pageSize(pageable.getPageSize())
-                .pages(rolePage.getTotalPages())
-                .total(rolePage.getTotalElements())
-                .build();
-        return Page.<RoleDto>builder()
-                .meta(meta)
-                .content(rolePage.getContent().stream()
-                        .map(roleMapper::toDto)
-                        .collect(Collectors.toList()))
-                .build();
+        Meta meta = paginationUtils.buildMeta(rolePage, pageable);
+        return paginationUtils.mapPage(rolePage, meta, roleMapper::toDto);
     }
 
     private Specification<Role> getRoleSpec(Map<String, String> params) {

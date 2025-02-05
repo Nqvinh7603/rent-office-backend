@@ -1,6 +1,8 @@
 package com.nqvinh.rentofficebackend.domain.common.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.MappedSuperclass;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -33,7 +35,7 @@ public class BaseEntity {
     @LastModifiedBy
     @Column(insertable = false)
     String updatedBy;
-    
+
     @Formula("GREATEST(COALESCE(updated_at, created_at), created_at)")
     LocalDateTime latestAt;
 }

@@ -9,14 +9,13 @@ import com.nqvinh.rentofficebackend.domain.auth.entity.Permission;
 import com.nqvinh.rentofficebackend.domain.auth.mapper.PermissionMapper;
 import com.nqvinh.rentofficebackend.domain.auth.repository.PermissionRepository;
 import com.nqvinh.rentofficebackend.domain.auth.service.PermissionService;
+import com.nqvinh.rentofficebackend.infrastructure.utils.PaginationUtils;
 import com.nqvinh.rentofficebackend.infrastructure.utils.RequestParamUtils;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -31,28 +30,15 @@ public class PermissionServiceImpl implements PermissionService {
     PermissionRepository permissionRepository;
     RequestParamUtils requestParamUtils;
     PermissionMapper permissionMapper;
+    PaginationUtils paginationUtils;
 
     @Override
     public Page<PermissionDto> getPermissions(Map<String, String> params) {
-        int page = Integer.parseInt(params.getOrDefault("page", "1"));
-        int pageSize = Integer.parseInt(params.getOrDefault("pageSize", "10"));
-
-        List<Sort.Order> sortOrders = requestParamUtils.toSortOrders(params);
-        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(sortOrders));
         Specification<Permission> spec = getPermissionSpec(params);
+        Pageable pageable = paginationUtils.buildPageable(params);
         org.springframework.data.domain.Page<Permission> permissionPage = permissionRepository.findAll(spec, pageable);
-        Meta meta = Meta.builder()
-                .page(pageable.getPageNumber() + 1)
-                .pageSize(pageable.getPageSize())
-                .pages(permissionPage.getTotalPages())
-                .total(permissionPage.getTotalElements())
-                .build();
-        return Page.<PermissionDto>builder()
-                .meta(meta)
-                .content(permissionPage.getContent().stream()
-                        .map(permissionMapper::toDto)
-                        .collect(Collectors.toList()))
-                .build();
+        Meta meta = paginationUtils.buildMeta(permissionPage, pageable);
+        return paginationUtils.mapPage(permissionPage, meta, permissionMapper::toDto);
     }
 
     private Specification<Permission> getPermissionSpec(Map<String, String> params) {

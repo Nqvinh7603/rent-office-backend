@@ -8,19 +8,16 @@ import com.nqvinh.rentofficebackend.domain.building.entity.BuildingType;
 import com.nqvinh.rentofficebackend.domain.building.mapper.BuildingTypeMapper;
 import com.nqvinh.rentofficebackend.domain.building.repository.BuildingTypeRepository;
 import com.nqvinh.rentofficebackend.domain.building.service.BuildingTypeService;
-import com.nqvinh.rentofficebackend.infrastructure.utils.RequestParamUtils;
+import com.nqvinh.rentofficebackend.infrastructure.utils.PaginationUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +25,7 @@ import java.util.stream.Collectors;
 public class BuildingTypeServiceImpl implements BuildingTypeService {
     BuildingTypeRepository buildingTypeRepository;
     BuildingTypeMapper buildingTypeMapper;
-    RequestParamUtils requestParamUtils;
+    PaginationUtils paginationUtils;
 
     @Override
     @Transactional
@@ -61,26 +58,12 @@ public class BuildingTypeServiceImpl implements BuildingTypeService {
         return buildingTypeMapper.toDtoList(buildingTypeRepository.findAll());
     }
 
-
     @Override
     public Page<BuildingTypeDto> getBuildingTypes(Map<String, String> params) {
-        int page = Integer.parseInt(params.getOrDefault("page", "1"));
-        int pageSize = Integer.parseInt(params.getOrDefault("pageSize", "10"));
-        List<Sort.Order> sortOrders = requestParamUtils.toSortOrders(params);
-        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(sortOrders));
+        Pageable pageable = paginationUtils.buildPageable(params);
         org.springframework.data.domain.Page<BuildingType> buildingTypePage = buildingTypeRepository.findAll(pageable);
-        Meta meta = Meta.builder()
-                .page(pageable.getPageNumber() + 1)
-                .pageSize(pageable.getPageSize())
-                .pages(buildingTypePage.getTotalPages())
-                .total(buildingTypePage.getTotalElements())
-                .build();
-        return Page.<BuildingTypeDto>builder()
-                .meta(meta)
-                .content(buildingTypePage.getContent().stream()
-                        .map(buildingTypeMapper::toDto)
-                        .collect(Collectors.toList()))
-                .build();
+        Meta meta = paginationUtils.buildMeta(buildingTypePage, pageable);
+        return paginationUtils.mapPage(buildingTypePage, meta, buildingTypeMapper::toDto);
     }
 
 }

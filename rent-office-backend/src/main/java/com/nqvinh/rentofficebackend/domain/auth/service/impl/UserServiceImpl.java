@@ -11,16 +11,14 @@ import com.nqvinh.rentofficebackend.domain.auth.mapper.UserMapper;
 import com.nqvinh.rentofficebackend.domain.auth.repository.UserRepository;
 import com.nqvinh.rentofficebackend.domain.auth.service.UserService;
 import com.nqvinh.rentofficebackend.domain.common.service.ImageService;
-import com.nqvinh.rentofficebackend.infrastructure.utils.RequestParamUtils;
+import com.nqvinh.rentofficebackend.infrastructure.utils.PaginationUtils;
 import com.nqvinh.rentofficebackend.infrastructure.utils.StringUtils;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,10 +26,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -41,9 +37,9 @@ public class UserServiceImpl implements UserService {
     UserRepository userRepository;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
-    RequestParamUtils requestParamUtils;
     StringUtils stringUtils;
     ImageService imageService;
+    PaginationUtils paginationUtils;
 
     @Override
     @Transactional
@@ -57,25 +53,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<UserDto> getUsers(Map<String, String> params) {
-        int page = Integer.parseInt(params.getOrDefault("page", "1"));
-        int pageSize = Integer.parseInt(params.getOrDefault("pageSize", "10"));
         Specification<User> spec = getUserSpec(params);
-        List<Sort.Order> sortOrders = requestParamUtils.toSortOrders(params);
-        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(sortOrders));
+        Pageable pageable = paginationUtils.buildPageable(params);
         org.springframework.data.domain.Page<User> userPage = userRepository.findAll(spec, pageable);
-        Meta meta = Meta.builder()
-                .page(pageable.getPageNumber() + 1)
-                .pageSize(pageable.getPageSize())
-                .pages(userPage.getTotalPages())
-                .total(userPage.getTotalElements())
-                .build();
-        return Page.<UserDto>builder()
-                .meta(meta)
-                .content(userPage.getContent().stream()
-                        .map(userMapper::toDto)
-                        .collect(Collectors.toList()))
-                .build();
+        Meta meta = paginationUtils.buildMeta(userPage, pageable);
+        return paginationUtils.mapPage(userPage, meta, userMapper::toDto);
     }
+
 
     private Specification<User> getUserSpec(Map<String, String> params) {
         Specification<User> spec = Specification.where(null);
