@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
         int page = Integer.parseInt(params.getOrDefault("page", "1"));
         int pageSize = Integer.parseInt(params.getOrDefault("pageSize", "10"));
         Specification<User> spec = getUserSpec(params);
-        List<Sort.Order> sortOrders = requestParamUtils.toSortOrders(params, User.class);
+        List<Sort.Order> sortOrders = requestParamUtils.toSortOrders(params);
         Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(sortOrders));
         org.springframework.data.domain.Page<User> userPage = userRepository.findAll(spec, pageable);
         Meta meta = Meta.builder()
@@ -138,8 +138,10 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(UUID id, UserDto userDto, MultipartFile userImg) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-       userDto.setAvatarUrl(userImg == null ? "" : imageService.handleImageUpload(userImg, userDto.getAvatarUrl()).get());
-        userMapper.partialUpdate(user, userDto);
+       userDto.setAvatarUrl(userImg != null && !userImg.isEmpty()
+            ? imageService.handleImageUpload(userImg, user.getAvatarUrl()).get()
+            : user.getAvatarUrl());
+       userMapper.partialUpdate(user, userDto);
         return userMapper.toDto(userRepository.save(user));
     }
 

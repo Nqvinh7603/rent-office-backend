@@ -43,7 +43,7 @@ public class RoleServiceImpl implements RoleService {
         int page = Integer.parseInt(params.getOrDefault("page", "1"));
         int pageSize = Integer.parseInt(params.getOrDefault("pageSize", "10"));
         Specification<Role> spec = getRoleSpec(params);
-        List<Sort.Order> sortOrders = requestParamUtils.toSortOrders(params, Role.class);
+        List<Sort.Order> sortOrders = requestParamUtils.toSortOrders(params);
         Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(sortOrders));
         org.springframework.data.domain.Page<Role> rolePage = roleRepository.findAll(spec, pageable);
         Meta meta = Meta.builder()
