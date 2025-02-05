@@ -24,9 +24,5 @@ public interface CommonMapper<D, E> {
         return dto.stream().map(this::toEntity).collect(Collectors.toList());
     }
 
-    default void partialUpdate(@MappingTarget E entity, D dto) {
-        if (dto == null) {
-            return;
-        }
-    }
+    void partialUpdate(@MappingTarget E entity, D dto);
 }

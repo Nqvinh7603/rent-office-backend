@@ -31,9 +31,6 @@ public interface UserMapper extends CommonMapper<UserDto, User> {
         }
         Role newRole = new Role();
         newRole.setRoleId(roleDto.getRoleId());
-        newRole.setRoleName(roleDto.getRoleName());
-        newRole.setDescription(roleDto.getDescription());
-        newRole.setActive(roleDto.isActive());
         return newRole;
     }
 }

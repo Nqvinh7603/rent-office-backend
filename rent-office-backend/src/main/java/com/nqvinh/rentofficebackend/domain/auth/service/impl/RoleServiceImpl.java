@@ -79,15 +79,15 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-public void deleteRole(Long id) throws ResourceNotFoundException {
-    Role role = roleRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Not found role with ID " + id));
-    if (role.getUsers().isEmpty()) {
-        roleRepository.delete(role);
-    } else {
-        throw new IllegalStateException("Cannot delete role with associated users");
+    public void deleteRole(Long id) throws ResourceNotFoundException {
+        Role role = roleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Not found role with ID " + id));
+        if (role.getUsers().isEmpty()) {
+            roleRepository.delete(role);
+        } else {
+            throw new IllegalStateException("Cannot delete role with associated users");
+        }
     }
-}
 
     @Transactional
     @Override

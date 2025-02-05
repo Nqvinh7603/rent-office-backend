@@ -1,6 +1,5 @@
 package com.nqvinh.rentofficebackend;
 
-import com.nqvinh.rentofficebackend.infrastructure.config.context.DotEnvApplicationContextInitializer;
 import com.nqvinh.rentofficebackend.infrastructure.config.security.RSAKeyRecord;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

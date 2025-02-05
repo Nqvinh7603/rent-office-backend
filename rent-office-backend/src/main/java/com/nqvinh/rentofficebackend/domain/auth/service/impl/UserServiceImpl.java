@@ -8,7 +8,6 @@ import com.nqvinh.rentofficebackend.domain.auth.dto.UserDto;
 import com.nqvinh.rentofficebackend.domain.auth.dto.request.ChangePasswordReq;
 import com.nqvinh.rentofficebackend.domain.auth.entity.User;
 import com.nqvinh.rentofficebackend.domain.auth.mapper.UserMapper;
-import com.nqvinh.rentofficebackend.domain.auth.repository.RoleRepository;
 import com.nqvinh.rentofficebackend.domain.auth.repository.UserRepository;
 import com.nqvinh.rentofficebackend.domain.auth.service.UserService;
 import com.nqvinh.rentofficebackend.domain.common.service.ImageService;
@@ -32,7 +31,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service

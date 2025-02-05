@@ -1,6 +1,6 @@
 package com.nqvinh.rentofficebackend.domain.building.constant;
 
-public enum OfficeStatusEnum {
+public enum BuildingStatusEnum {
     AVAILABLE, // Có sẵn
     OCCUPIED, // Đã thuê
     UNDER_MAINTENANCE, // Đang bảo trì

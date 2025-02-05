@@ -40,9 +40,14 @@ spring:
     default-property-inclusion: non_null
 
   kafka:
-    bootstrap-servers: localhost:9092
-    security:
-      protocol: plaintext
+#    bootstrap-servers: localhost:9092
+#    security:
+#      protocol: plaintext
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    properties:
+      sasl.mechanism: PLAIN
+      sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username='${KAFKA_USERNAME}' password='${KAFKA_PASSWORD}';
+      security.protocol: SASL_SSL
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -54,13 +59,8 @@ spring:
         max.in.flight.requests.per.connection: 5
         spring.json.add.type.headers: false
 
-
-
 kafka:
   email: nqv-email-service-dev
-
-
-
 
 application:
   security:
@@ -71,10 +71,8 @@ application:
       access-token-validity-in-seconds: 604800 # 1 day
       refresh-token-validity-in-seconds: 604800 # 7 days
 
-
 cloudinary:
   url: ${CLOUDINARY_URL}
-
 
 
 logging:

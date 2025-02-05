@@ -25,8 +25,11 @@ public class BuildingType extends BaseEntity {
     @Column(name = "building_type_name", nullable = false)
     String buildingTypeName;
 
-    @Column(name = "building_type_code", nullable = false)
+    @Column(name = "building_type_code", nullable = false, unique = true)
     String buildingTypeCode;
+
+    @Column(name = "description", nullable = true)
+    String description;
 
     @OneToMany(mappedBy = "buildingType", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
     List<Building> buildings;

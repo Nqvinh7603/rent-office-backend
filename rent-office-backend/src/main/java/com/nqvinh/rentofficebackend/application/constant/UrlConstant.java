@@ -37,4 +37,15 @@ public class UrlConstant {
     public static final String VERIFY_RESET_TOKEN = "/verify-reset-token";
 
 
+    //Building
+    public static final String BUILDING_TYPES = API_BASE + "/building-types";
+    public static final String UPDATE_BUILDING_TYPE = "/{id}";
+    public static final String DELETE_BUILDING_TYPE = "/{id}";
+    public static final String GET_ALL_BUILDING_TYPE = "/all";
+
+    public static final String BUILDING_LEVELS = API_BASE + "/building-levels";
+    public static final String UPDATE_BUILDING_LEVEL = "/{id}";
+    public static final String DELETE_BUILDING_LEVEL = "/{id}";
+    public static final String GET_ALL_BUILDING_LEVEL = "/all";
+
 }

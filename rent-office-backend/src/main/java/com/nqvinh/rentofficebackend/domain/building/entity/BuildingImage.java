@@ -19,7 +19,7 @@ public class BuildingImage extends BaseEntity {
     @SequenceGenerator(name = "building_image_id_seq", sequenceName = "building_images_seq", allocationSize = 1)
     Long buildingImageId;
 
-    @Column(name = "img_url", nullable = true)
+    @Column(name = "img_url", nullable = false)
     String imgUrl;
 
     @ManyToOne
