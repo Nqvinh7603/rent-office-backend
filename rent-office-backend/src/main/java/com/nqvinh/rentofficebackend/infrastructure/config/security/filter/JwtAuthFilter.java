@@ -28,8 +28,8 @@ import java.io.IOException;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-     final UserDetailsService userDetailsService;
-     final ApplicationContext applicationContext;
+    final UserDetailsService userDetailsService;
+    final ApplicationContext applicationContext;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,

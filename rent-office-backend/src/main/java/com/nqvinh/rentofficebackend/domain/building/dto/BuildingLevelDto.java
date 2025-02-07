@@ -21,7 +21,6 @@ public class BuildingLevelDto {
     @NotBlank(message = "Building level name is required")
     String buildingLevelName;
 
-//    @NotBlank(message = "Description is required")
     String description;
 
     @PastOrPresent(message = "Created at must be in the past or present")

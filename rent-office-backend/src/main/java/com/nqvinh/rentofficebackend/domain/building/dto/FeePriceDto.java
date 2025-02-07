@@ -24,8 +24,8 @@ public class FeePriceDto {
     @NotBlank(message = "Description is required")
     String description;
 
-    LocalDate effectiveDate;
-    LocalDate endDate;
+    LocalDate validFrom;
+    LocalDate validTo;
 
     @PastOrPresent(message = "Created at must be in the past or present")
     LocalDateTime createdAt;

@@ -15,8 +15,8 @@ public class UrlConstant {
 
     //User
     public static final String USERS = API_BASE + "/users";
-    public static final String UPDATE_USER ="/{id}";
-    public static final String DELETE_USER ="/{id}";
+    public static final String UPDATE_USER = "/{id}";
+    public static final String DELETE_USER = "/{id}";
     public static final String LOGGED_IN_USER = "/logged-in";
     public static final String GET_USER_BY_ID = "/{id}";
     public static final String CHANGE_PASSWORD = "/change-password";
@@ -38,6 +38,11 @@ public class UrlConstant {
 
 
     //Building
+    public static final String BUILDINGS = API_BASE + "/buildings";
+    public static final String UPDATE_BUILDING = "/{id}";
+    public static final String DELETE_BUILDING = "/{id}";
+    public static final String GET_BUILDING_BY_ID = "/{id}";
+
     public static final String BUILDING_TYPES = API_BASE + "/building-types";
     public static final String UPDATE_BUILDING_TYPE = "/{id}";
     public static final String DELETE_BUILDING_TYPE = "/{id}";

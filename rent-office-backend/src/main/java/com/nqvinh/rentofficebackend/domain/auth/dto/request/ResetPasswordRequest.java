@@ -13,9 +13,9 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class ResetPasswordRequest {
-        String token;
-        @NotBlank(message = "Password is required")
-        String password;
-        @NotBlank(message = "Confirm password is required")
-        String confirmPassword;
+    String token;
+    @NotBlank(message = "Password is required")
+    String password;
+    @NotBlank(message = "Confirm password is required")
+    String confirmPassword;
 }

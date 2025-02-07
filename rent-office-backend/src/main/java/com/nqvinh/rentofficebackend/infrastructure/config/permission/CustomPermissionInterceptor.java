@@ -52,7 +52,7 @@ public class CustomPermissionInterceptor implements HandlerInterceptor {
         return true;
     }
 
-    private void logRequestDetails(String path,  String httpMethod) {
+    private void logRequestDetails(String path, String httpMethod) {
         log.info("[PATH={}, METHOD={}]", path, httpMethod);
     }
 

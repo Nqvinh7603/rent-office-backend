@@ -13,8 +13,8 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class ForgotPasswordRequest {
-        @NotBlank(message = "Email is required")
-        String email;
-        @NotBlank(message = "Site url is required")
-        String siteUrl;
+    @NotBlank(message = "Email is required")
+    String email;
+    @NotBlank(message = "Site url is required")
+    String siteUrl;
 }

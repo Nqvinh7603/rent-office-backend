@@ -27,6 +27,7 @@ import java.time.Duration;
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
 public class RedisConfig {
     KryoSerializer kryoSerializer;
+
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         RedisCacheConfiguration defaults = RedisCacheConfiguration.defaultCacheConfig()

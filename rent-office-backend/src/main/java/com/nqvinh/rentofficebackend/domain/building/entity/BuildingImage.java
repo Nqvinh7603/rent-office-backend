@@ -22,6 +22,8 @@ public class BuildingImage extends BaseEntity {
     @Column(name = "img_url", nullable = false)
     String imgUrl;
 
+
+
     @ManyToOne
     @JoinColumn(name = "building_id", nullable = false)
     Building building;

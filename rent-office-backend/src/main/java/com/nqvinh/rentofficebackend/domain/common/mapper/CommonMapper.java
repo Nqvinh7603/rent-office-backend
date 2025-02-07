@@ -7,8 +7,9 @@ import java.util.stream.Collectors;
 
 public interface CommonMapper<D, E> {
 
-     D toDto(E entity);
-     E toEntity(D dto);
+    D toDto(E entity);
+
+    E toEntity(D dto);
 
     default List<D> toDtoList(List<E> entities) {
         if (entities == null) {

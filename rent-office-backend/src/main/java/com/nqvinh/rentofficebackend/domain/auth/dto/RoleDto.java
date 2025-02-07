@@ -19,7 +19,9 @@ public class RoleDto {
     Long roleId;
     @NotBlank(message = "Role name is required")
     String roleName;
+
     String description;
+
     boolean active;
 
     List<PermissionDto> permissions;

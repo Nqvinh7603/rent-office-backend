@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "rent_area_price_histories")
+@Table(name = "rent_area_prices")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RentAreaPrice extends BaseEntity {
     @Id
@@ -22,11 +22,14 @@ public class RentAreaPrice extends BaseEntity {
     @SequenceGenerator(name = "rent_area_price_history_id_seq", sequenceName = "rent_area_price_histories_seq", allocationSize = 1)
     Long rentAreaPriceId;
 
-    @Column(name = "price", nullable = false)
+    @Column(name = "price", nullable = false, precision = 15, scale = 2)
     BigDecimal price;
 
-    @Column(name = "effective_date", nullable = false)
-    LocalDate effectiveDate; // Ngày bắt đầu hiệu lực của giá này
+    @Column(name = "valid_from", nullable = false)
+    LocalDate validFrom;
+
+    @Column(name = "valid_to", nullable = true)
+    LocalDate validTo;
 
     @ManyToOne
     @JoinColumn(name = "rent_area_id", nullable = false)

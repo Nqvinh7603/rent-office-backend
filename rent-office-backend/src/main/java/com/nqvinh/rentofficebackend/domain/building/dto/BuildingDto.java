@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -45,12 +46,13 @@ public class BuildingDto {
     @NotNull(message = "Building level is required")
     BuildingLevelDto buildingLevel;
 
-    List<BuildingImageDto> buildingImages;
+    @NotNull(message = "Building type is required")
+    BuildingTypeDto buildingType;
 
-    @NotNull(message = "Building unit is required")
+    List<BuildingImageDto> buildingImages = new ArrayList<>();
+
     List<BuildingUnitDto> buildingUnits;
 
-    @NotNull(message = "Fee pricing is required")
     List<FeePriceDto> feePrices;
 
     @PastOrPresent(message = "Created at must be in the past or present")

@@ -19,18 +19,18 @@ public class GenericValidator implements ConstraintValidator<GenericValidation, 
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext context) {
         switch (validationType) {
-    case NOT_EMPTY_COLLECTION -> {
-        return value instanceof Collection  && !((Collection<?>) value).isEmpty();
-    }
-    case EMAIL -> {
-        if (value instanceof AuthRequestDto authRequest) {
-            return authRequest.getEmail() != null;
+            case NOT_EMPTY_COLLECTION -> {
+                return value instanceof Collection && !((Collection<?>) value).isEmpty();
+            }
+            case EMAIL -> {
+                if (value instanceof AuthRequestDto authRequest) {
+                    return authRequest.getEmail() != null;
+                }
+                return false;
+            }
+            default -> {
+                return false;
+            }
         }
-        return false;
-    }
-    default -> {
-        return false;
-    }
-}
     }
 }

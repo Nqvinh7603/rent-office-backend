@@ -32,7 +32,7 @@ public class UserController {
         return ApiResponse.<Page<UserDto>>builder()
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.FETCHED_SUCCESS.getMessage("Users"))
-                .payload(userService. getUsers(params))
+                .payload(userService.getUsers(params))
                 .build();
     }
 
@@ -46,7 +46,7 @@ public class UserController {
                 .build();
     }
 
-    @PutMapping( UrlConstant.UPDATE_USER)
+    @PutMapping(UrlConstant.UPDATE_USER)
     public ApiResponse<UserDto> updateUser(@PathVariable UUID id, @RequestPart("user") UserDto userDto, @RequestParam(value = "user_img", required = false) MultipartFile userImg) throws ResourceNotFoundException {
         return ApiResponse.<UserDto>builder()
                 .status(HttpStatus.OK.value())

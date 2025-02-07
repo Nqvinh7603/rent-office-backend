@@ -40,24 +40,24 @@ public class Building extends BaseEntity {
     String street; // địa chỉ
 
     @Column(name = "building_number", nullable = true)
-    String buildingNumber; // số nhà
+    String buildingNumber;
 
     @Column(name = "working_hours", columnDefinition = "TEXT", nullable = true)
     String workingHours;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "orientation", nullable = true)
-    OrientationEnum orientation; // hướng
+    OrientationEnum orientation;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    BuildingStatusEnum status; // trạng thái cho thuê
+    BuildingStatusEnum status;
 
     @ManyToOne
     @JoinColumn(name = "building_level_id", nullable = false)
     BuildingLevel buildingLevel;
 
-    @OneToMany(mappedBy = "building", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
+    @OneToMany(mappedBy = "building", fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
     List<BuildingImage> buildingImages;
 
     @ManyToOne

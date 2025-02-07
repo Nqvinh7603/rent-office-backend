@@ -29,17 +29,17 @@ public class FeePrice extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "building_id", nullable = false)
-    Building building; // Liên kết tới tòa nhà
+    Building building;
 
-    @Column(name = "price", nullable = true)
-    BigDecimal price; // Giá trị của phí (ví dụ: 7$/m²/tháng)
+    @Column(name = "price", nullable = false, precision = 15, scale = 2)
+    BigDecimal price;
 
     @Column(name = "description", columnDefinition = "TEXT", nullable = true)
-    String description; // Mô tả bổ sung (ví dụ: "Thỏa thuận" hoặc "Theo giá nhà nước")
+    String description;
 
-    @Column(name = "effective_date", nullable = false)
-    LocalDate effectiveDate; // Ngày bắt đầu hiệu lực của giá phí
+    @Column(name = "valid_from", nullable = false)
+    LocalDate validFrom;
 
-    @Column(name = "end_date", nullable = true)
-    LocalDate endDate; // Ngày kết thúc hiệu lực của giá phí (có thể null nếu vẫn còn hiệu lực)
+    @Column(name = "valid_to", nullable = true)
+    LocalDate validTo;
 }

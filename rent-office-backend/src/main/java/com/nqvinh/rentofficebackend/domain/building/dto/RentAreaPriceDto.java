@@ -1,5 +1,6 @@
 package com.nqvinh.rentofficebackend.domain.building.dto;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,9 +20,12 @@ import java.time.LocalDateTime;
 public class RentAreaPriceDto {
     Long rentAreaPriceId;
 
+    @NotNull(message = "Price is required")
     BigDecimal price;
 
-    LocalDate effectiveDate;
+    @NotNull(message = "Valid from is required")
+    LocalDate validFrom;
+    LocalDate validTo;
 
     @PastOrPresent(message = "Created at must be in the past or present")
     LocalDateTime createdAt;

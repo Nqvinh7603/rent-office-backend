@@ -18,13 +18,11 @@ import org.springframework.stereotype.Component;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class MailProducerImpl implements MailProducer {
 
+    final KafkaTemplate<String, Object> kafkaTemplate;
     @Value("${kafka.email}")
     String mailTopic;
-
     @Value("${spring.application.name}")
     String serviceId;
-
-    final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
     public void send(MailEvent mail) {
@@ -38,7 +36,7 @@ public class MailProducerImpl implements MailProducer {
             kafkaTemplate.send(mailTopic, message);
             log.info("Produced a message to topic: {}, value: {}", mailTopic, mail);
         } catch (Exception e) {
-           log.error("Failed to produce the message to topic: {}", mailTopic, e);
+            log.error("Failed to produce the message to topic: {}", mailTopic, e);
         }
     }
 }

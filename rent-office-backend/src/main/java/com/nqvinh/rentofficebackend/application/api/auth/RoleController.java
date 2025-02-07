@@ -34,7 +34,7 @@ public class RoleController {
     }
 
     @GetMapping
-    public ApiResponse<Page<RoleDto>> getRoles(@RequestParam Map<String,  String> params) {
+    public ApiResponse<Page<RoleDto>> getRoles(@RequestParam Map<String, String> params) {
         return ApiResponse.<Page<RoleDto>>builder()
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.FETCHED_SUCCESS.getMessage("Roles"))

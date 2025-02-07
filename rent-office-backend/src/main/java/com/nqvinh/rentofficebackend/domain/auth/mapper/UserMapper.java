@@ -18,9 +18,6 @@ public interface UserMapper extends CommonMapper<UserDto, User> {
     UserDto toDto(User user);
 
     @Override
-    User toEntity(UserDto userDto);
-
-    @Override
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "role", expression = "java(updateRole(entity, dto.getRole()))")
     void partialUpdate(@MappingTarget User entity, UserDto dto);

@@ -87,7 +87,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @SneakyThrows
-    public void logout(HttpServletResponse httpServletResponse)  {
+    public void logout(HttpServletResponse httpServletResponse) {
         String email = auditAware.getCurrentAuditor().orElse("");
 
         if (email.isEmpty()) {

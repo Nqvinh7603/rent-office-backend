@@ -13,10 +13,16 @@ import java.util.UUID;
 
 public interface UserService {
     UserDto createUser(UserDto userDto, MultipartFile userImg) throws NoSuchAlgorithmException, InvalidKeySpecException;
+
     Page<UserDto> getUsers(Map<String, String> params);
+
     void deleteUser(UUID id) throws ResourceNotFoundException;
+
     UserDto updateUser(UUID id, UserDto userDto, MultipartFile userImg) throws ResourceNotFoundException;
+
     UserDto getLoggedInUser() throws ResourceNotFoundException;
+
     UserDto getUserById(UUID id) throws ResourceNotFoundException;
+
     void changePassword(ChangePasswordReq changePasswordReq);
 }

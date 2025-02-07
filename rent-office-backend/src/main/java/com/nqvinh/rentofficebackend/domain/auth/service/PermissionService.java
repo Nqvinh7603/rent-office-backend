@@ -9,8 +9,12 @@ import java.util.Map;
 
 public interface PermissionService {
     Page<PermissionDto> getPermissions(Map<String, String> params);
+
     PermissionDto createPermission(PermissionDto permissionDto) throws ResourceNotFoundException;
+
     void deletePermission(Long id) throws ResourceNotFoundException;
+
     PermissionDto updatePermission(Long id, PermissionDto permissionDto) throws ResourceNotFoundException;
+
     List<PermissionDto> getAllPermissions();
 }

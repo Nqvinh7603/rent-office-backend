@@ -22,11 +22,11 @@ public class Fee extends BaseEntity {
     Long feeId;
 
     @Column(name = "fee_name", nullable = false)
-    String feeName; // Tên loại phí (ví dụ: Phí quản lý)
+    String feeName;
 
-    @Column(name = "fee_unit", nullable = true)
-    String feeUnit; // Đơn vị tính phí (ví dụ: $/m²/tháng)
+    @Column(name = "fee_unit", nullable = false)
+    String feeUnit;
 
     @OneToMany(mappedBy = "fee", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
-    List<FeePrice> feePrices; // Liên kết với các giá phí
+    List<FeePrice> feePrices;
 }

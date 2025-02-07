@@ -9,9 +9,14 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public interface AuthService {
     AuthResponseDto login(AuthRequestDto authRequest, HttpServletResponse response) throws ResourceNotFoundException;
+
     AuthResponseDto refreshAccessToken(String refreshToken) throws ResourceNotFoundException;
+
     void logout(HttpServletResponse httpServletResponse) throws ResourceNotFoundException;
+
     void resetPassword(ResetPasswordRequest resetPasswordRequest);
+
     void forgotPassword(ForgotPasswordRequest forgotPasswordRequest);
+
     void verifyResetToken(String token);
 }

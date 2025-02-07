@@ -6,9 +6,9 @@ spring:
     name: rent-office-backend
 
   datasource:
-      url: ${DB_URL_AIVEN_CLOUD}
-#      username: ${POSTGRES_USER}
-#      password: ${POSTGRES_PASSWORD}
+    url: ${DB_URL_AIVEN_CLOUD}
+  #      username: ${POSTGRES_USER}
+  #      password: ${POSTGRES_PASSWORD}
 
   data:
     web:
@@ -40,9 +40,9 @@ spring:
     default-property-inclusion: non_null
 
   kafka:
-#    bootstrap-servers: localhost:9092
-#    security:
-#      protocol: plaintext
+    #    bootstrap-servers: localhost:9092
+    #    security:
+    #      protocol: plaintext
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     properties:
       sasl.mechanism: PLAIN

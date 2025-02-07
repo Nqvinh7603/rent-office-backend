@@ -12,8 +12,11 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface GenericValidation {
     String message() default "Invalid value";
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
+
     ValidationType type();
 
     enum ValidationType {

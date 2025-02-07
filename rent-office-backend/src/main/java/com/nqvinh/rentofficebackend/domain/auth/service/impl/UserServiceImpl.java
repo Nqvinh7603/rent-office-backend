@@ -122,10 +122,10 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(UUID id, UserDto userDto, MultipartFile userImg) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-       userDto.setAvatarUrl(userImg != null && !userImg.isEmpty()
-            ? imageService.handleImageUpload(userImg, user.getAvatarUrl()).get()
-            : user.getAvatarUrl());
-       userMapper.partialUpdate(user, userDto);
+        userDto.setAvatarUrl(userImg != null && !userImg.isEmpty()
+                ? imageService.handleImageUpload(userImg, user.getAvatarUrl()).get()
+                : user.getAvatarUrl());
+        userMapper.partialUpdate(user, userDto);
         return userMapper.toDto(userRepository.save(user));
     }
 
@@ -163,16 +163,16 @@ public class UserServiceImpl implements UserService {
         userRepository.save(loggedInUser);
     }
 
-   private void validateChangePassword(ChangePasswordReq req, User user) {
-    switch (req) {
-        case ChangePasswordReq r when !passwordEncoder.matches(r.getCurrentPassword(), user.getPassword()) ->
-            throw new InvalidPasswordException("Current password is incorrect");
-        case ChangePasswordReq r when !r.getNewPassword().equals(r.getConfirmPassword()) ->
-            throw new InvalidPasswordException("New password and confirm password do not match");
-        case ChangePasswordReq r when passwordEncoder.matches(r.getNewPassword(), user.getPassword()) ->
-            throw new InvalidPasswordException("New password must be different from the current password");
-        default -> {
+    private void validateChangePassword(ChangePasswordReq req, User user) {
+        switch (req) {
+            case ChangePasswordReq r when !passwordEncoder.matches(r.getCurrentPassword(), user.getPassword()) ->
+                    throw new InvalidPasswordException("Current password is incorrect");
+            case ChangePasswordReq r when !r.getNewPassword().equals(r.getConfirmPassword()) ->
+                    throw new InvalidPasswordException("New password and confirm password do not match");
+            case ChangePasswordReq r when passwordEncoder.matches(r.getNewPassword(), user.getPassword()) ->
+                    throw new InvalidPasswordException("New password must be different from the current password");
+            default -> {
+            }
         }
     }
-}
 }
