@@ -9,6 +9,7 @@ import com.nqvinh.rentofficebackend.domain.building.entity.Building;
 import com.nqvinh.rentofficebackend.domain.building.entity.BuildingImage;
 import com.nqvinh.rentofficebackend.domain.building.mapper.BuildingMapper;
 import com.nqvinh.rentofficebackend.domain.building.repository.BuildingRepository;
+import com.nqvinh.rentofficebackend.domain.building.service.BuildingImageService;
 import com.nqvinh.rentofficebackend.domain.building.service.BuildingService;
 import com.nqvinh.rentofficebackend.domain.common.service.ImageService;
 import com.nqvinh.rentofficebackend.infrastructure.utils.PaginationUtils;
@@ -33,6 +34,7 @@ public class BuildingServiceImpl implements BuildingService {
     BuildingMapper buildingMapper;
     ImageService imageService;
     PaginationUtils paginationUtils;
+    BuildingImageService buildingImageService;
 
     @Override
     @Transactional
@@ -60,18 +62,7 @@ public class BuildingServiceImpl implements BuildingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Building not found"));
 
         if (buildingImages != null && !buildingImages.isEmpty()) {
-            List<String> existingUrls = building.getBuildingImages().stream()
-                    .map(BuildingImage::getImgUrl)
-                    .collect(Collectors.toList());
-            List<String> uploadedUrls = imageService.handleImageUpload(buildingImages, existingUrls).get();
-            uploadedUrls.forEach(url -> {
-                if (building.getBuildingImages().stream().noneMatch(image -> image.getImgUrl().equals(url))) {
-                    building.getBuildingImages().add(BuildingImage.builder()
-                            .imgUrl(url)
-                            .building(building)
-                            .build());
-                }
-            });
+            buildingImageService.updateBuildingImages(building, buildingImages);
         }
 
         buildingMapper.partialUpdate(building, buildingDto);
