@@ -26,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -161,6 +162,16 @@ public class UserServiceImpl implements UserService {
 
         loggedInUser.setPassword(passwordEncoder.encode(changePasswordReq.getNewPassword()));
         userRepository.save(loggedInUser);
+    }
+
+    @Override
+    public List<User> getUsersByIdIn(List<UserDto> userIds) {
+        return userRepository.findByUserIdIn(userIds.stream().map(UserDto::getUserId).toList());
+    }
+
+    @Override
+    public List<UserDto> loadStaff() {
+        return userMapper.toDtoList(userRepository.findByActiveAndRole_RoleName(true, "EMPLOYEE"));
     }
 
     private void validateChangePassword(ChangePasswordReq req, User user) {

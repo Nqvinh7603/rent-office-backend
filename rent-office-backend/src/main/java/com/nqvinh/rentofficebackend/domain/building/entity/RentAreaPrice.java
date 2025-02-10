@@ -18,8 +18,8 @@ import java.time.LocalDate;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RentAreaPrice extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = jakarta.persistence.GenerationType.SEQUENCE, generator = "rent_area_price_history_id_seq")
-    @SequenceGenerator(name = "rent_area_price_history_id_seq", sequenceName = "rent_area_price_histories_seq", allocationSize = 1)
+    @GeneratedValue(strategy = jakarta.persistence.GenerationType.SEQUENCE, generator = "rent_area_price_id_seq")
+    @SequenceGenerator(name = "rent_area_price_id_seq", sequenceName = "rent_area_prices_seq", allocationSize = 1)
     Long rentAreaPriceId;
 
     @Column(name = "price", nullable = false, precision = 15, scale = 2)

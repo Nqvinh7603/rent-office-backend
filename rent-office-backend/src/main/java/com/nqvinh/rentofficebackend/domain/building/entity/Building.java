@@ -36,7 +36,7 @@ public class Building extends BaseEntity {
     @Column(name = "city", nullable = true)
     String city; // thành phố
 
-    @Column(name = "address", nullable = true)
+    @Column(name = "street", nullable = true)
     String street; // địa chỉ
 
     @Column(name = "building_number", nullable = true)

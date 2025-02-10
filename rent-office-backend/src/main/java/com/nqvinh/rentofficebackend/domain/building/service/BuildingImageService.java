@@ -1,6 +1,5 @@
 package com.nqvinh.rentofficebackend.domain.building.service;
 
-import com.nqvinh.rentofficebackend.domain.building.dto.BuildingImageDto;
 import com.nqvinh.rentofficebackend.domain.building.entity.Building;
 import org.springframework.web.multipart.MultipartFile;
 

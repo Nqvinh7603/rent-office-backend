@@ -58,4 +58,6 @@ public class UserDto {
 
     @PastOrPresent(message = "Updated at must be in the past or present")
     LocalDateTime updatedAt;
+
+    String checked;
 }

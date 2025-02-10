@@ -2,6 +2,7 @@ package com.nqvinh.rentofficebackend.domain.auth.entity;
 
 import com.nqvinh.rentofficebackend.domain.auth.constant.GenderEnum;
 import com.nqvinh.rentofficebackend.domain.common.entity.BaseEntity;
+import com.nqvinh.rentofficebackend.domain.customer.entity.Customer;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -59,6 +60,10 @@ public class User extends BaseEntity implements UserDetails {
     @JoinColumn(name = "role_id", nullable = false)
     Role role;
 
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "users")
+    List<Customer> customers;
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(role);
@@ -73,4 +78,5 @@ public class User extends BaseEntity implements UserDetails {
     public boolean isEnabled() {
         return active;
     }
+
 }

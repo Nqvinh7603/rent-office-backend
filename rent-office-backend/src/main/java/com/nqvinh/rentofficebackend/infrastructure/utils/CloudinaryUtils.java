@@ -26,10 +26,17 @@ public class CloudinaryUtils {
         return convFile;
     }
 
-    public String uploadFileToCloudinary(File file) throws IOException {
-        var uploadResult = cloudinary.uploader().upload(file, ObjectUtils.asMap("folder", "/ct553/"));
+//    public String uploadFileToCloudinary(File file) throws IOException {
+//        var uploadResult = cloudinary.uploader().upload(file, ObjectUtils.asMap("folder", "/ct553/"));
+//        return uploadResult.get("url").toString();
+//    }
+
+
+    public String uploadFileToCloudinary(MultipartFile file) throws IOException {
+        var uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap("folder", "/ct553/"));
         return uploadResult.get("url").toString();
     }
+
 
     public void deleteFileFromCloudinary(String name) throws IOException {
         cloudinary.uploader().destroy(name, ObjectUtils.emptyMap());

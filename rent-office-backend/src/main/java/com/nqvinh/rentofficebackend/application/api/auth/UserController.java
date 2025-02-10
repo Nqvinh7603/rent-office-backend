@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -88,6 +89,15 @@ public class UserController {
         return ApiResponse.<Void>builder()
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.UPDATED_SUCCESS.getMessage("Password"))
+                .build();
+    }
+
+    @GetMapping(UrlConstant.GET_ALL_STAFF)
+    public ApiResponse<List<UserDto>> loadStaff() {
+        return ApiResponse.<List<UserDto>>builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageEnums.FETCHED_SUCCESS.getMessage("Staff"))
+                .payload(userService.loadStaff())
                 .build();
     }
 }

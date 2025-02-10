@@ -20,6 +20,7 @@ public class UrlConstant {
     public static final String LOGGED_IN_USER = "/logged-in";
     public static final String GET_USER_BY_ID = "/{id}";
     public static final String CHANGE_PASSWORD = "/change-password";
+    public static final String GET_ALL_STAFF = "/staffs";
 
     //Permission
     public static final String PERMISSIONS = API_BASE + "/permissions";
@@ -52,5 +53,10 @@ public class UrlConstant {
     public static final String UPDATE_BUILDING_LEVEL = "/{id}";
     public static final String DELETE_BUILDING_LEVEL = "/{id}";
     public static final String GET_ALL_BUILDING_LEVEL = "/all";
+
+    //Customer
+    public static final String CUSTOMERS = API_BASE + "/customers";
+    public static final String ASSIGN_CUSTOMER = "/assign-customer";
+    public static final String GET_STAFFS_BY_CUSTOMER_ID = "/{id}/staffs";
 
 }

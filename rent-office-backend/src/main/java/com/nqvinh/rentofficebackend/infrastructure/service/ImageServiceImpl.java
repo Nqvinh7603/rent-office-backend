@@ -8,8 +8,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -24,41 +22,36 @@ public class ImageServiceImpl implements ImageService {
     @Override
     @Async
     public CompletableFuture<String> handleImageUpload(MultipartFile file, String url) {
-        try {
-            if (file != null && !file.isEmpty()) {
-                if (url != null && !url.isEmpty()) {
-                    String publicId = cloudinaryUtils.getPublicIdFromCloudinary(url);
-                    cloudinaryUtils.deleteFileFromCloudinary(publicId);
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                if (file != null && !file.isEmpty()) {
+                    if (url != null && !url.isEmpty()) {
+                        cloudinaryUtils.deleteFileFromCloudinary(cloudinaryUtils.getPublicIdFromCloudinary(url));
+                    }
+                    return cloudinaryUtils.uploadFileToCloudinary(file);
                 }
-                File convFile = cloudinaryUtils.convertMultipartFileToFile(file);
-                String uploadedUrl = cloudinaryUtils.uploadFileToCloudinary(convFile);
-
-                if (convFile != null && convFile.exists()) {
-                    convFile.delete();
-                }
-
-                return CompletableFuture.completedFuture(uploadedUrl);
+                return url;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
-            return CompletableFuture.completedFuture(url);
-        } catch (Exception e) {
-            return CompletableFuture.failedFuture(e);
-        }
+        });
     }
 
     @Override
     @Async
     public CompletableFuture<List<String>> handleImageUpload(List<MultipartFile> files, List<String> urls) {
-        List<String> urlsCopy = new ArrayList<>(urls);
         List<CompletableFuture<String>> futures = files.stream()
                 .map(file -> {
-                    String url = urlsCopy.isEmpty() ? null : urlsCopy.remove(0);
-                    return handleImageUpload(file, url);
+                    String existingUrl = urls.isEmpty() ? null : urls.remove(0);
+                    return (existingUrl != null && !existingUrl.isEmpty()) ?
+                            CompletableFuture.completedFuture(existingUrl) :
+                            handleImageUpload(file, existingUrl);
                 })
                 .collect(Collectors.toList());
 
-        CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        return allOf.thenApply(v -> futures.stream()
-                .map(CompletableFuture::join)
-                .collect(Collectors.toList()));
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+                .thenApply(v -> futures.stream()
+                        .map(CompletableFuture::join)
+                        .collect(Collectors.toList()));
     }
 }
