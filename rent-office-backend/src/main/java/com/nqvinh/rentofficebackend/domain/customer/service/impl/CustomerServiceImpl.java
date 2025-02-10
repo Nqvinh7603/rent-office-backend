@@ -9,8 +9,10 @@ import com.nqvinh.rentofficebackend.domain.common.service.ImageService;
 import com.nqvinh.rentofficebackend.domain.customer.dto.AssignCustomerDto;
 import com.nqvinh.rentofficebackend.domain.customer.dto.ConsignmentImageDto;
 import com.nqvinh.rentofficebackend.domain.customer.dto.CustomerDto;
+import com.nqvinh.rentofficebackend.domain.customer.entity.Consignment;
 import com.nqvinh.rentofficebackend.domain.customer.entity.ConsignmentImage;
 import com.nqvinh.rentofficebackend.domain.customer.entity.Customer;
+import com.nqvinh.rentofficebackend.domain.customer.mapper.ConsignmentMapper;
 import com.nqvinh.rentofficebackend.domain.customer.mapper.CustomerMapper;
 import com.nqvinh.rentofficebackend.domain.customer.repository.CustomerRepository;
 import com.nqvinh.rentofficebackend.domain.customer.service.CustomerService;
@@ -38,28 +40,33 @@ public class CustomerServiceImpl implements CustomerService {
     UserService userService;
     UserRepository userRepository;
     UserMapper userMapper;
+    ConsignmentMapper consignmentMapper;
 
     @Override
     @SneakyThrows
     @Transactional
     public CustomerDto createCustomerWithConsignment(CustomerDto customerDto, List<MultipartFile> consignmentImages) {
-       Customer customer = customerRepository.findByEmail(customerDto.getEmail())
-                        .orElseGet(() -> customerMapper.toEntity(customerDto));
+        Customer customer = customerRepository.findByEmail(customerDto.getEmail())
+                .orElseGet(() -> customerMapper.toEntity(customerDto));
 
         List<String> uploadedUrls = imageService.handleImageUpload(consignmentImages, customerDto.getConsignments().stream()
                 .flatMap(consignment -> consignment.getConsignmentImages().stream())
                 .map(ConsignmentImageDto::getImgUrl)
                 .collect(Collectors.toList())).get();
 
-        List<ConsignmentImage> consignmentImageEntities = uploadedUrls.stream()
-                .map(imgUrl -> ConsignmentImage.builder().imgUrl(imgUrl).build())
+        List<Consignment> newConsignments = customerDto.getConsignments().stream()
+                .map(consignmentDto -> {
+                    Consignment newConsignment = consignmentMapper.toEntity(consignmentDto);
+                    newConsignment.setCustomer(customer);
+                    List<ConsignmentImage> consignmentImageEntities = uploadedUrls.stream()
+                            .map(imgUrl -> ConsignmentImage.builder().imgUrl(imgUrl).consignment(newConsignment).build())
+                            .collect(Collectors.toList());
+                    newConsignment.setConsignmentImages(consignmentImageEntities);
+                    return newConsignment;
+                })
                 .collect(Collectors.toList());
-        customer.getConsignments().forEach(consignment -> {
-            consignment.setCustomer(customer);
-            consignmentImageEntities.forEach(consignmentImage -> consignmentImage.setConsignment(consignment));
-            consignment.setConsignmentImages(consignmentImageEntities);
-        });
 
+        customer.getConsignments().addAll(newConsignments);
         return customerMapper.toDto(customerRepository.save(customer));
     }
 
