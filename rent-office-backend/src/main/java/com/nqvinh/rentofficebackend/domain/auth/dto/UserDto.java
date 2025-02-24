@@ -1,6 +1,7 @@
 package com.nqvinh.rentofficebackend.domain.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.nqvinh.rentofficebackend.domain.common.dto.NotificationDto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
@@ -9,6 +10,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -44,7 +46,6 @@ public class UserDto {
 
     boolean active;
 
-    @JsonAlias({"avatar_url", "avatarUrl"})
     String avatarUrl;
 
     @JsonAlias({"date_of_birth", "dateOfBirth"})
@@ -60,4 +61,6 @@ public class UserDto {
     LocalDateTime updatedAt;
 
     String checked;
+
+    List<NotificationDto> notifications;
 }

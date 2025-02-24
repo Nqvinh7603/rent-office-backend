@@ -7,6 +7,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -58,4 +59,17 @@ public class Consignment extends BaseEntity {
 
     @Column(name = "rejected_reason", nullable = true, columnDefinition = "TEXT")
     String rejectedReason;
+
+    @Column(name = "rejected_reason_at", nullable = true)
+    LocalDateTime rejectedReasonAt;
+
+    @Column(name = "additional_info", nullable = true, columnDefinition = "TEXT")
+    String additionalInfo;
+
+    @Column(name = "additional_info_at", nullable = true)
+    LocalDateTime additionalInfoAt;
+
+    @Column(name = "confirmed_at", nullable = true)
+    LocalDateTime confirmedAt;
+
 }

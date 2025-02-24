@@ -6,7 +6,7 @@ import com.nqvinh.rentofficebackend.domain.customer.dto.CustomerDto;
 import com.nqvinh.rentofficebackend.domain.customer.entity.Customer;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring", config = CommonMapperConfig.class, uses = {ConsignmentMapper.class})
+@Mapper(componentModel = "spring", config = CommonMapperConfig.class)
 public interface CustomerMapper extends CommonMapper<CustomerDto, Customer> {
 
 }

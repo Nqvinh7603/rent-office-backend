@@ -46,10 +46,21 @@ public class ConsignmentDto {
 
     String rejectedReason;
 
+    LocalDateTime rejectedReasonAt;
+
+    String additionalInfo;
+
+    LocalDateTime additionalInfoAt;
+
+    LocalDateTime confirmedAt;
+
     @PastOrPresent(message = "Created at must be in the past or present")
     LocalDateTime createdAt;
 
     @PastOrPresent(message = "Updated at must be in the past or present")
     LocalDateTime updatedAt;
+
+    @NotNull(message = "Customer is required")
+    CustomerDto customer;
 
 }

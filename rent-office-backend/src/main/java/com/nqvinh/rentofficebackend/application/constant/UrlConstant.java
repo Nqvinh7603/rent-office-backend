@@ -58,5 +58,19 @@ public class UrlConstant {
     public static final String CUSTOMERS = API_BASE + "/customers";
     public static final String ASSIGN_CUSTOMER = "/assign-customer";
     public static final String GET_STAFFS_BY_CUSTOMER_ID = "/{id}/staffs";
+    public static final String GET_CUSTOMERS_BY_REQUIRE_TYPE = "/require-type";
+
+    //Consignment
+    public static final String CONSIGNMENTS = API_BASE + "/consignments";
+    public static final String DELETE_CONSIGNMENT = "/{id}";
+    public static final String UPDATE_CONSIGNMENT = "/{id}";
+    public static final String GET_CONSIGNMENT_BY_ID = "/{id}";
+
+
+    //Notification
+    public static final String NOTIFICATIONS = API_BASE + "/notifications";
+    public static final String MARK_ALL_NOTIFICATIONS_AS_READ = "/mark-all-read";
+    public static final String MARK_NOTIFICATION_AS_READ = "/{id}/mark-read";
+    public static final String GET_NOTIFICATIONS_BY_USER_ID = "/user/{id}";
 
 }

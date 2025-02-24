@@ -2,6 +2,7 @@ package com.nqvinh.rentofficebackend.domain.auth.entity;
 
 import com.nqvinh.rentofficebackend.domain.auth.constant.GenderEnum;
 import com.nqvinh.rentofficebackend.domain.common.entity.BaseEntity;
+import com.nqvinh.rentofficebackend.domain.common.entity.Notification;
 import com.nqvinh.rentofficebackend.domain.customer.entity.Customer;
 import jakarta.persistence.*;
 import lombok.*;
@@ -62,6 +63,9 @@ public class User extends BaseEntity implements UserDetails {
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "users")
     List<Customer> customers;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    List<Notification> notifications;
 
 
     @Override

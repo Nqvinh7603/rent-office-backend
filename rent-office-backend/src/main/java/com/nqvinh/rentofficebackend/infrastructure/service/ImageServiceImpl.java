@@ -42,7 +42,7 @@ public class ImageServiceImpl implements ImageService {
     public CompletableFuture<List<String>> handleImageUpload(List<MultipartFile> files, List<String> urls) {
         List<CompletableFuture<String>> futures = files.stream()
                 .map(file -> {
-                    String existingUrl = urls.isEmpty() ? null : urls.remove(0);
+                    String existingUrl = urls.isEmpty() ? null : urls.removeFirst();
                     return (existingUrl != null && !existingUrl.isEmpty()) ?
                             CompletableFuture.completedFuture(existingUrl) :
                             handleImageUpload(file, existingUrl);

@@ -10,6 +10,8 @@ import com.nqvinh.rentofficebackend.domain.auth.entity.User;
 import com.nqvinh.rentofficebackend.domain.auth.mapper.UserMapper;
 import com.nqvinh.rentofficebackend.domain.auth.repository.UserRepository;
 import com.nqvinh.rentofficebackend.domain.auth.service.UserService;
+import com.nqvinh.rentofficebackend.domain.common.entity.Notification;
+import com.nqvinh.rentofficebackend.domain.common.mapper.NotificationMapper;
 import com.nqvinh.rentofficebackend.domain.common.service.ImageService;
 import com.nqvinh.rentofficebackend.infrastructure.utils.PaginationUtils;
 import com.nqvinh.rentofficebackend.infrastructure.utils.StringUtils;
@@ -26,9 +28,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +45,7 @@ public class UserServiceImpl implements UserService {
     StringUtils stringUtils;
     ImageService imageService;
     PaginationUtils paginationUtils;
+    NotificationMapper notificationMapper;
 
     @Override
     @Transactional
@@ -123,9 +128,8 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(UUID id, UserDto userDto, MultipartFile userImg) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        userDto.setAvatarUrl(userImg != null && !userImg.isEmpty()
-                ? imageService.handleImageUpload(userImg, user.getAvatarUrl()).get()
-                : user.getAvatarUrl());
+        userDto.setAvatarUrl(userImg == null ? "" :
+                imageService.handleImageUpload(userImg, userDto.getAvatarUrl()).get());
         userMapper.partialUpdate(user, userDto);
         return userMapper.toDto(userRepository.save(user));
     }
@@ -137,7 +141,13 @@ public class UserServiceImpl implements UserService {
 
         if (authentication != null) {
             User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new ResourceNotFoundException("User not found"));
-            return userMapper.toDto(user);
+            UserDto userDto = userMapper.toDto(user);
+            userDto.setNotifications(user.getNotifications().stream()
+                    .sorted(Comparator.comparing(Notification::isStatus).reversed()
+                            .thenComparing(Notification::getCreatedAt).reversed())
+                    .map(notificationMapper::toDto)
+                    .collect(Collectors.toList()));
+            return userDto;
         }
         return null;
     }
@@ -172,6 +182,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> loadStaff() {
         return userMapper.toDtoList(userRepository.findByActiveAndRole_RoleName(true, "EMPLOYEE"));
+    }
+
+    @Override
+    public List<UserDto> getAllAdminsAndManagers() {
+        List<User> adminsAndManagers = userRepository.findByActiveAndRole_RoleNameIn(true, List.of("ADMIN", "MANAGER"));
+        return userMapper.toDtoList(adminsAndManagers);
     }
 
     private void validateChangePassword(ChangePasswordReq req, User user) {

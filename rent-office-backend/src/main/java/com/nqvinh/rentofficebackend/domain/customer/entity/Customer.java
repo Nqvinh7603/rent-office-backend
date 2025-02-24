@@ -1,5 +1,6 @@
 package com.nqvinh.rentofficebackend.domain.customer.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.nqvinh.rentofficebackend.domain.auth.entity.User;
 import com.nqvinh.rentofficebackend.domain.common.entity.BaseEntity;
 import com.nqvinh.rentofficebackend.domain.customer.constant.RequireTypeEnum;
@@ -40,6 +41,7 @@ public class Customer extends BaseEntity {
     RequireTypeEnum requireType;
 
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     List<Consignment> consignments;
 
     @ManyToMany(fetch = FetchType.LAZY)

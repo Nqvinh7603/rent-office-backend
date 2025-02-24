@@ -12,7 +12,7 @@ import com.nqvinh.rentofficebackend.domain.common.constant.MailStatus;
 import com.nqvinh.rentofficebackend.domain.common.constant.MailType;
 import com.nqvinh.rentofficebackend.domain.common.constant.MessageCode;
 import com.nqvinh.rentofficebackend.domain.common.event.MailEvent;
-import com.nqvinh.rentofficebackend.domain.common.service.MailProducer;
+import com.nqvinh.rentofficebackend.domain.common.service.EmailProducer;
 import com.nqvinh.rentofficebackend.domain.common.service.RedisService;
 import com.nqvinh.rentofficebackend.infrastructure.audit.AuditAwareImpl;
 import com.nqvinh.rentofficebackend.infrastructure.utils.JwtUtils;
@@ -43,7 +43,7 @@ public class AuthServiceImpl implements AuthService {
     JwtDecoder jwtDecoder;
     AuditAwareImpl auditAware;
     JwtUtils jwtUtils;
-    MailProducer mailProducer;
+    EmailProducer emailProducer;
     RedisService redisService;
     PasswordEncoder passwordEncoder;
 
@@ -131,7 +131,7 @@ public class AuthServiceImpl implements AuthService {
                 .type(MailType.RESET_PASSWORD.getType())
                 .build();
 
-        mailProducer.send(mailResetPassword);
+        emailProducer.sendMailResetPassword(mailResetPassword);
     }
 
     @Override

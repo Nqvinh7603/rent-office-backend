@@ -6,7 +6,7 @@ import com.nqvinh.rentofficebackend.domain.customer.dto.ConsignmentDto;
 import com.nqvinh.rentofficebackend.domain.customer.entity.Consignment;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring", config = CommonMapperConfig.class, uses = {ConsignmentImageMapper.class})
+@Mapper(componentModel = "spring", config = CommonMapperConfig.class, uses = {ConsignmentImageMapper.class, CustomerMapper.class})
 public interface ConsignmentMapper extends CommonMapper<ConsignmentDto, Consignment> {
 //    @Override
 //    @Mapping(target = "consignmentImages", expression = "java(updateConsignmentImages(entity, dto.getConsignmentImages()))")

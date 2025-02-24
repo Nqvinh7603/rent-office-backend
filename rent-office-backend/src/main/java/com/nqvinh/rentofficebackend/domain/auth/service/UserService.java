@@ -32,4 +32,6 @@ public interface UserService {
 
     List<UserDto> loadStaff();
 
+    List<UserDto> getAllAdminsAndManagers();
+
 }

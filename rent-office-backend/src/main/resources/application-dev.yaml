@@ -40,14 +40,14 @@ spring:
     default-property-inclusion: non_null
 
   kafka:
-    #    bootstrap-servers: localhost:9092
-    #    security:
-    #      protocol: plaintext
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
-    properties:
-      sasl.mechanism: PLAIN
-      sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username='${KAFKA_USERNAME}' password='${KAFKA_PASSWORD}';
-      security.protocol: SASL_SSL
+    bootstrap-servers: localhost:9092
+    security:
+      protocol: PLAINTEXT
+#    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+#    properties:
+#      sasl.mechanism: PLAIN
+#      sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username='${KAFKA_USERNAME}' password='${KAFKA_PASSWORD}';
+#      security.protocol: SASL_SSL
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -60,6 +60,7 @@ spring:
         spring.json.add.type.headers: false
 
 kafka:
+  noti: nqv-noti-service-dev
   email: nqv-email-service-dev
 
 application:

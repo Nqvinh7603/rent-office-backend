@@ -8,7 +8,9 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
 public enum MessageCode {
-    MAIL_RESET_PASSWORD("MAIL_RESET_PASSWORD");
-
+    MAIL_RESET_PASSWORD("MAIL_RESET_PASSWORD"),
+    MAIL_CANCELLED_CONSIGNMENT("MAIL_CANCELLED_CONSIGNMENT"),
+    MAIL_PENDING_CONSIGNMENT("MAIL_PENDING_CONSIGNMENT"),
+    NOTIFICATION_CREATE_CONSIGNMENT("NOTIFICATION_CREATE_CONSIGNMENT");
     String code;
 }

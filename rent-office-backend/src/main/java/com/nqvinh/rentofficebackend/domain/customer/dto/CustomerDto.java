@@ -1,13 +1,11 @@
 package com.nqvinh.rentofficebackend.domain.customer.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Builder
@@ -32,9 +30,6 @@ public class CustomerDto {
 
     @NotBlank(message = "Require type is required")
     String requireType;
-
-    @NotNull(message = "Consignment is required")
-    List<ConsignmentDto> consignments;
 
     @PastOrPresent(message = "Created at must be in the past or present")
     LocalDateTime createdAt;
