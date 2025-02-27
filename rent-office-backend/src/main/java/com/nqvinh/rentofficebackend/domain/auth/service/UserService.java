@@ -34,4 +34,5 @@ public interface UserService {
 
     List<UserDto> getAllAdminsAndManagers();
 
+    List<UserDto> getAllUserByCustomerId(Long customerId);
 }

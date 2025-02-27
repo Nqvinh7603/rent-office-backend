@@ -48,4 +48,5 @@ public class CustomerController {
                 .payload(customerService.getCustomersByRequireType())
                 .build();
     }
+
 }

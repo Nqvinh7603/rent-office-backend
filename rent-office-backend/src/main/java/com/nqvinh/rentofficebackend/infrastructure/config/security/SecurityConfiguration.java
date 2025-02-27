@@ -62,7 +62,10 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/", "/api/v1/auth/**",
                                 "/api/v1/building-types/all",
-                                "/api/v1/consignments").permitAll()
+                                "/api/v1/consignments",
+                                "/api/v1/consignments/{id}",
+                                "/api/v1/consignments/{id}/verify-token"
+                                ).permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults())

@@ -72,4 +72,7 @@ public class Consignment extends BaseEntity {
     @Column(name = "confirmed_at", nullable = true)
     LocalDateTime confirmedAt;
 
+    @Column(name = "additional_info_after_at", nullable = true)
+    LocalDateTime additionalInfoAfterAt;
+
 }

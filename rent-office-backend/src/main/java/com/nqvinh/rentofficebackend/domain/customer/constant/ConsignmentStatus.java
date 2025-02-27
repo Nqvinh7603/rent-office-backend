@@ -5,4 +5,5 @@ public enum ConsignmentStatus {
     CONFIRMED, // Đã xác nhận
     CANCELLED, // Đã từ chối
     INCOMPLETE, // Thiếu thông tin
+    ADDITIONAL_INFO // Bổ sung thông tin
 }

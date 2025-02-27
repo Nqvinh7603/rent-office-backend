@@ -12,8 +12,8 @@ import com.nqvinh.rentofficebackend.domain.common.constant.MailType;
 import com.nqvinh.rentofficebackend.domain.common.constant.MessageCode;
 import com.nqvinh.rentofficebackend.domain.common.event.MailEvent;
 import com.nqvinh.rentofficebackend.domain.common.service.EmailProducer;
-import com.nqvinh.rentofficebackend.domain.common.service.NotiProducer;
 import com.nqvinh.rentofficebackend.domain.common.service.NotificationService;
+import com.nqvinh.rentofficebackend.domain.common.service.RedisService;
 import com.nqvinh.rentofficebackend.domain.customer.constant.ConsignmentStatus;
 import com.nqvinh.rentofficebackend.domain.customer.dto.ConsignmentDto;
 import com.nqvinh.rentofficebackend.domain.customer.dto.ConsignmentImageDto;
@@ -43,10 +43,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,50 +63,49 @@ public class ConsignmentServiceImpl implements ConsignmentService {
     CustomerResMapper customerResMapper;
     UserService userService;
     UserMapper userMapper;
-    NotiProducer notiProducer;
     NotificationService notificationService;
     CustomerService customerService;
     EmailProducer emailProducer;
+    RedisService redisService;
 
 
-   @Override
-   @SneakyThrows
-   @Transactional
-   public CustomerResDto createConsignment(CustomerReqDto customerReqDto, List<MultipartFile> consignmentImages) {
-       Customer customer = customerService.findOrCreateCustomer(customerReqDto);
-       List<String> uploadedUrls = consignmentImageService.uploadConsignmentImages(customerReqDto, consignmentImages);
-       List<Consignment> newConsignments = consignmentImageService.convertConsignmentDtoToEntities(customerReqDto, uploadedUrls, customer);
-       customer.getConsignments().addAll(newConsignments);
+    @Override
+    @SneakyThrows
+    @Transactional
+    public CustomerResDto createConsignment(CustomerReqDto customerReqDto, List<MultipartFile> consignmentImages) {
+        Customer customer = customerService.findOrCreateCustomer(customerReqDto);
+        List<String> uploadedUrls = consignmentImageService.uploadConsignmentImages(customerReqDto, consignmentImages);
+        List<Consignment> newConsignments = consignmentImageService.convertConsignmentDtoToEntities(customerReqDto, uploadedUrls, customer);
+        customer.getConsignments().addAll(newConsignments);
 
-       sendMailNewConsignment(customer, newConsignments);
-       Customer savedCustomer = customerRepository.save(customer);
+        sendMailNewConsignment(customer, newConsignments);
+        Customer savedCustomer = customerRepository.save(customer);
 
-       List<UserDto> adminsAndManagers = userService.getAllAdminsAndManagers();
-         adminsAndManagers.forEach(adminOrManager -> notificationService.createConsignmentNotification(adminOrManager, savedCustomer));
-       return customerResMapper.toDto(savedCustomer);
-   }
+        List<UserDto> adminsAndManagers = userService.getAllAdminsAndManagers();
+        adminsAndManagers.forEach(adminOrManager -> notificationService.createConsignmentNotification(adminOrManager, savedCustomer));
+        return customerResMapper.toDto(savedCustomer);
+    }
 
-   private void sendMailNewConsignment(Customer customer, List<Consignment> newConsignments) {
-       var mailConfirmedConsignment = MailEvent.builder()
-               .toAddress(customer.getEmail())
-               .subject("Xác nhận tài sản ký gửi")
-               .templateName("pending-consignment-template")
-               .context(Map.of(
-                       "customerName", customer.getCustomerName(),
-                       "price", newConsignments.getFirst().getPrice(),
-                       "city", newConsignments.getFirst().getCity(),
-                       "district", newConsignments.getFirst().getDistrict(),
-                       "ward", newConsignments.getFirst().getWard(),
-                       "street", newConsignments.getFirst().getStreet(),
-                       "description", newConsignments.getFirst().getDescription()
-               ))
-               .status(MailStatus.INIT.getStatus())
-               .code(MessageCode.MAIL_PENDING_CONSIGNMENT.getCode())
-               .type(MailType.PENDING_CONSIGNMENT.getType())
-               .build();
-       emailProducer.sendMailNewConsignment(mailConfirmedConsignment);
-   }
-
+    private void sendMailNewConsignment(Customer customer, List<Consignment> newConsignments) {
+        var mailConfirmedConsignment = MailEvent.builder()
+                .toAddress(customer.getEmail())
+                .subject("Xác nhận tài sản ký gửi")
+                .templateName("pending-consignment-template")
+                .context(Map.of(
+                        "customerName", customer.getCustomerName(),
+                        "price", newConsignments.getFirst().getPrice(),
+                        "city", newConsignments.getFirst().getCity(),
+                        "district", newConsignments.getFirst().getDistrict(),
+                        "ward", newConsignments.getFirst().getWard(),
+                        "street", newConsignments.getFirst().getStreet(),
+                        "description", newConsignments.getFirst().getDescription()
+                ))
+                .status(MailStatus.INIT.getStatus())
+                .code(MessageCode.MAIL_PENDING_CONSIGNMENT.getCode())
+                .type(MailType.PENDING_CONSIGNMENT.getType())
+                .build();
+        emailProducer.sendMailNewConsignment(mailConfirmedConsignment);
+    }
 
     @Override
     @SneakyThrows
@@ -163,7 +162,47 @@ public class ConsignmentServiceImpl implements ConsignmentService {
         consignmentMapper.partialUpdate(consignment, consignmentDto);
         consignment.getConsignmentImages().forEach(image -> image.setConsignment(consignment));
 
-        if (consignmentDto.getStatus().equals(ConsignmentStatus.CANCELLED.toString())) {
+        consignment.setUpdatedAt(LocalDateTime.now());
+
+        String token = UUID.randomUUID().toString();
+        String additionalInfoLink = "http://localhost:5173/ky-gui/" + consignmentId + "?token=" + token;
+        if (consignmentDto.getStatus().equals(ConsignmentStatus.INCOMPLETE.toString())) {
+           redisService.set("additional-info:" + consignmentId, token);
+            consignment.setAdditionalInfoAt(consignment.getUpdatedAt());
+            var mailIncompleteConsignment = MailEvent.builder()
+                    .toAddress(consignment.getCustomer().getEmail())
+                    .subject("Cập nhật thông tin tài sản ký gửi")
+                    .templateName("incomplete-consignment-template")
+                    .context(Map.of(
+                            "customerName", consignment.getCustomer().getCustomerName(),
+                            "price", consignment.getPrice(),
+                            "city", consignment.getCity(),
+                            "district", consignment.getDistrict(),
+                            "ward", consignment.getWard(),
+                            "street", consignment.getStreet(),
+                            "description", consignment.getDescription(),
+                            "additionalInfo", consignment.getAdditionalInfo(),
+                            "additionalInfoLink", additionalInfoLink
+                    ))
+                    .status(MailStatus.INIT.getStatus())
+                    .code(MessageCode.MAIL_INCOMPLETE_CONSIGNMENT.getCode())
+                    .type(MailType.INCOMPLETE_CONSIGNMENT.getType())
+                    .build();
+            emailProducer.sendMailIncompleteConsignment(mailIncompleteConsignment);
+        } else if (consignmentDto.getStatus().equals(ConsignmentStatus.ADDITIONAL_INFO.toString())) {
+            consignment.setAdditionalInfoAfterAt(consignment.getUpdatedAt());
+            List<UserDto> users = userService.getAllUserByCustomerId(consignment.getCustomer().getCustomerId());
+            users.forEach(user ->
+                    notificationService.updateInfoConsignmentNotification(user, consignment.getCustomer()));
+            redisService.delete("additional-info:" + consignmentId);
+        } else if (consignmentDto.getStatus().equals(ConsignmentStatus.CONFIRMED.toString())) {
+
+            consignment.setConfirmedAt(consignment.getUpdatedAt());
+
+        } else if (consignmentDto.getStatus().equals(ConsignmentStatus.CANCELLED.toString())) {
+
+            consignment.setRejectedReasonAt(consignment.getUpdatedAt());
+
             var mailCancelledConsignment = MailEvent.builder()
                     .toAddress(consignment.getCustomer().getEmail())
                     .subject("Từ chối tài sản ký gửi")
@@ -179,22 +218,12 @@ public class ConsignmentServiceImpl implements ConsignmentService {
                     ))
                     .status(MailStatus.INIT.getStatus())
                     .code(MessageCode.MAIL_CANCELLED_CONSIGNMENT.getCode())
-                    .type(MailType.CONFIRMED_CONSIGNMENT.getType())
+                    .type(MailType.CANCELLED_CONSIGNMENT.getType())
                     .build();
             emailProducer.sendMailCancelledConsignment(mailCancelledConsignment);
         }
-
-       consignment.setUpdatedAt(LocalDateTime.now());
-
-        if (consignmentDto.getStatus().equals(ConsignmentStatus.INCOMPLETE.toString())) {
-            consignment.setAdditionalInfoAt(consignment.getUpdatedAt());
-        } else if (consignmentDto.getStatus().equals(ConsignmentStatus.CONFIRMED.toString())) {
-            consignment.setConfirmedAt(consignment.getUpdatedAt());
-        } else if (consignmentDto.getStatus().equals(ConsignmentStatus.CANCELLED.toString())) {
-            consignment.setRejectedReasonAt(consignment.getUpdatedAt());
-        }
-
-        return consignmentMapper.toDto(consignmentRepository.save(consignment));
+        Consignment savedConsignment = consignmentRepository.save(consignment);
+        return consignmentMapper.toDto(savedConsignment);
     }
 
 
@@ -206,6 +235,15 @@ public class ConsignmentServiceImpl implements ConsignmentService {
         return consignmentMapper.toDto(consignment);
     }
 
+    @Override
+    @SneakyThrows
+    public void verifyTokenConsignment(String consignmentId, String token) {
+        String tokenInRedis = redisService.get("additional-info:" + consignmentId).toString();
+        if (!token.equals(tokenInRedis)) {
+            throw new ResourceNotFoundException("Token is invalid");
+        }
+    }
+
 
     private Specification<Consignment> getCustomerSpec(Map<String, String> params) {
         Specification<Consignment> spec = Specification.where(null);
@@ -214,7 +252,7 @@ public class ConsignmentServiceImpl implements ConsignmentService {
             String email = stringUtils.normalizeString(params.get("email").trim().toLowerCase());
             String likePattern = "%" + email + "%";
             spec = spec.and((root, query, criteriaBuilder) ->
-                criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower(root.get("customer").get("email"))), likePattern)
+                    criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower(root.get("customer").get("email"))), likePattern)
             );
         }
 
@@ -242,36 +280,36 @@ public class ConsignmentServiceImpl implements ConsignmentService {
             );
         }
 
-       if (params.containsKey("district")) {
-           String district = stringUtils.normalizeString(params.get("district").trim().toLowerCase());
-           String likePattern = "%" + district + "%";
-           spec = spec.and((root, query, criteriaBuilder) ->
-                   criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class,criteriaBuilder.lower( root.get("district"))), likePattern)
-           );
-       }
+        if (params.containsKey("district")) {
+            String district = stringUtils.normalizeString(params.get("district").trim().toLowerCase());
+            String likePattern = "%" + district + "%";
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower(root.get("district"))), likePattern)
+            );
+        }
         if (params.containsKey("city")) {
             String city = stringUtils.normalizeString(params.get("city").trim().toLowerCase());
             String likePattern = "%" + city + "%";
             spec = spec.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower( root.get("city"))), likePattern)
+                    criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower(root.get("city"))), likePattern)
             );
         }
 
-       if (params.containsKey("ward")) {
-           String ward = stringUtils.normalizeString(params.get("ward").trim().toLowerCase());
-           String likePattern = "%" + ward + "%";
-           spec = spec.and((root, query, criteriaBuilder) ->
-                   criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower( root.get("ward"))), likePattern)
-           );
-       }
+        if (params.containsKey("ward")) {
+            String ward = stringUtils.normalizeString(params.get("ward").trim().toLowerCase());
+            String likePattern = "%" + ward + "%";
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower(root.get("ward"))), likePattern)
+            );
+        }
 
-       if (params.containsKey("street")) {
-           String street = stringUtils.normalizeString(params.get("street").trim().toLowerCase());
-           String likePattern = "%" + street + "%";
-                spec = spec.and((root, query, criteriaBuilder) ->
-                        criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, root.get("street")), likePattern)
-                );
-       }
+        if (params.containsKey("street")) {
+            String street = stringUtils.normalizeString(params.get("street").trim().toLowerCase());
+            String likePattern = "%" + street + "%";
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, root.get("street")), likePattern)
+            );
+        }
 
         if (params.containsKey("minPrice") || params.containsKey("maxPrice")) {
             if (params.containsKey("minPrice")) {
@@ -305,7 +343,7 @@ public class ConsignmentServiceImpl implements ConsignmentService {
             });
         }
 
-        if(params.containsKey("status")){
+        if (params.containsKey("status")) {
             String status = params.get("status");
             spec = spec.and((root, query, criteriaBuilder) ->
                     criteriaBuilder.equal(root.get("status"), status)

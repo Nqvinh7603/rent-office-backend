@@ -1,5 +1,6 @@
 package com.nqvinh.rentofficebackend.infrastructure.utils;
 
+import com.nqvinh.rentofficebackend.domain.customer.entity.Consignment;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,5 +61,6 @@ public class JwtUtils {
     public String generateResetPasswordToken(UserDetails userDetails) {
         return generateJwtToken(userDetails, 30 * 60); // 30 minutes
     }
+
 }
 

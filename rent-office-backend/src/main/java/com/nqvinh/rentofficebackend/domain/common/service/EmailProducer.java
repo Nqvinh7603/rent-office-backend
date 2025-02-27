@@ -6,4 +6,5 @@ public interface EmailProducer {
     void sendMailResetPassword(MailEvent mail);
     void sendMailCancelledConsignment(MailEvent mail);
     void sendMailNewConsignment(MailEvent mail);
+    void sendMailIncompleteConsignment(MailEvent mail);
 }

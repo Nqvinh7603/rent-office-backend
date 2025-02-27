@@ -190,6 +190,10 @@ public class UserServiceImpl implements UserService {
         return userMapper.toDtoList(adminsAndManagers);
     }
 
+    public List<UserDto> getAllUserByCustomerId(Long customerId) {
+        return userMapper.toDtoList(userRepository.findUsersByCustomerId(customerId));
+    }
+
     private void validateChangePassword(ChangePasswordReq req, User user) {
         switch (req) {
             case ChangePasswordReq r when !passwordEncoder.matches(r.getCurrentPassword(), user.getPassword()) ->

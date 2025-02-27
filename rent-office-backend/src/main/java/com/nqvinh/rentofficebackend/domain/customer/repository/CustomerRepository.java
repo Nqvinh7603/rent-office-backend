@@ -1,5 +1,6 @@
 package com.nqvinh.rentofficebackend.domain.customer.repository;
 
+import com.nqvinh.rentofficebackend.domain.auth.entity.User;
 import com.nqvinh.rentofficebackend.domain.customer.constant.RequireTypeEnum;
 import com.nqvinh.rentofficebackend.domain.customer.entity.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;

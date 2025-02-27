@@ -5,6 +5,7 @@ import com.nqvinh.rentofficebackend.domain.auth.entity.User;
 import com.nqvinh.rentofficebackend.domain.auth.mapper.UserMapper;
 import com.nqvinh.rentofficebackend.domain.auth.repository.UserRepository;
 import com.nqvinh.rentofficebackend.domain.auth.service.UserService;
+import com.nqvinh.rentofficebackend.domain.common.service.NotificationService;
 import com.nqvinh.rentofficebackend.domain.customer.constant.RequireTypeEnum;
 import com.nqvinh.rentofficebackend.domain.customer.dto.AssignCustomerDto;
 import com.nqvinh.rentofficebackend.domain.customer.dto.CustomerDto;
@@ -38,6 +39,7 @@ public class CustomerServiceImpl implements CustomerService {
     UserMapper userMapper;
     CustomerMapper customerMapper;
     CustomerReqMapper customerReqMapper;
+    NotificationService notificationService;
 
     @Override
     @SneakyThrows
@@ -50,6 +52,7 @@ public class CustomerServiceImpl implements CustomerService {
                         .orElseThrow(() -> new ResourceNotFoundException("User not found")))
                 .collect(Collectors.toList());
         customer.setUsers(userService.getUsersByIdIn(userMapper.toDtoList(users)));
+        notificationService.assignCustomerToStaffs(assignCustomerDto);
         customerRepository.save(customer);
     }
 

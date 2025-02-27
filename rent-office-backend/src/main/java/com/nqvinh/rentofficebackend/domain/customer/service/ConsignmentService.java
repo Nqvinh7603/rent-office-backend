@@ -15,4 +15,5 @@ public interface ConsignmentService {
     void deleteConsignment(Long consignmentId);
     ConsignmentDto updateConsignment(Long consignmentId, ConsignmentDto consignmentDto, List<MultipartFile> consignmentImages);
     ConsignmentDto getConsignmentById(Long consignmentId);
+    void verifyTokenConsignment(String consignmentId,String token);
 }

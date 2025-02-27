@@ -54,6 +54,8 @@ public class ConsignmentDto {
 
     LocalDateTime confirmedAt;
 
+    LocalDateTime additionalInfoAfterAt;
+
     @PastOrPresent(message = "Created at must be in the past or present")
     LocalDateTime createdAt;
 

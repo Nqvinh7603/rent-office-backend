@@ -42,5 +42,37 @@ public class NotiProducerImpl implements NotiProducer {
         }
     }
 
+    @Override
+    public void sendNotiUpdateConsignment(NotiEvent noti) {
+        try {
+            var message = MessageBuilder.build(
+                    serviceId,
+                    EventType.EVENT,
+                    MessageCode.NOTIFICATION_UPDATE_INFO_CONSIGNMENT.getCode(),
+                    noti
+            );
+            kafkaTemplate.send(notiTopic, message);
+            log.info("Produced a message to topic: {}, value: {}", notiTopic, message);
+        } catch (Exception e) {
+            log.error("Failed to produce the message to topic: {}", notiTopic, e);
+        }
+    }
+
+    @Override
+    public void sendNotiAssignCustomer(NotiEvent noti) {
+        try {
+            var message = MessageBuilder.build(
+                    serviceId,
+                    EventType.EVENT,
+                    MessageCode.NOTIFICATION_ASSIGN_CUSTOMER.getCode(),
+                    noti
+            );
+            kafkaTemplate.send(notiTopic, message);
+            log.info("Produced a message to topic: {}, value: {}", notiTopic, message);
+        } catch (Exception e) {
+            log.error("Failed to produce the message to topic: {}", notiTopic, e);
+        }
+    }
+
 
 }

@@ -70,4 +70,13 @@ public class ConsignmentController {
                 .build();
     }
 
+    @GetMapping(UrlConstant.VERIFY_TOKEN_CONSIGNMENT)
+    public ApiResponse<Void> verifyTokenConsignment(@PathVariable("id") String consignmentId, @RequestParam("token") String token) {
+        consignmentService.verifyTokenConsignment(consignmentId, token);
+        return ApiResponse.<Void>builder()
+                .status(HttpStatus.OK.value())
+                .message("Verify token consignment successfully")
+                .build();
+    }
+
 }

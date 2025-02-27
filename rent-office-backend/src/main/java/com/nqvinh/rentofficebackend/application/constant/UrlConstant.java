@@ -65,6 +65,7 @@ public class UrlConstant {
     public static final String DELETE_CONSIGNMENT = "/{id}";
     public static final String UPDATE_CONSIGNMENT = "/{id}";
     public static final String GET_CONSIGNMENT_BY_ID = "/{id}";
+    public static final String VERIFY_TOKEN_CONSIGNMENT = "{id}/verify-token";
 
 
     //Notification
