@@ -13,6 +13,7 @@ import com.nqvinh.rentofficebackend.domain.common.repository.NotificationReposit
 import com.nqvinh.rentofficebackend.domain.common.service.NotiProducer;
 import com.nqvinh.rentofficebackend.domain.common.service.NotificationService;
 import com.nqvinh.rentofficebackend.domain.customer.dto.AssignCustomerDto;
+import com.nqvinh.rentofficebackend.domain.customer.dto.CustomerDto;
 import com.nqvinh.rentofficebackend.domain.customer.entity.Customer;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,6 @@ public class NotificationServiceImpl implements NotificationService {
     NotificationMapper notificationMapper;
 
     @Override
-    @Transactional
     public void createConsignmentNotification(UserDto userDto, Customer savedCustomer) {
         Long consignmentId = savedCustomer.getConsignments().getFirst().getConsignmentId();
         String message = "Khách hàng " + savedCustomer.getCustomerName() + " đã ký gửi tài sản mới";
@@ -63,22 +63,20 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    @Transactional
-    public void updateInfoConsignmentNotification(UserDto userDto, Customer savedCustomer) {
-        Long consignmentId = savedCustomer.getConsignments().getFirst().getConsignmentId();
+    public void updateInfoConsignmentNotification(UserDto userDto, CustomerDto savedCustomer) {
         String message = "Khách hàng " + savedCustomer.getCustomerName() + " đã cập nhật thông tin tài sản ký gửi";
 
         Notification notification = Notification.builder()
                 .status(false)
                 .user(userMapper.toEntity(userDto))
-                .consignmentId(consignmentId)
+                .consignmentId(savedCustomer.getCustomerId())
                 .message(message)
                 .build();
         notificationRepository.save(notification);
 
         var notificationEvent = NotiEvent.builder()
                 .status(false)
-                .consignmentId(consignmentId)
+                .consignmentId(savedCustomer.getCustomerId())
                 .userId(List.of(userDto.getUserId()))
                 .message(message)
                 .createdAt(notification.getCreatedAt())
@@ -91,7 +89,6 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void assignCustomerToStaffs(AssignCustomerDto assignCustomerDto) {
         String message = "Bạn đã được gán khách hàng " + assignCustomerDto.getCustomer().getCustomerName();
-
 
         List<Notification> notifications = userMapper.toEntityList(assignCustomerDto.getUsers()).stream().map(user ->
             Notification.builder()

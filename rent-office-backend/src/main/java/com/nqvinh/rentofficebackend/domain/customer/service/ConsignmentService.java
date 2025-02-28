@@ -13,7 +13,7 @@ public interface ConsignmentService {
     CustomerResDto createConsignment(CustomerReqDto customerReqDto, List<MultipartFile> consignmentImages);
     Page<ConsignmentDto> getCustomerConsignments(Map<String, String> params);
     void deleteConsignment(Long consignmentId);
-    ConsignmentDto updateConsignment(Long consignmentId, ConsignmentDto consignmentDto, List<MultipartFile> consignmentImages);
+    ConsignmentDto updateConsignment(Long consignmentId, ConsignmentDto consignmentDto, List<MultipartFile> consignmentImages, List<String> deletedImages);
     ConsignmentDto getConsignmentById(Long consignmentId);
     void verifyTokenConsignment(String consignmentId,String token);
 }

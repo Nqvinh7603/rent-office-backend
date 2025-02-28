@@ -190,6 +190,7 @@ public class UserServiceImpl implements UserService {
         return userMapper.toDtoList(adminsAndManagers);
     }
 
+    @Override
     public List<UserDto> getAllUserByCustomerId(Long customerId) {
         return userMapper.toDtoList(userRepository.findUsersByCustomerId(customerId));
     }

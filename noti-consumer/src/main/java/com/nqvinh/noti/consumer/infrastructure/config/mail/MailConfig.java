@@ -1,4 +1,4 @@
-package com.nqvinh.mail.consumer.infrastructure.config.mail;
+package com.nqvinh.noti.consumer.infrastructure.config.mail;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

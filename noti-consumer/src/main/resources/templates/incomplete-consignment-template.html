@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Cập nhật thông tin tài sản ký gửi</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+    </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: Helvetica, Arial, sans-serif;">
+<div style="width: 100%; max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);">
+
+    <!-- Header -->
+    <div style="text-align: center; background: linear-gradient(90deg, #e67e22, #d35400); color: white; padding: 30px; border-radius: 10px 10px 0 0;">
+        <h2 style="margin: 0; font-size: 24px;">Yêu cầu bổ sung thông tin</h2>
+    </div>
+
+    <!-- Nội dung chính -->
+    <div style="margin: 20px; color: #333; line-height: 1.5;">
+        <p>Thân gửi <b th:text="${customerName}"></b>,</p>
+        <p>Chúng tôi đã xem xét yêu cầu ký gửi tài sản của quý khách và nhận thấy có một số thông tin cần bổ sung trước khi xét duyệt.</p>
+
+        <h3>📌 Thông tin tài sản:</h3>
+        <ul>
+            <li><b>Giá đề xuất:</b> <span th:text="${#numbers.formatDecimal(price, 0, 'COMMA', 2, 'POINT')}"></span> VND/m²</li>
+            <li><b>Địa chỉ:</b> <span th:text="${street}"></span>, <span th:text="${ward}"></span>, <span th:text="${district}"></span>, <span th:text="${city}"></span></li>
+            <li><b>Mô tả tài sản:</b> <span th:text="${description}" th:utext="${description}"></span></li>
+        </ul>
+
+        <h3>📝 Nội dung cần bổ sung:</h3>
+        <div style="background-color: #f8d7da; padding: 15px; border-radius: 5px; color: #721c24;">
+            <p th:text="${additionalInfo}" th:utext="${additionalInfo}" ></p>
+        </div>
+
+        <p>Vui lòng cập nhật thông tin tài sản bằng cách truy cập đường link bên dưới:</p>
+        <div style="text-align: center; margin: 20px 0;">
+            <a th:href="${additionalInfoLink}" style="background-color: #e67e22; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; display: inline-block;">
+                Cập nhật thông tin
+            </a>
+        </div>
+
+        <p>Nếu quý khách cần hỗ trợ hoặc có thắc mắc, vui lòng liên hệ với chúng tôi.</p>
+
+        <p>
+            📞 <strong>Hotline:</strong> 0919 463 436<br>
+            📧 <strong>Email hỗ trợ:</strong> support@cyberealcompany.com
+        </p>
+
+        <p>Cảm ơn quý khách đã tin tưởng dịch vụ của chúng tôi!</p>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #777;">
+        <p>&copy; [[${#dates.format(#dates.createNow(), 'yyyy')}]] Cyber Real. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>

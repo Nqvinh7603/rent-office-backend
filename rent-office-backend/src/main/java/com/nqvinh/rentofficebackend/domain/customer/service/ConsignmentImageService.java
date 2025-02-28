@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface ConsignmentImageService {
     void updateConsignmentImages(Consignment consignment, List<MultipartFile> consignmentImages);
+    void deleteConsignmentImages(Consignment consignment, List<String> deletedImages);
     List<Consignment> convertConsignmentDtoToEntities(CustomerReqDto customerReqDto, List<String> uploadedUrls, Customer customer);
     List<String> uploadConsignmentImages(CustomerReqDto customerReqDto, List<MultipartFile> consignmentImages);
 }

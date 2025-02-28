@@ -11,8 +11,8 @@
     <groupId>com.nqvinh</groupId>
     <artifactId>noti-consumer</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>mail-consumer</name>
-    <description>mail-consumer</description>
+    <name>noti-consumer</name>
+    <description>noti-consumer</description>
     <url/>
     <licenses>
         <license/>
@@ -41,6 +41,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

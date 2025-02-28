@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Từ chối tài sản ký gửi</title>
+  <style>
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+  </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: Helvetica, Arial, sans-serif;">
+<div style="width: 100%; max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);">
+
+  <!-- Header -->
+  <div style="text-align: center; background: linear-gradient(90deg, #c62828, #b71c1c); color: white; padding: 30px; border-radius: 10px 10px 0 0;">
+    <h2 style="margin: 0; font-size: 24px;">Yêu cầu ký gửi bị từ chối</h2>
+  </div>
+
+  <!-- Nội dung chính -->
+  <div style="margin: 20px; color: #333; line-height: 1.5;">
+    <p>Thân gửi <b th:text="${customerName}"></b>,</p>
+    <p>Chúng tôi rất tiếc phải thông báo rằng yêu cầu ký gửi tài sản của quý khách đã bị từ chối.</p>
+
+    <h3 style="color: #d9534f;">🔴 Lý do từ chối:</h3>
+    <p><b th:text="${rejectedReason}" th:utext="${rejectedReason}"></b></p>
+
+    <h3>📌 Thông tin tài sản ký gửi:</h3>
+    <ul>
+      <li><b>Giá đề xuất:</b> <span th:text="${#numbers.formatDecimal(price, 0, 'COMMA', 2, 'POINT')}"></span> VND/m²</li>
+      <li><b>Địa chỉ:</b> <span th:text="${street}"></span>,<span th:text="${ward}"></span>, <span th:text="${district}"></span>, <span th:text="${city}"></span></li>
+    </ul>
+
+    <div style="height: 1px; background-color: #e0e0e0; margin: 20px 0;"></div>
+
+    <p>Nếu quý khách có bất kỳ câu hỏi hoặc cần chỉnh sửa thông tin tài sản để gửi lại yêu cầu, vui lòng liên hệ với chúng tôi.</p>
+    <p>
+      📞 <strong>Hotline:</strong> 0919 463 436<br>
+      📧 <strong>Email hỗ trợ:</strong> support@cyberrealcompany.com
+    </p>
+
+    <p>Chúng tôi mong được hỗ trợ quý khách trong những giao dịch tiếp theo.</p>
+  </div>
+
+  <!-- Footer -->
+  <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #777;">
+    <p>&copy; [[${#dates.format(#dates.createNow(), 'yyyy')}]] Cyber Real. All rights reserved.</p>
+  </div>
+</div>
+</body>
+</html>

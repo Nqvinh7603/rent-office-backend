@@ -1,4 +1,4 @@
-package com.nqvinh.mail.consumer.domain.event;
+package com.nqvinh.noti.consumer.domain.event;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

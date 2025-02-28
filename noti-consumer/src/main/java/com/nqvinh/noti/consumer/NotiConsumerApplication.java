@@ -1,12 +1,12 @@
-package com.nqvinh.mail.consumer;
+package com.nqvinh.noti.consumer;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MailConsumerApplication {
+public class NotiConsumerApplication {
     public static void main(String[] args) {
-        SpringApplication.run(MailConsumerApplication.class, args);
+        SpringApplication.run(NotiConsumerApplication.class, args);
     }
 
 }

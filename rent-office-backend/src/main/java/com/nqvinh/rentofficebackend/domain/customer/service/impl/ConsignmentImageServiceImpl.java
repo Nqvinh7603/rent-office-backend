@@ -8,6 +8,7 @@ import com.nqvinh.rentofficebackend.domain.customer.entity.ConsignmentImage;
 import com.nqvinh.rentofficebackend.domain.customer.entity.Customer;
 import com.nqvinh.rentofficebackend.domain.customer.mapper.request.ConsignmentReqMapper;
 import com.nqvinh.rentofficebackend.domain.customer.service.ConsignmentImageService;
+import com.nqvinh.rentofficebackend.infrastructure.utils.CloudinaryUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -15,6 +16,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,6 +28,7 @@ public class ConsignmentImageServiceImpl implements ConsignmentImageService {
 
     ImageService imageService;
     ConsignmentReqMapper consignmentReqMapper;
+    CloudinaryUtils cloudinaryUtils;
 
     @Override
     @SneakyThrows
@@ -42,7 +45,25 @@ public class ConsignmentImageServiceImpl implements ConsignmentImageService {
                         .build());
             }
         });
+    }
 
+   @Override
+    public void deleteConsignmentImages(Consignment consignment, List<String> deletedImages) {
+        List<ConsignmentImage> images = consignment.getConsignmentImages();
+        List<ConsignmentImage> imagesToRemove = new ArrayList<>();
+        deletedImages.forEach(deletedImage -> {
+            images.stream()
+                  .filter(image -> image.getImgUrl().equals(deletedImage))
+                  .findFirst()
+                  .ifPresent(imagesToRemove::add);
+            try {
+                cloudinaryUtils.deleteFileFromCloudinary(deletedImage);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        images.removeAll(imagesToRemove);
+        consignment.setConsignmentImages(images);
     }
 
     @Override

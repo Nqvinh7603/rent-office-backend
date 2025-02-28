@@ -53,11 +53,16 @@ public class ConsignmentController {
     }
 
     @PutMapping(UrlConstant.UPDATE_CONSIGNMENT)
-    public ApiResponse<ConsignmentDto> updateConsignment(@PathVariable("id") Long consignmentId, @RequestPart("customer") ConsignmentDto consignmentDto, @RequestParam(value = "consignment_img", required = false) List<MultipartFile> consignmentImages) {
+    public ApiResponse<ConsignmentDto> updateConsignment(@PathVariable("id") Long consignmentId,
+                                                         @RequestPart("customer") ConsignmentDto consignmentDto,
+                                                         @RequestParam(value = "consignment_img", required = false) List<MultipartFile> consignmentImages,
+                                                            @RequestParam(value = "deleted_images", required = false) List<String> deletedImages
+
+    ) {
         return ApiResponse.<ConsignmentDto>builder()
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.UPDATED_SUCCESS.getMessage("Consignment & Customer"))
-                .payload(consignmentService.updateConsignment(consignmentId, consignmentDto, consignmentImages))
+                .payload(consignmentService.updateConsignment(consignmentId, consignmentDto, consignmentImages, deletedImages))
                 .build();
     }
 

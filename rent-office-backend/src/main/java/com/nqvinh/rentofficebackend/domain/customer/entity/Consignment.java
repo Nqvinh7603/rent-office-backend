@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -40,7 +41,7 @@ public class Consignment extends BaseEntity {
     @Column(name = "street", nullable = true)
     String street; // địa chỉ
 
-    @OneToMany(mappedBy = "consignment", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "consignment",fetch = FetchType.LAZY,cascade = CascadeType.ALL, orphanRemoval = true)
     List<ConsignmentImage>  consignmentImages;
 
     @Column(name = "price", nullable = true, precision = 15, scale = 2)

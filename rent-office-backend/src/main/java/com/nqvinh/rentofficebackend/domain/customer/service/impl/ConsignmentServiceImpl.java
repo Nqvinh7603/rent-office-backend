@@ -28,6 +28,7 @@ import com.nqvinh.rentofficebackend.domain.customer.repository.CustomerRepositor
 import com.nqvinh.rentofficebackend.domain.customer.service.ConsignmentImageService;
 import com.nqvinh.rentofficebackend.domain.customer.service.ConsignmentService;
 import com.nqvinh.rentofficebackend.domain.customer.service.CustomerService;
+import com.nqvinh.rentofficebackend.infrastructure.utils.CloudinaryUtils;
 import com.nqvinh.rentofficebackend.infrastructure.utils.PaginationUtils;
 import com.nqvinh.rentofficebackend.infrastructure.utils.StringUtils;
 import jakarta.persistence.criteria.Join;
@@ -42,6 +43,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -67,6 +69,7 @@ public class ConsignmentServiceImpl implements ConsignmentService {
     CustomerService customerService;
     EmailProducer emailProducer;
     RedisService redisService;
+    CloudinaryUtils cloudinaryUtils;
 
 
     @Override
@@ -144,44 +147,30 @@ public class ConsignmentServiceImpl implements ConsignmentService {
     @Override
     @Transactional
     @SneakyThrows
-    public ConsignmentDto updateConsignment(Long consignmentId, ConsignmentDto consignmentDto, List<MultipartFile> consignmentImages) {
+    public ConsignmentDto updateConsignment(Long consignmentId, ConsignmentDto consignmentDto, List<MultipartFile> consignmentImages, List<String> deletedImages) {
         Consignment consignment = consignmentRepository.findById(consignmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Consignment not found"));
-
-        if (consignmentImages != null && !consignmentImages.isEmpty()) {
-            consignmentImageService.updateConsignmentImages(consignment, consignmentImages);
-        } else {
-            consignmentDto.setConsignmentImages(consignment.getConsignmentImages().stream()
-                    .map(consignmentImage -> ConsignmentImageDto.builder()
-                            .consignmentImageId(consignmentImage.getConsignmentImageId())
-                            .imgUrl(consignmentImage.getImgUrl())
-                            .build())
-                    .collect(Collectors.toList()));
-        }
-
-        consignmentMapper.partialUpdate(consignment, consignmentDto);
-        consignment.getConsignmentImages().forEach(image -> image.setConsignment(consignment));
-
-        consignment.setUpdatedAt(LocalDateTime.now());
-
         String token = UUID.randomUUID().toString();
+
+        consignmentDto.setUpdatedAt(LocalDateTime.now());
+
         String additionalInfoLink = "http://localhost:5173/ky-gui/" + consignmentId + "?token=" + token;
         if (consignmentDto.getStatus().equals(ConsignmentStatus.INCOMPLETE.toString())) {
-           redisService.set("additional-info:" + consignmentId, token);
-            consignment.setAdditionalInfoAt(consignment.getUpdatedAt());
+            redisService.set("additional-info:" + consignmentId, token);
+            consignmentDto.setAdditionalInfoAt(consignmentDto.getUpdatedAt());
             var mailIncompleteConsignment = MailEvent.builder()
                     .toAddress(consignment.getCustomer().getEmail())
                     .subject("Cập nhật thông tin tài sản ký gửi")
                     .templateName("incomplete-consignment-template")
                     .context(Map.of(
-                            "customerName", consignment.getCustomer().getCustomerName(),
-                            "price", consignment.getPrice(),
-                            "city", consignment.getCity(),
-                            "district", consignment.getDistrict(),
-                            "ward", consignment.getWard(),
-                            "street", consignment.getStreet(),
-                            "description", consignment.getDescription(),
-                            "additionalInfo", consignment.getAdditionalInfo(),
+                            "customerName", consignmentDto.getCustomer().getCustomerName(),
+                            "price", consignmentDto.getPrice(),
+                            "city", consignmentDto.getCity(),
+                            "district", consignmentDto.getDistrict(),
+                            "ward", consignmentDto.getWard(),
+                            "street", consignmentDto.getStreet(),
+                            "description", consignmentDto.getDescription(),
+                            "additionalInfo", consignmentDto.getAdditionalInfo(),
                             "additionalInfoLink", additionalInfoLink
                     ))
                     .status(MailStatus.INIT.getStatus())
@@ -190,31 +179,29 @@ public class ConsignmentServiceImpl implements ConsignmentService {
                     .build();
             emailProducer.sendMailIncompleteConsignment(mailIncompleteConsignment);
         } else if (consignmentDto.getStatus().equals(ConsignmentStatus.ADDITIONAL_INFO.toString())) {
-            consignment.setAdditionalInfoAfterAt(consignment.getUpdatedAt());
-            List<UserDto> users = userService.getAllUserByCustomerId(consignment.getCustomer().getCustomerId());
-            users.forEach(user ->
-                    notificationService.updateInfoConsignmentNotification(user, consignment.getCustomer()));
-            redisService.delete("additional-info:" + consignmentId);
+                consignmentDto.setAdditionalInfoAfterAt(consignment.getUpdatedAt());
+                List<UserDto> users = userService.getAllUserByCustomerId(consignmentDto.getCustomer().getCustomerId());
+                users.forEach(user ->
+                        notificationService.updateInfoConsignmentNotification(user, consignmentDto.getCustomer()));
+                redisService.delete("additional-info:" + consignmentId);
         } else if (consignmentDto.getStatus().equals(ConsignmentStatus.CONFIRMED.toString())) {
-
-            consignment.setConfirmedAt(consignment.getUpdatedAt());
-
+            consignmentDto.setConfirmedAt(consignmentDto.getUpdatedAt());
         } else if (consignmentDto.getStatus().equals(ConsignmentStatus.CANCELLED.toString())) {
 
-            consignment.setRejectedReasonAt(consignment.getUpdatedAt());
+            consignmentDto.setRejectedReasonAt(consignmentDto.getUpdatedAt());
 
             var mailCancelledConsignment = MailEvent.builder()
-                    .toAddress(consignment.getCustomer().getEmail())
+                    .toAddress(consignmentDto.getCustomer().getEmail())
                     .subject("Từ chối tài sản ký gửi")
                     .templateName("cancelled-consignment-template")
                     .context(Map.of(
-                            "customerName", consignment.getCustomer().getCustomerName(),
-                            "price", consignment.getPrice(),
-                            "city", consignment.getCity(),
-                            "district", consignment.getDistrict(),
-                            "ward", consignment.getWard(),
-                            "street", consignment.getStreet(),
-                            "rejectedReason", consignment.getRejectedReason()
+                            "customerName", consignmentDto.getCustomer().getCustomerName(),
+                            "price", consignmentDto.getPrice(),
+                            "city", consignmentDto.getCity(),
+                            "district", consignmentDto.getDistrict(),
+                            "ward", consignmentDto.getWard(),
+                            "street", consignmentDto.getStreet(),
+                            "rejectedReason", consignmentDto.getRejectedReason()
                     ))
                     .status(MailStatus.INIT.getStatus())
                     .code(MessageCode.MAIL_CANCELLED_CONSIGNMENT.getCode())
@@ -222,6 +209,22 @@ public class ConsignmentServiceImpl implements ConsignmentService {
                     .build();
             emailProducer.sendMailCancelledConsignment(mailCancelledConsignment);
         }
+
+        if (consignmentImages != null && !consignmentImages.isEmpty()) {
+            consignmentImageService.updateConsignmentImages(consignment, consignmentImages);
+        }
+        if (deletedImages != null && !deletedImages.isEmpty()) {
+            consignmentImageService.deleteConsignmentImages(consignment, deletedImages);
+        }
+            consignmentDto.setConsignmentImages(consignment.getConsignmentImages().stream()
+                    .map(consignmentImage -> ConsignmentImageDto.builder()
+                            .consignmentImageId(consignmentImage.getConsignmentImageId())
+                            .imgUrl(consignmentImage.getImgUrl())
+                            .build())
+                    .collect(Collectors.toList()));
+
+        consignmentMapper.partialUpdate(consignment, consignmentDto);
+        consignment.getConsignmentImages().forEach(image -> image.setConsignment(consignment));
         Consignment savedConsignment = consignmentRepository.save(consignment);
         return consignmentMapper.toDto(savedConsignment);
     }

@@ -1,4 +1,4 @@
-package com.nqvinh.mail.consumer.infrastructure.config.context;
+package com.nqvinh.noti.consumer.infrastructure.config.context;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.context.ApplicationContextInitializer;

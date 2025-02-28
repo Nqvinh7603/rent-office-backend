@@ -1,4 +1,4 @@
-package com.nqvinh.mail.consumer.infrastructure.config.async;
+package com.nqvinh.noti.consumer.infrastructure.config.async;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
