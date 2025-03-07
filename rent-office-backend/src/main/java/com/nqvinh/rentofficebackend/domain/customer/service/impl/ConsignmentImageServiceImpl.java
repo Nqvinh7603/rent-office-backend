@@ -1,10 +1,12 @@
 package com.nqvinh.rentofficebackend.domain.customer.service.impl;
 
 import com.nqvinh.rentofficebackend.domain.common.service.ImageService;
+import com.nqvinh.rentofficebackend.domain.customer.constant.ConsignmentStatus;
 import com.nqvinh.rentofficebackend.domain.customer.dto.request.ConsignmentImageReqDto;
 import com.nqvinh.rentofficebackend.domain.customer.dto.request.CustomerReqDto;
 import com.nqvinh.rentofficebackend.domain.customer.entity.Consignment;
 import com.nqvinh.rentofficebackend.domain.customer.entity.ConsignmentImage;
+import com.nqvinh.rentofficebackend.domain.customer.entity.ConsignmentStatusHistory;
 import com.nqvinh.rentofficebackend.domain.customer.entity.Customer;
 import com.nqvinh.rentofficebackend.domain.customer.mapper.request.ConsignmentReqMapper;
 import com.nqvinh.rentofficebackend.domain.customer.service.ConsignmentImageService;
@@ -86,11 +88,19 @@ public class ConsignmentImageServiceImpl implements ConsignmentImageService {
                     Consignment newConsignment = consignmentReqMapper.toEntity(consignmentDto);
                     newConsignment.setCustomer(customer);
 
+                    List<ConsignmentStatusHistory> consignmentStatusHistories = consignmentDto.getConsignmentStatusHistories().stream()
+                            .map(consignmentStatusHistoryDto -> ConsignmentStatusHistory.builder()
+                                    .status(ConsignmentStatus.valueOf(consignmentStatusHistoryDto.getStatus()))
+                                    .consignment(newConsignment)
+                                    .build())
+                            .collect(Collectors.toList());
                     List<ConsignmentImage> consignmentImageEntities = uploadedUrls.stream()
                             .map(imgUrl -> ConsignmentImage.builder().imgUrl(imgUrl).consignment(newConsignment).build())
                             .collect(Collectors.toList());
 
                     newConsignment.setConsignmentImages(consignmentImageEntities);
+                    newConsignment.setConsignmentStatusHistories(consignmentStatusHistories);
+
                     return newConsignment;
                 })
                 .collect(Collectors.toList());

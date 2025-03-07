@@ -74,5 +74,20 @@ public class NotiProducerImpl implements NotiProducer {
         }
     }
 
+    @Override
+    public void sendNotiCreatePotentialCustomer(NotiEvent noti) {
+        try{
+            var message = MessageBuilder.build(
+                    serviceId,
+                    EventType.EVENT,
+                    MessageCode.NOTIFICATION_CREATE_CUSTOMER_POTENTIAL.getCode(),
+                    noti
+            );
+            kafkaTemplate.send(notiTopic, message);
+            log.info("Produced a message to topic: {}, value: {}", notiTopic, message);
+        } catch (Exception e) {
+            log.error("Failed to produce the message to topic: {}", notiTopic, e);
+        }
+    }
 
 }

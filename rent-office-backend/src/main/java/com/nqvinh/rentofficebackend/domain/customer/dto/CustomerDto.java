@@ -25,11 +25,13 @@ public class CustomerDto {
     @NotBlank(message = "Email is required")
     String email;
 
-    @NotBlank(message = "Address is required")
+//    @NotBlank(message = "Address is required")
     String address;
 
     @NotBlank(message = "Require type is required")
     String requireType;
+
+    String note;
 
     @PastOrPresent(message = "Created at must be in the past or present")
     LocalDateTime createdAt;

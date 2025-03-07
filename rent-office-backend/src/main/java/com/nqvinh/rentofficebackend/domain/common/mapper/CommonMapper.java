@@ -1,5 +1,8 @@
 package com.nqvinh.rentofficebackend.domain.common.mapper;
 
+import com.nqvinh.rentofficebackend.domain.customer.dto.ConsignmentDto;
+import com.nqvinh.rentofficebackend.domain.customer.entity.Consignment;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 import java.util.List;
@@ -26,4 +29,7 @@ public interface CommonMapper<D, E> {
     }
 
     void partialUpdate(@MappingTarget E entity, D dto);
+
+    @Mapping(target = "consignmentStatusHistories", ignore = true)
+    void partialUpdate(@MappingTarget ConsignmentDto dto, Consignment entity);
 }

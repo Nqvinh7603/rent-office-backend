@@ -16,10 +16,11 @@ import com.nqvinh.rentofficebackend.domain.common.service.NotificationService;
 import com.nqvinh.rentofficebackend.domain.common.service.RedisService;
 import com.nqvinh.rentofficebackend.domain.customer.constant.ConsignmentStatus;
 import com.nqvinh.rentofficebackend.domain.customer.dto.ConsignmentDto;
-import com.nqvinh.rentofficebackend.domain.customer.dto.ConsignmentImageDto;
+import com.nqvinh.rentofficebackend.domain.customer.dto.ConsignmentStatusHistoryDto;
 import com.nqvinh.rentofficebackend.domain.customer.dto.request.CustomerReqDto;
 import com.nqvinh.rentofficebackend.domain.customer.dto.response.CustomerResDto;
 import com.nqvinh.rentofficebackend.domain.customer.entity.Consignment;
+import com.nqvinh.rentofficebackend.domain.customer.entity.ConsignmentStatusHistory;
 import com.nqvinh.rentofficebackend.domain.customer.entity.Customer;
 import com.nqvinh.rentofficebackend.domain.customer.mapper.ConsignmentMapper;
 import com.nqvinh.rentofficebackend.domain.customer.mapper.response.CustomerResMapper;
@@ -28,11 +29,12 @@ import com.nqvinh.rentofficebackend.domain.customer.repository.CustomerRepositor
 import com.nqvinh.rentofficebackend.domain.customer.service.ConsignmentImageService;
 import com.nqvinh.rentofficebackend.domain.customer.service.ConsignmentService;
 import com.nqvinh.rentofficebackend.domain.customer.service.CustomerService;
-import com.nqvinh.rentofficebackend.infrastructure.utils.CloudinaryUtils;
 import com.nqvinh.rentofficebackend.infrastructure.utils.PaginationUtils;
 import com.nqvinh.rentofficebackend.infrastructure.utils.StringUtils;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -43,13 +45,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -69,8 +69,6 @@ public class ConsignmentServiceImpl implements ConsignmentService {
     CustomerService customerService;
     EmailProducer emailProducer;
     RedisService redisService;
-    CloudinaryUtils cloudinaryUtils;
-
 
     @Override
     @SneakyThrows
@@ -151,13 +149,13 @@ public class ConsignmentServiceImpl implements ConsignmentService {
         Consignment consignment = consignmentRepository.findById(consignmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Consignment not found"));
         String token = UUID.randomUUID().toString();
-
-        consignmentDto.setUpdatedAt(LocalDateTime.now());
+        List<ConsignmentStatusHistory> existingStatusHistories = consignment.getConsignmentStatusHistories();
 
         String additionalInfoLink = "http://localhost:5173/ky-gui/" + consignmentId + "?token=" + token;
-        if (consignmentDto.getStatus().equals(ConsignmentStatus.INCOMPLETE.toString())) {
+
+        if (consignmentDto.getConsignmentStatusHistories().getLast().getStatus().equals(ConsignmentStatus.INCOMPLETE.toString())) {
             redisService.set("additional-info:" + consignmentId, token);
-            consignmentDto.setAdditionalInfoAt(consignmentDto.getUpdatedAt());
+
             var mailIncompleteConsignment = MailEvent.builder()
                     .toAddress(consignment.getCustomer().getEmail())
                     .subject("Cập nhật thông tin tài sản ký gửi")
@@ -170,7 +168,7 @@ public class ConsignmentServiceImpl implements ConsignmentService {
                             "ward", consignmentDto.getWard(),
                             "street", consignmentDto.getStreet(),
                             "description", consignmentDto.getDescription(),
-                            "additionalInfo", consignmentDto.getAdditionalInfo(),
+                            "additionalInfo", consignmentDto.getConsignmentStatusHistories().getFirst().getNote(),
                             "additionalInfoLink", additionalInfoLink
                     ))
                     .status(MailStatus.INIT.getStatus())
@@ -178,17 +176,12 @@ public class ConsignmentServiceImpl implements ConsignmentService {
                     .type(MailType.INCOMPLETE_CONSIGNMENT.getType())
                     .build();
             emailProducer.sendMailIncompleteConsignment(mailIncompleteConsignment);
-        } else if (consignmentDto.getStatus().equals(ConsignmentStatus.ADDITIONAL_INFO.toString())) {
-                consignmentDto.setAdditionalInfoAfterAt(consignment.getUpdatedAt());
-                List<UserDto> users = userService.getAllUserByCustomerId(consignmentDto.getCustomer().getCustomerId());
-                users.forEach(user ->
-                        notificationService.updateInfoConsignmentNotification(user, consignmentDto.getCustomer()));
-                redisService.delete("additional-info:" + consignmentId);
-        } else if (consignmentDto.getStatus().equals(ConsignmentStatus.CONFIRMED.toString())) {
-            consignmentDto.setConfirmedAt(consignmentDto.getUpdatedAt());
-        } else if (consignmentDto.getStatus().equals(ConsignmentStatus.CANCELLED.toString())) {
-
-            consignmentDto.setRejectedReasonAt(consignmentDto.getUpdatedAt());
+        } else if (consignmentDto.getConsignmentStatusHistories().getLast().getStatus().equals(ConsignmentStatus.ADDITIONAL_INFO.toString())) {
+            List<UserDto> users = userService.getAllUserByCustomerId(consignmentDto.getCustomer().getCustomerId());
+            users.forEach(user ->
+                    notificationService.updateInfoConsignmentNotification(user, consignmentDto));
+            redisService.delete("additional-info:" + consignmentId);
+        } else if (consignmentDto.getConsignmentStatusHistories().getLast().toString().equals(ConsignmentStatus.CANCELLED.toString())) {
 
             var mailCancelledConsignment = MailEvent.builder()
                     .toAddress(consignmentDto.getCustomer().getEmail())
@@ -201,7 +194,7 @@ public class ConsignmentServiceImpl implements ConsignmentService {
                             "district", consignmentDto.getDistrict(),
                             "ward", consignmentDto.getWard(),
                             "street", consignmentDto.getStreet(),
-                            "rejectedReason", consignmentDto.getRejectedReason()
+                            "rejectedReason", consignmentDto.getConsignmentStatusHistories().getFirst().getNote()
                     ))
                     .status(MailStatus.INIT.getStatus())
                     .code(MessageCode.MAIL_CANCELLED_CONSIGNMENT.getCode())
@@ -216,15 +209,20 @@ public class ConsignmentServiceImpl implements ConsignmentService {
         if (deletedImages != null && !deletedImages.isEmpty()) {
             consignmentImageService.deleteConsignmentImages(consignment, deletedImages);
         }
-            consignmentDto.setConsignmentImages(consignment.getConsignmentImages().stream()
-                    .map(consignmentImage -> ConsignmentImageDto.builder()
-                            .consignmentImageId(consignmentImage.getConsignmentImageId())
-                            .imgUrl(consignmentImage.getImgUrl())
-                            .build())
-                    .collect(Collectors.toList()));
+
+        consignmentDto.getConsignmentStatusHistories().stream()
+                .filter(statusDto -> statusDto.getConsignmentStatusHistoryId() == null)
+                .map(statusDto -> ConsignmentStatusHistory.builder()
+                        .status(ConsignmentStatus.valueOf(statusDto.getStatus()))
+                        .note(statusDto.getNote())
+                        .consignment(consignment)
+                        .build())
+                .forEach(existingStatusHistories::add);
+        consignment.setConsignmentStatusHistories(existingStatusHistories);
 
         consignmentMapper.partialUpdate(consignment, consignmentDto);
         consignment.getConsignmentImages().forEach(image -> image.setConsignment(consignment));
+        consignment.getConsignmentStatusHistories().forEach(status -> status.setConsignment(consignment));
         Consignment savedConsignment = consignmentRepository.save(consignment);
         return consignmentMapper.toDto(savedConsignment);
     }
@@ -346,13 +344,20 @@ public class ConsignmentServiceImpl implements ConsignmentService {
             });
         }
 
-        if (params.containsKey("status")) {
-            String status = params.get("status");
-            spec = spec.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("status"), status)
-            );
+       if (params.containsKey("status")) {
+            List<String> statuses = Arrays.asList(params.get("status").split(","));
+            spec = spec.and((root, query, criteriaBuilder) -> {
+                Join<Consignment, ConsignmentStatusHistory> statusJoin = root.join("consignmentStatusHistories", JoinType.INNER);
+                Subquery<Long> subquery = query.subquery(Long.class);
+                Root<ConsignmentStatusHistory> subqueryRoot = subquery.from(ConsignmentStatusHistory.class);
+                subquery.select(criteriaBuilder.max(subqueryRoot.get("consignmentStatusHistoryId")))
+                        .where(criteriaBuilder.equal(subqueryRoot.get("consignment"), root));
+                return criteriaBuilder.and(
+                        statusJoin.get("status").in(statuses),
+                        criteriaBuilder.equal(statusJoin.get("consignmentStatusHistoryId"), subquery)
+                );
+            });
         }
-
         return spec;
     }
 

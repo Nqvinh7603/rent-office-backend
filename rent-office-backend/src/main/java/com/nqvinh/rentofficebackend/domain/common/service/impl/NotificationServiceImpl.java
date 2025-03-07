@@ -13,6 +13,7 @@ import com.nqvinh.rentofficebackend.domain.common.repository.NotificationReposit
 import com.nqvinh.rentofficebackend.domain.common.service.NotiProducer;
 import com.nqvinh.rentofficebackend.domain.common.service.NotificationService;
 import com.nqvinh.rentofficebackend.domain.customer.dto.AssignCustomerDto;
+import com.nqvinh.rentofficebackend.domain.customer.dto.ConsignmentDto;
 import com.nqvinh.rentofficebackend.domain.customer.dto.CustomerDto;
 import com.nqvinh.rentofficebackend.domain.customer.entity.Customer;
 import jakarta.transaction.Transactional;
@@ -63,20 +64,20 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void updateInfoConsignmentNotification(UserDto userDto, CustomerDto savedCustomer) {
-        String message = "Khách hàng " + savedCustomer.getCustomerName() + " đã cập nhật thông tin tài sản ký gửi";
+    public void updateInfoConsignmentNotification(UserDto userDto, ConsignmentDto savedConsignment) {
+        String message = "Khách hàng " + savedConsignment.getCustomer().getCustomerName() + " đã cập nhật thông tin tài sản ký gửi";
 
         Notification notification = Notification.builder()
                 .status(false)
                 .user(userMapper.toEntity(userDto))
-                .consignmentId(savedCustomer.getCustomerId())
+                .consignmentId(savedConsignment.getConsignmentId())
                 .message(message)
                 .build();
         notificationRepository.save(notification);
 
         var notificationEvent = NotiEvent.builder()
                 .status(false)
-                .consignmentId(savedCustomer.getCustomerId())
+                .consignmentId(savedConsignment.getConsignmentId())
                 .userId(List.of(userDto.getUserId()))
                 .message(message)
                 .createdAt(notification.getCreatedAt())
@@ -109,6 +110,29 @@ public class NotificationServiceImpl implements NotificationService {
                 .type(MailType.NOTIFICATION_ASSIGN_CUSTOMER.getType())
                 .build();
         notiProducer.sendNotiAssignCustomer(notificationEvent);
+    }
+
+    @Override
+    public void createPotentialCustomerNotification(UserDto userDto, CustomerDto savedCustomer) {
+        String message = "Khách hàng " + savedCustomer.getCustomerName() + " có nhu cầu ký gửi";
+
+        Notification notification = Notification.builder()
+                .status(false)
+                .user(userMapper.toEntity(userDto))
+                .message(message)
+                .build();
+        notificationRepository.save(notification);
+
+        var notificationEvent = NotiEvent.builder()
+                .status(false)
+                .userId(List.of(userDto.getUserId()))
+                .message(message)
+                .createdAt(notification.getCreatedAt())
+                .code(MessageCode.NOTIFICATION_CREATE_CUSTOMER_POTENTIAL.getCode())
+                .type(MailType.NOTIFICATION_CREATE_CUSTOMER_POTENTIAL.getType())
+                .build();
+
+        notiProducer.sendNotiCreatePotentialCustomer(notificationEvent);
     }
 
     @Override

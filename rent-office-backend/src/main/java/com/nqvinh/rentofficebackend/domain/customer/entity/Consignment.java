@@ -8,7 +8,6 @@ import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -50,30 +49,32 @@ public class Consignment extends BaseEntity {
     @Column(name = "description", nullable = true, columnDefinition = "TEXT")
     String description;
 
-    @Column(name = "status", nullable = true)
-    @Enumerated(EnumType.STRING)
-    ConsignmentStatus status;
+//    @Column(name = "status", nullable = true)
+//    @Enumerated(EnumType.STRING)
+//    ConsignmentStatus status;
 
     @Column(name = "building_type", nullable = true)
     String buildingType;
 
+//    @Column(name = "rejected_reason", nullable = true, columnDefinition = "TEXT")
+//    String rejectedReason;
+//
+//    @Column(name = "rejected_reason_at", nullable = true)
+//    LocalDateTime rejectedReasonAt;
+//
+//    @Column(name = "additional_info", nullable = true, columnDefinition = "TEXT")
+//    String additionalInfo;
+//
+//    @Column(name = "additional_info_at", nullable = true)
+//    LocalDateTime additionalInfoAt;
+//
+//    @Column(name = "confirmed_at", nullable = true)
+//    LocalDateTime confirmedAt;
+//
+//    @Column(name = "additional_info_after_at", nullable = true)
+//    LocalDateTime additionalInfoAfterAt;
 
-    @Column(name = "rejected_reason", nullable = true, columnDefinition = "TEXT")
-    String rejectedReason;
-
-    @Column(name = "rejected_reason_at", nullable = true)
-    LocalDateTime rejectedReasonAt;
-
-    @Column(name = "additional_info", nullable = true, columnDefinition = "TEXT")
-    String additionalInfo;
-
-    @Column(name = "additional_info_at", nullable = true)
-    LocalDateTime additionalInfoAt;
-
-    @Column(name = "confirmed_at", nullable = true)
-    LocalDateTime confirmedAt;
-
-    @Column(name = "additional_info_after_at", nullable = true)
-    LocalDateTime additionalInfoAfterAt;
+    @OneToMany(mappedBy = "consignment", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    List<ConsignmentStatusHistory> consignmentStatusHistories;
 
 }

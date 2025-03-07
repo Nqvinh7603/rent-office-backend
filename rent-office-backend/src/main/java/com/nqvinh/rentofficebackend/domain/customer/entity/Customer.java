@@ -33,7 +33,7 @@ public class Customer extends BaseEntity {
     @Column(name = "email", nullable = false, unique = true)
     String email;
 
-    @Column(name = "address", nullable = false)
+    @Column(name = "address", nullable = true)
     String address;
 
     @Column(name = "require_type", nullable = false)
@@ -50,4 +50,7 @@ public class Customer extends BaseEntity {
             joinColumns = @JoinColumn(name = "customer_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     List<User> users;
+
+    @Column(name = "note", nullable = true, columnDefinition = "TEXT")
+    String note;
 }

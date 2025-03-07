@@ -21,6 +21,6 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
 
     List<User> findByActiveAndRole_RoleNameIn(boolean status, List<String> roleNames);
 
-    @Query("SELECT u FROM User u JOIN u.customers c WHERE (c.customerId = :customerId AND u.active = true) OR u.role.roleName = 'ADMIN'")
+    @Query("SELECT u FROM User u LEFT JOIN u.customers c WHERE (c.customerId = :customerId AND u.active = true) OR u.role.roleName = 'ADMIN'")
     List<User> findUsersByCustomerId(@Param("customerId") Long customerId);
 }

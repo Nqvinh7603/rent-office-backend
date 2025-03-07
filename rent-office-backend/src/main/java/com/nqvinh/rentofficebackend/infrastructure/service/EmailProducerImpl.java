@@ -79,7 +79,7 @@ public class EmailProducerImpl implements EmailProducer {
             var message = MessageBuilder.build(
                     serviceId,
                     EventType.EVENT,
-                    MessageCode.MAIL_INCOMPLETE_CONSIGNMENT.getCode(),
+                    MessageCode.MAIL_CREATE_CUSTOMER_POTENTIAL.getCode(),
                     mail
             );
             kafkaTemplate.send(emailTopic, message);
@@ -87,6 +87,11 @@ public class EmailProducerImpl implements EmailProducer {
         } catch (Exception e) {
             log.error("Failed to produce the message to topic: {}", emailTopic, e);
         }
+    }
+
+    @Override
+    public void sendMailNewPotentialCustomer(MailEvent mail) {
+
     }
 
 }

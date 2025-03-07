@@ -1,5 +1,6 @@
 package com.nqvinh.rentofficebackend.domain.customer.dto;
 
+import com.nqvinh.rentofficebackend.domain.customer.entity.ConsignmentStatusHistory;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
@@ -40,21 +41,22 @@ public class ConsignmentDto {
     @NotBlank(message = "Description is required")
     String description;
 
-    String status;
-
     String buildingType;
 
-    String rejectedReason;
+//    String rejectedReason;
+//
+//    LocalDateTime rejectedReasonAt;
+//
+//    String additionalInfo;
+//
+//    LocalDateTime additionalInfoAt;
+//
+//    LocalDateTime confirmedAt;
+//
+//    LocalDateTime additionalInfoAfterAt;
 
-    LocalDateTime rejectedReasonAt;
-
-    String additionalInfo;
-
-    LocalDateTime additionalInfoAt;
-
-    LocalDateTime confirmedAt;
-
-    LocalDateTime additionalInfoAfterAt;
+    @NotNull(message = "Status is required")
+    List<ConsignmentStatusHistoryDto> consignmentStatusHistories = List.of();
 
     @PastOrPresent(message = "Created at must be in the past or present")
     LocalDateTime createdAt;

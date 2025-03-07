@@ -3,6 +3,7 @@ package com.nqvinh.rentofficebackend.domain.common.service;
 import com.nqvinh.rentofficebackend.domain.auth.dto.UserDto;
 import com.nqvinh.rentofficebackend.domain.common.dto.NotificationDto;
 import com.nqvinh.rentofficebackend.domain.customer.dto.AssignCustomerDto;
+import com.nqvinh.rentofficebackend.domain.customer.dto.ConsignmentDto;
 import com.nqvinh.rentofficebackend.domain.customer.dto.CustomerDto;
 import com.nqvinh.rentofficebackend.domain.customer.entity.Customer;
 
@@ -15,6 +16,7 @@ public interface NotificationService {
     void markNotificationAsRead(UUID userId,Long notificationId);
     void deleteNotification(List<Long> notificationId);
     List<NotificationDto> getNotifications(UUID userId);
-    void updateInfoConsignmentNotification(UserDto userDto, CustomerDto savedCustomer);
+    void updateInfoConsignmentNotification(UserDto userDto, ConsignmentDto savedCustomer);
     void assignCustomerToStaffs(AssignCustomerDto assignCustomerDto);
+    void createPotentialCustomerNotification(UserDto userDto, CustomerDto savedCustomer);
 }

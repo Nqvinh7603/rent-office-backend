@@ -67,6 +67,8 @@ public class User extends BaseEntity implements UserDetails {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     List<Notification> notifications;
 
+    @Column(name = "customer_id")
+    Long customerId;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

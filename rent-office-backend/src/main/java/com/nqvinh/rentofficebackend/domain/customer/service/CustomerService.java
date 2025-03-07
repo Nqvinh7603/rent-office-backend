@@ -13,4 +13,7 @@ public interface CustomerService {
     List<UserDto> getStaffsByCustomerId(Long customerId);
     List<CustomerDto> getCustomersByRequireType();
     Customer findOrCreateCustomer(CustomerReqDto customerReqDto);
+
+    //khách hàng tiềm năng
+    CustomerDto createPotentialCustomer(CustomerDto customerDto);
 }

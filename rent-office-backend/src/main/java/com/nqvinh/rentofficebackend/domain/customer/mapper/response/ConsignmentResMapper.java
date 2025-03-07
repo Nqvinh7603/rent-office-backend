@@ -6,6 +6,6 @@ import com.nqvinh.rentofficebackend.domain.customer.dto.response.ConsignmentResD
 import com.nqvinh.rentofficebackend.domain.customer.entity.Consignment;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring", config = CommonMapperConfig.class, uses = {ConsignmentImageResMapper.class})
+@Mapper(componentModel = "spring", config = CommonMapperConfig.class, uses = {ConsignmentImageResMapper.class, ConsignmentStatusHistoryResMapper.class})
 public interface ConsignmentResMapper extends CommonMapper<ConsignmentResDto, Consignment> {
 }

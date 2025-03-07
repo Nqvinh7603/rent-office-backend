@@ -7,4 +7,5 @@ public interface EmailProducer {
     void sendMailCancelledConsignment(MailEvent mail);
     void sendMailNewConsignment(MailEvent mail);
     void sendMailIncompleteConsignment(MailEvent mail);
+    void sendMailNewPotentialCustomer(MailEvent mail);
 }

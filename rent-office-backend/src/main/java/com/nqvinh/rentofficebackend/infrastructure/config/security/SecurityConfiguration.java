@@ -64,7 +64,8 @@ public class SecurityConfiguration {
                                 "/api/v1/building-types/all",
                                 "/api/v1/consignments",
                                 "/api/v1/consignments/{id}",
-                                "/api/v1/consignments/{id}/verify-token"
+                                "/api/v1/consignments/{id}/verify-token",
+                                "/api/v1/customers"
                                 ).permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

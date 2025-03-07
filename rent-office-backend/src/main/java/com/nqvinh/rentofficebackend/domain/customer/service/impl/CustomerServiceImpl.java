@@ -5,6 +5,11 @@ import com.nqvinh.rentofficebackend.domain.auth.entity.User;
 import com.nqvinh.rentofficebackend.domain.auth.mapper.UserMapper;
 import com.nqvinh.rentofficebackend.domain.auth.repository.UserRepository;
 import com.nqvinh.rentofficebackend.domain.auth.service.UserService;
+import com.nqvinh.rentofficebackend.domain.common.constant.MailStatus;
+import com.nqvinh.rentofficebackend.domain.common.constant.MailType;
+import com.nqvinh.rentofficebackend.domain.common.constant.MessageCode;
+import com.nqvinh.rentofficebackend.domain.common.event.MailEvent;
+import com.nqvinh.rentofficebackend.domain.common.service.EmailProducer;
 import com.nqvinh.rentofficebackend.domain.common.service.NotificationService;
 import com.nqvinh.rentofficebackend.domain.customer.constant.RequireTypeEnum;
 import com.nqvinh.rentofficebackend.domain.customer.dto.AssignCustomerDto;
@@ -24,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static lombok.AccessLevel.PRIVATE;
@@ -40,6 +46,7 @@ public class CustomerServiceImpl implements CustomerService {
     CustomerMapper customerMapper;
     CustomerReqMapper customerReqMapper;
     NotificationService notificationService;
+    EmailProducer emailProducer;
 
     @Override
     @SneakyThrows
@@ -98,5 +105,36 @@ public class CustomerServiceImpl implements CustomerService {
                 });
     }
 
+    @Override
+    @Transactional
+    public CustomerDto createPotentialCustomer(CustomerDto customerDto) {
+        sendMailForPotentialCustomer(customerDto);
+        Customer customer = customerMapper.toEntity(customerDto);
+        Customer savedCustomer = customerRepository.save(customer);
+
+        List<UserDto> adminsAndManagers = userService.getAllAdminsAndManagers();
+        adminsAndManagers.forEach(adminOrManager -> notificationService.createPotentialCustomerNotification(adminOrManager, customerDto));
+        return customerMapper.toDto(savedCustomer);
+    }
+
+    private void sendMailForPotentialCustomer(CustomerDto customerDto) {
+        var mailNewPotentialCustomer = MailEvent.builder()
+                .toAddress(customerDto.getEmail())
+                .subject("Xác nhận yêu cầu tư vấn từ hệ thống")
+                .templateName("new-potential-customer")
+                .context(
+                        Map.of(
+                                "customerName", customerDto.getCustomerName(),
+                                "note", customerDto.getNote(),
+                                "phoneNumber", customerDto.getPhoneNumber()
+                        )
+                )
+                .status(MailStatus.INIT.getStatus())
+                .code(MessageCode.MAIL_CREATE_CUSTOMER_POTENTIAL.getCode())
+                .type(MailType.CREATE_CUSTOMER_POTENTIAL.getType())
+                .build();
+
+        emailProducer.sendMailNewPotentialCustomer(mailNewPotentialCustomer);
+    }
 
 }

@@ -49,4 +49,13 @@ public class CustomerController {
                 .build();
     }
 
+    @PostMapping
+    public ApiResponse<CustomerDto> createPotentialCustomer(@RequestBody CustomerDto customerDto) {
+        return ApiResponse.<CustomerDto>builder()
+                .status(HttpStatus.CREATED.value())
+                .message(MessageEnums.CREATED_SUCCESS.getMessage("Potential customer"))
+                .payload(customerService.createPotentialCustomer(customerDto))
+                .build();
+    }
+
 }

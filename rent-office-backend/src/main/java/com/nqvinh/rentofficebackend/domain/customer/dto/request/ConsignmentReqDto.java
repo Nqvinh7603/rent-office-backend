@@ -33,6 +33,9 @@ public class ConsignmentReqDto {
     @NotNull(message = "List image is required")
     List<ConsignmentImageReqDto> consignmentImages = List.of();
 
+    @NotNull(message = "List status history is required")
+    List<ConsignmentStatusHistoryReqDto> consignmentStatusHistories = List.of();
+
     @NotNull(message = "Price is required")
     BigDecimal price;
 
