@@ -180,7 +180,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> loadStaff() {
+    public List<UserDto>loadStaff() {
         return userMapper.toDtoList(userRepository.findByActiveAndRole_RoleName(true, "EMPLOYEE"));
     }
 

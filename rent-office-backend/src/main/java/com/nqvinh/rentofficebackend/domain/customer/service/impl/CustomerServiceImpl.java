@@ -1,5 +1,7 @@
 package com.nqvinh.rentofficebackend.domain.customer.service.impl;
 
+import com.nqvinh.rentofficebackend.application.dto.response.Meta;
+import com.nqvinh.rentofficebackend.application.dto.response.Page;
 import com.nqvinh.rentofficebackend.domain.auth.dto.UserDto;
 import com.nqvinh.rentofficebackend.domain.auth.entity.User;
 import com.nqvinh.rentofficebackend.domain.auth.mapper.UserMapper;
@@ -15,19 +17,27 @@ import com.nqvinh.rentofficebackend.domain.customer.constant.RequireTypeEnum;
 import com.nqvinh.rentofficebackend.domain.customer.dto.AssignCustomerDto;
 import com.nqvinh.rentofficebackend.domain.customer.dto.CustomerDto;
 import com.nqvinh.rentofficebackend.domain.customer.dto.request.CustomerReqDto;
+import com.nqvinh.rentofficebackend.domain.customer.entity.Consignment;
 import com.nqvinh.rentofficebackend.domain.customer.entity.Customer;
 import com.nqvinh.rentofficebackend.domain.customer.mapper.CustomerMapper;
 import com.nqvinh.rentofficebackend.domain.customer.mapper.request.CustomerReqMapper;
 import com.nqvinh.rentofficebackend.domain.customer.repository.CustomerRepository;
 import com.nqvinh.rentofficebackend.domain.customer.service.CustomerService;
+import com.nqvinh.rentofficebackend.infrastructure.utils.PaginationUtils;
+import com.nqvinh.rentofficebackend.infrastructure.utils.StringUtils;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -47,6 +57,8 @@ public class CustomerServiceImpl implements CustomerService {
     CustomerReqMapper customerReqMapper;
     NotificationService notificationService;
     EmailProducer emailProducer;
+    StringUtils stringUtils;
+    PaginationUtils paginationUtils;
 
     @Override
     @SneakyThrows
@@ -116,6 +128,89 @@ public class CustomerServiceImpl implements CustomerService {
         adminsAndManagers.forEach(adminOrManager -> notificationService.createPotentialCustomerNotification(adminOrManager, customerDto));
         return customerMapper.toDto(savedCustomer);
     }
+
+    @Override
+    @Transactional
+    public CustomerDto updatePotentialCustomer(Long customerId, CustomerDto customerDto) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+        customerMapper.partialUpdate(customer, customerDto);
+        return customerMapper.toDto(customerRepository.save(customer));
+    }
+
+    @Override
+    public void deletePotentialCustomer(Long customerId) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+        customerRepository.delete(customer);
+    }
+
+    @Override
+    public Page<CustomerDto> getPotentialCustomers(Map<String, String> params) {
+        Specification<Customer> spec = getCustomerSpec(params);
+        Pageable pageable = paginationUtils.buildPageable(params);
+        org.springframework.data.domain.Page<Customer> customerPage = customerRepository.findAll(spec, pageable);
+        Meta meta = paginationUtils.buildMeta(customerPage, pageable);
+        return paginationUtils.mapPage(customerPage, meta, customerMapper::toDto);
+    }
+
+    @Override
+    public List<CustomerDto> getPotentialCustomers() {
+        return customerMapper.toDtoList(customerRepository.findPotentialCustomer());
+    }
+
+    private Specification<Customer> getCustomerSpec(Map<String, String> params) {
+        Specification<Customer> spec = (root, query, cb) -> cb.isNotNull(root.get("status"));
+
+        if (params.containsKey("staffName")) {
+            String staffName = stringUtils.normalizeString(params.get("staffName").trim().toLowerCase());
+            String[] nameParts = staffName.split("\\s+");
+            String likePatternFirstName = nameParts.length > 1
+                    ? "%" + String.join(" ", Arrays.copyOfRange(nameParts, 0, nameParts.length - 1)) + "%"
+                    : "%" + nameParts[0] + "%";
+            String likePatternLastName = "%" + nameParts[nameParts.length - 1] + "%";
+            spec = spec.and((root, query, criteriaBuilder) -> {
+                Join<Customer, User> userJoin = root.join("users", JoinType.INNER);
+                return criteriaBuilder.and(
+                        criteriaBuilder.isNotNull(userJoin.get("userId")),
+                        criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower(userJoin.get("firstName"))), likePatternFirstName),
+                        criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower(userJoin.get("lastName"))), likePatternLastName)
+                );
+            });
+        }
+
+        if (params.containsKey("email")) {
+            String ward = stringUtils.normalizeString(params.get("email").trim().toLowerCase());
+            String likePattern = "%" + ward + "%";
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower(root.get("email"))), likePattern)
+            );
+        }
+
+        if(params.containsKey("phoneNumber")) {
+            String phoneNumber = stringUtils.normalizeString(params.get("phoneNumber").trim().toLowerCase());
+            String likePattern = "%" + phoneNumber + "%";
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower(root.get("phoneNumber"))), likePattern)
+            );
+        }
+
+        if(params.containsKey("customerName")) {
+            String customerName = stringUtils.normalizeString(params.get("customerName").trim().toLowerCase());
+            String likePattern = "%" + customerName + "%";
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower(root.get("customerName"))), likePattern)
+            );
+        }
+
+
+        if (params.containsKey("status")) {
+            String requireType = params.get("status");
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), requireType));
+        }
+        return spec;
+    }
+
 
     private void sendMailForPotentialCustomer(CustomerDto customerDto) {
         var mailNewPotentialCustomer = MailEvent.builder()

@@ -59,6 +59,10 @@ public class UrlConstant {
     public static final String ASSIGN_CUSTOMER = "/assign-customer";
     public static final String GET_STAFFS_BY_CUSTOMER_ID = "/{id}/staffs";
     public static final String GET_CUSTOMERS_BY_REQUIRE_TYPE = "/require-type";
+    public static final String CUSTOMERS_POTENTIAL = "/potentials";
+    public static final String UPDATE_CUSTOMERS_POTENTIAL = "/potentials/{id}";
+    public static final String DELETE_CUSTOMERS_POTENTIAL = "/potentials/{id}";
+    public static final String GET_CUSTOMERS_POTENTIAL = "/potentials/all";
 
     //Consignment
     public static final String CONSIGNMENTS = API_BASE + "/consignments";

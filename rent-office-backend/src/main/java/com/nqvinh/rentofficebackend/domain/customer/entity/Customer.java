@@ -3,6 +3,7 @@ package com.nqvinh.rentofficebackend.domain.customer.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.nqvinh.rentofficebackend.domain.auth.entity.User;
 import com.nqvinh.rentofficebackend.domain.common.entity.BaseEntity;
+import com.nqvinh.rentofficebackend.domain.customer.constant.PotentialCustomerStatus;
 import com.nqvinh.rentofficebackend.domain.customer.constant.RequireTypeEnum;
 import jakarta.persistence.*;
 import lombok.*;
@@ -53,4 +54,8 @@ public class Customer extends BaseEntity {
 
     @Column(name = "note", nullable = true, columnDefinition = "TEXT")
     String note;
+
+    @Column(name = "status", nullable = true)
+    @Enumerated(EnumType.STRING)
+    PotentialCustomerStatus status;
 }

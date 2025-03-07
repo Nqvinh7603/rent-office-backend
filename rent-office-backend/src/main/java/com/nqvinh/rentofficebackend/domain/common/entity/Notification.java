@@ -22,6 +22,9 @@ public class Notification extends BaseEntity {
     @Column(name = "consignment_id", nullable = true)
     Long consignmentId;
 
+    @Column(name = "customer_id", nullable = true)
+    Long customerId;
+
     @Column(name = "message", nullable = true, columnDefinition = "TEXT")
     String message;
 

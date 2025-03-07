@@ -114,11 +114,12 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void createPotentialCustomerNotification(UserDto userDto, CustomerDto savedCustomer) {
-        String message = "Khách hàng " + savedCustomer.getCustomerName() + " có nhu cầu ký gửi";
+        String message = "Khách hàng " + savedCustomer.getCustomerName() + " có nhu cầu thuê tài sản";
 
         Notification notification = Notification.builder()
                 .status(false)
                 .user(userMapper.toEntity(userDto))
+                .customerId(savedCustomer.getCustomerId())
                 .message(message)
                 .build();
         notificationRepository.save(notification);

@@ -330,9 +330,12 @@ public class ConsignmentServiceImpl implements ConsignmentService {
 
         if (params.containsKey("staffName")) {
             String staffName = stringUtils.normalizeString(params.get("staffName").trim().toLowerCase());
-            String[] nameParts = staffName.split(" ");
-            String likePatternFirstName = "%" + nameParts[0] + "%";
-            String likePatternLastName = nameParts.length > 1 ? "%" + nameParts[1] + "%" : likePatternFirstName;
+            String[] nameParts = staffName.split("\\s+");
+
+            String likePatternFirstName = nameParts.length > 1
+                    ? "%" + String.join(" ", Arrays.copyOfRange(nameParts, 0, nameParts.length - 1)) + "%"
+                    : "%" + nameParts[0] + "%";
+            String likePatternLastName = "%" + nameParts[nameParts.length - 1] + "%";
             spec = spec.and((root, query, criteriaBuilder) -> {
                 Join<Customer, Consignment> customerJoin = root.join("customer", JoinType.INNER);
                 Join<Customer, User> userJoin = customerJoin.join("users", JoinType.INNER);

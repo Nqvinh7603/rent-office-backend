@@ -33,6 +33,8 @@ public class CustomerDto {
 
     String note;
 
+    String status;
+
     @PastOrPresent(message = "Created at must be in the past or present")
     LocalDateTime createdAt;
 
