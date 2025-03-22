@@ -3,9 +3,12 @@ package com.nqvinh.rentofficebackend.domain.building.service.impl;
 import com.nqvinh.rentofficebackend.application.dto.response.Meta;
 import com.nqvinh.rentofficebackend.application.dto.response.Page;
 import com.nqvinh.rentofficebackend.application.exception.ResourceNotFoundException;
+import com.nqvinh.rentofficebackend.domain.building.constant.BuildingStatus;
 import com.nqvinh.rentofficebackend.domain.building.dto.BuildingLevelDto;
+import com.nqvinh.rentofficebackend.domain.building.dto.response.client.BuildingLevelClientRes;
 import com.nqvinh.rentofficebackend.domain.building.entity.BuildingLevel;
 import com.nqvinh.rentofficebackend.domain.building.mapper.BuildingLevelMapper;
+import com.nqvinh.rentofficebackend.domain.building.mapper.client.BuildingLevelClientResMapper;
 import com.nqvinh.rentofficebackend.domain.building.repository.BuildingLevelRepository;
 import com.nqvinh.rentofficebackend.domain.building.service.BuildingLevelService;
 import com.nqvinh.rentofficebackend.infrastructure.utils.PaginationUtils;
@@ -26,6 +29,7 @@ public class BuildingLevelServiceImpl implements BuildingLevelService {
     BuildingLevelRepository buildingLevelRepository;
     BuildingLevelMapper buildingLevelMapper;
     PaginationUtils paginationUtils;
+    BuildingLevelClientResMapper buildingLevelClientResMapper;
 
     @Override
     @Transactional
@@ -65,5 +69,10 @@ public class BuildingLevelServiceImpl implements BuildingLevelService {
         org.springframework.data.domain.Page<BuildingLevel> buildingLevelPage = buildingLevelRepository.findAll(pageable);
         Meta meta = paginationUtils.buildMeta(buildingLevelPage, pageable);
         return paginationUtils.mapPage(buildingLevelPage, meta, buildingLevelMapper::toDto);
+    }
+
+    @Override
+    public List<BuildingLevelClientRes> getBuildingLevelsForClient(String city) {
+        return buildingLevelClientResMapper.toDtoList(buildingLevelRepository.findByBuildingStatusAndCity(BuildingStatus.AVAILABLE, city));
     }
 }

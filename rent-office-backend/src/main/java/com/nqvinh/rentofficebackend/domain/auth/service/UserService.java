@@ -5,6 +5,7 @@ import com.nqvinh.rentofficebackend.application.exception.ResourceNotFoundExcept
 import com.nqvinh.rentofficebackend.domain.auth.dto.UserDto;
 import com.nqvinh.rentofficebackend.domain.auth.dto.request.ChangePasswordReq;
 import com.nqvinh.rentofficebackend.domain.auth.entity.User;
+import com.nqvinh.rentofficebackend.domain.building.dto.CustomerDto;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.NoSuchAlgorithmException;
@@ -35,4 +36,6 @@ public interface UserService {
     List<UserDto> getAllAdminsAndManagers();
 
     List<UserDto> getAllUserByCustomerId(Long customerId);
+
+    User createUserForCustomer(CustomerDto customerDto, String password);
 }

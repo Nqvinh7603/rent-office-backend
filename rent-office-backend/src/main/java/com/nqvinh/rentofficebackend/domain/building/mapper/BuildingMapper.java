@@ -1,55 +1,59 @@
 package com.nqvinh.rentofficebackend.domain.building.mapper;
 
 import com.nqvinh.rentofficebackend.domain.building.dto.BuildingDto;
-import com.nqvinh.rentofficebackend.domain.building.dto.BuildingImageDto;
+import com.nqvinh.rentofficebackend.domain.building.dto.BuildingLevelDto;
+import com.nqvinh.rentofficebackend.domain.building.dto.BuildingTypeDto;
 import com.nqvinh.rentofficebackend.domain.building.entity.Building;
-import com.nqvinh.rentofficebackend.domain.building.entity.BuildingImage;
+import com.nqvinh.rentofficebackend.domain.building.entity.BuildingLevel;
+import com.nqvinh.rentofficebackend.domain.building.entity.BuildingType;
 import com.nqvinh.rentofficebackend.domain.common.mapper.CommonMapper;
 import com.nqvinh.rentofficebackend.domain.common.mapper.CommonMapperConfig;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-@Mapper(componentModel = "spring",
-        uses = {BuildingMapper.class, BuildingTypeMapper.class, BuildingUnitMapper.class, FeePriceMapper.class, BuildingImageMapper.class},
-        config = CommonMapperConfig.class)
+@Mapper(componentModel = "spring", config = CommonMapperConfig.class,
+        uses = {
+                BuildingImageMapper.class,
+                CustomerMapper.class,
+                ConsignmentStatusHistoryMapper.class,
+                RentalPricingMapper.class,
+                BuildingTypeMapper.class,
+                BuildingLevelMapper.class,
+                FeeMapper.class,
+                PaymentPolicyMapper.class,
+                BuildingDetailMapper.class,
+                BuildingUnitMapper.class,
+        })
 public interface BuildingMapper extends CommonMapper<BuildingDto, Building> {
 
     @Override
-    @Mapping(target = "buildingImages", expression = "java(updateBuildingImages(entity, dto.getBuildingImages()))")
+    @Mapping(target = "consignmentStatusHistories", ignore = true)
+    @Mapping(target = "rentalPricing", ignore = true)
+    @Mapping(target = "paymentPolicies", ignore = true)
+    @Mapping(target = "fees", ignore = true)
+    @Mapping(target = "buildingUnits", ignore = true)
+    @Mapping(target = "buildingType", expression = "java(updateBuildingType(entity, dto.getBuildingType()))")
+    @Mapping(target = "buildingLevel", expression = "java(updateBuildingLevel(entity, dto.getBuildingLevel()))")
     void partialUpdate(@MappingTarget Building entity, BuildingDto dto);
 
-   default List<BuildingImage> updateBuildingImages(Building building, List<BuildingImageDto> buildingImageDto) {
-        if (buildingImageDto == null || buildingImageDto.isEmpty()) {
-            return building.getBuildingImages();
+
+    default BuildingType updateBuildingType(Building building, BuildingTypeDto buildingTypeDto) {
+        if (buildingTypeDto == null || (building.getBuildingType() != null && building.getBuildingType().getBuildingTypeId().equals(buildingTypeDto.getBuildingTypeId()))) {
+            return building.getBuildingType();
         }
-
-        List<String> newUrls = buildingImageDto.stream()
-                .map(BuildingImageDto::getImgUrl)
-                .collect(Collectors.toList());
-
-        building.getBuildingImages().removeIf(image -> !newUrls.contains(image.getImgUrl()));
-
-        buildingImageDto.forEach(img -> {
-            building.getBuildingImages().stream()
-                    .filter(image -> image.getImgUrl().equals(img.getImgUrl()))
-                    .findFirst()
-                    .orElseGet(() -> {
-                        BuildingImage newImage = BuildingImage.builder()
-                                .buildingImageId(img.getBuildingImageId())
-                                .imgUrl(img.getImgUrl())
-                                .building(building)
-                                .build();
-                        building.getBuildingImages().add(newImage);
-                        return newImage;
-                    });
-        });
-
-        return building.getBuildingImages();
+        BuildingType newBuildingType = new BuildingType();
+        newBuildingType.setBuildingTypeId(buildingTypeDto.getBuildingTypeId());
+        return newBuildingType;
     }
+
+    default BuildingLevel updateBuildingLevel(Building building, BuildingLevelDto buildingLevelDto) {
+        if (buildingLevelDto == null || (building.getBuildingLevel() != null && building.getBuildingLevel().getBuildingLevelId().equals(buildingLevelDto.getBuildingLevelId()))) {
+            return building.getBuildingLevel();
+        }
+        BuildingLevel newBuildingLevel = new BuildingLevel();
+        newBuildingLevel.setBuildingLevelId(buildingLevelDto.getBuildingLevelId());
+        return newBuildingLevel;
+    }
+
 }
-
-

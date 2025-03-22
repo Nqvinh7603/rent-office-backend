@@ -31,6 +31,6 @@ public class BuildingLevel extends BaseEntity {
     @Column(name = "description")
     String description;
 
-    @OneToMany(mappedBy = "buildingLevel", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
+    @OneToMany(mappedBy = "buildingLevel", cascade = {CascadeType.ALL}, orphanRemoval = true)
     List<Building> buildings;
 }

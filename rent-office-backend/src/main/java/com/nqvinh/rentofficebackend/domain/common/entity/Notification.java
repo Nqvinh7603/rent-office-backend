@@ -19,8 +19,8 @@ public class Notification extends BaseEntity {
     @SequenceGenerator(name = "notification_id_seq", sequenceName = "notifications_seq", allocationSize = 1)
     Long notificationId;
 
-    @Column(name = "consignment_id", nullable = true)
-    Long consignmentId;
+    @Column(name = "building_id", nullable = true)
+    Long buildingId;
 
     @Column(name = "customer_id", nullable = true)
     Long customerId;

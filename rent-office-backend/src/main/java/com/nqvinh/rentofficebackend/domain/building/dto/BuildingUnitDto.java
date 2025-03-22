@@ -1,7 +1,12 @@
+/*******************************************************************************
+ * Class        ：BuildingUnitDto
+ * Created date ：2025/03/17
+ * Lasted date  ：2025/03/17
+ * Author       ：vinhNQ2
+ * Change log   ：2025/03/17：01-00 vinhNQ2 create a new
+ ******************************************************************************/
 package com.nqvinh.rentofficebackend.domain.building.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -9,19 +14,29 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * BuildingUnitDto
+ *
+ * @author vinhNQ2
+ * @version 01-00
+ * @since 01-00
+ */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BuildingUnitDto {
+
     Long buildingUnitId;
 
-    @NotNull(message = "Unit name is required")
     Integer floor;
 
-    @NotBlank(message = "Building unit name is required")
-    String buildingUnitName;
+    String buildingUnitStatus;
+
+    String unitName;
+
+    List<RentAreaDto> rentAreas;
 
     @PastOrPresent(message = "Created at must be in the past or present")
     LocalDateTime createdAt;
@@ -29,5 +44,4 @@ public class BuildingUnitDto {
     @PastOrPresent(message = "Updated at must be in the past or present")
     LocalDateTime updatedAt;
 
-    List<RentAreaDto> rentAreas;
 }

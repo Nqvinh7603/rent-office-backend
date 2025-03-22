@@ -1,3 +1,10 @@
+/*******************************************************************************
+ * Class        ：Fee
+ * Created date ：2025/03/11
+ * Lasted date  ：2025/03/11
+ * Author       ：vinhNQ2
+ * Change log   ：2025/03/11：01-00 vinhNQ2 create a new
+ ******************************************************************************/
 package com.nqvinh.rentofficebackend.domain.building.entity;
 
 import com.nqvinh.rentofficebackend.domain.common.entity.BaseEntity;
@@ -7,6 +14,13 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
+/**
+ * Fee
+ *
+ * @author vinhNQ2
+ * @version 01-00
+ * @since 01-00
+ */
 @Getter
 @Setter
 @Builder
@@ -18,15 +32,17 @@ import java.util.List;
 public class Fee extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "fee_id_seq")
-    @SequenceGenerator(name = "fee_id_seq", sequenceName = "fees_seq", allocationSize = 1)
+    @SequenceGenerator(name = "fee_id_seq", sequenceName = "fee_seq", allocationSize = 1)
     Long feeId;
 
-    @Column(name = "fee_name", nullable = false)
-    String feeName;
+    @ManyToOne
+    @JoinColumn(name = "building_id", nullable = false)
+    Building building;
 
-    @Column(name = "fee_unit", nullable = false)
-    String feeUnit;
+    @ManyToOne
+    @JoinColumn(name = "fee_type_id", nullable = false)
+    FeeType feeType;
 
-    @OneToMany(mappedBy = "fee", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
-    List<FeePrice> feePrices;
+    @OneToMany(mappedBy = "fee", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
+    List<FeePricing> feePricing;
 }

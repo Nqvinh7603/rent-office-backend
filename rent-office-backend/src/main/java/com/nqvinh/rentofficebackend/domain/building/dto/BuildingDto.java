@@ -1,63 +1,86 @@
 package com.nqvinh.rentofficebackend.domain.building.dto;
 
+import com.nqvinh.rentofficebackend.domain.building.dto.request.RentalPricingReqDto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-@FieldDefaults(level = lombok.AccessLevel.PRIVATE)
+@NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class BuildingDto {
+
     Long buildingId;
 
-    @NotBlank(message = "Building name is required")
-    String buildingName;
-
-    @NotBlank(message = "Ward is required")
-    String ward;
+    @NotBlank(message = "Consignment name is required")
+    String ward; // phường
 
     @NotBlank(message = "District is required")
-    String district;
+    String district; // quận
 
     @NotBlank(message = "City is required")
-    String street;
+    String city; // thành phố
 
-    @NotBlank(message = "Building number is required")
-    String buildingNumber;
+    @NotBlank(message = "Street is required")
+    String street; // địa chỉ
 
-    String workingHours;
+    @NotBlank(message = "Orientation is required")
+    String orientation; //Hướng
 
-    String orientation;
+    @NotNull(message = "List image is required")
+    List<BuildingImageDto> buildingImages = List.of();
 
-    @NotBlank(message = "Status is required")
-    String status;
+    @NotNull(message = "Rental pricing is required")
+    List<RentalPricingReqDto> rentalPricing;
 
-    @NotNull(message = "Building level is required")
-    BuildingLevelDto buildingLevel;
+    @NotBlank(message = "Description is required")
+    String description;
 
     @NotNull(message = "Building type is required")
     BuildingTypeDto buildingType;
 
-    List<BuildingImageDto> buildingImages = new ArrayList<>();
+    BuildingLevelDto buildingLevel;
 
-    List<BuildingUnitDto> buildingUnits;
+    @NotNull(message = "Status is required")
+    List<ConsignmentStatusHistoryDto> consignmentStatusHistories = List.of();
 
-    List<FeePriceDto> feePrices;
+    String buildingStatus;
 
     @PastOrPresent(message = "Created at must be in the past or present")
     LocalDateTime createdAt;
 
     @PastOrPresent(message = "Updated at must be in the past or present")
     LocalDateTime updatedAt;
+
+    @NotNull(message = "Customer is required")
+    CustomerDto customer;
+
+    @NotBlank(message = "Building name is required")
+    String buildingName;
+
+    @NotBlank(message = "Building number is required")
+    String buildingNumber;
+
+    @NotNull(message = "Fee is required")
+    List<FeeDto> fees;
+
+    @NotBlank(message = "Number of floor is required")
+    Integer numberOfFloors;
+
+    @NotBlank(message = "Total area is required")
+    Integer totalArea;
+
+    @NotNull(message = "Payment policy is required")
+    List<PaymentPolicyDto> paymentPolicies;
+
+    List<BuildingDetailDto> buildingDetails;
+
+    List<BuildingUnitDto> buildingUnits;
 }

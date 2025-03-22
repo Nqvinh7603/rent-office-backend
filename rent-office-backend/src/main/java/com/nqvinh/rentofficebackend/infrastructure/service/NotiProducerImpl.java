@@ -32,7 +32,7 @@ public class NotiProducerImpl implements NotiProducer {
             var message = MessageBuilder.build(
                     serviceId,
                     EventType.EVENT,
-                    MessageCode.NOTIFICATION_CREATE_CONSIGNMENT.getCode(),
+                    MessageCode.NOTIFICATION_CREATE_BUILDING.getCode(),
                     noti
             );
             kafkaTemplate.send(notiTopic, message);
@@ -48,7 +48,7 @@ public class NotiProducerImpl implements NotiProducer {
             var message = MessageBuilder.build(
                     serviceId,
                     EventType.EVENT,
-                    MessageCode.NOTIFICATION_UPDATE_INFO_CONSIGNMENT.getCode(),
+                    MessageCode.NOTIFICATION_UPDATE_INFO_BUILDING.getCode(),
                     noti
             );
             kafkaTemplate.send(notiTopic, message);

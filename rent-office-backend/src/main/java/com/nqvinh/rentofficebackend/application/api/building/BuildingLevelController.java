@@ -5,6 +5,7 @@ import com.nqvinh.rentofficebackend.application.dto.response.ApiResponse;
 import com.nqvinh.rentofficebackend.application.dto.response.Page;
 import com.nqvinh.rentofficebackend.application.enums.MessageEnums;
 import com.nqvinh.rentofficebackend.domain.building.dto.BuildingLevelDto;
+import com.nqvinh.rentofficebackend.domain.building.dto.response.client.BuildingLevelClientRes;
 import com.nqvinh.rentofficebackend.domain.building.service.BuildingLevelService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -68,4 +69,16 @@ public class BuildingLevelController {
                 .message(MessageEnums.DELETED_SUCCESS.getMessage("Building level"))
                 .build();
     }
+
+    @GetMapping(UrlConstant.GET_ALL_BUILDING_LEVEL_OF_COMPANY)
+    public ApiResponse<List<BuildingLevelClientRes>> getBuildingLevelsForClient(@RequestParam(required = false) String city) {
+        return ApiResponse.<List<BuildingLevelClientRes>>builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageEnums.FETCHED_SUCCESS.getMessage("Building levels"))
+                .payload(buildingLevelService.getBuildingLevelsForClient(city))
+                .build();
+    }
+
+
+
 }

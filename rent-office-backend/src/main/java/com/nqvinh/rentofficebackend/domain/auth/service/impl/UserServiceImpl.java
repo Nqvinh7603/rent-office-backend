@@ -8,8 +8,10 @@ import com.nqvinh.rentofficebackend.domain.auth.dto.UserDto;
 import com.nqvinh.rentofficebackend.domain.auth.dto.request.ChangePasswordReq;
 import com.nqvinh.rentofficebackend.domain.auth.entity.User;
 import com.nqvinh.rentofficebackend.domain.auth.mapper.UserMapper;
+import com.nqvinh.rentofficebackend.domain.auth.repository.RoleRepository;
 import com.nqvinh.rentofficebackend.domain.auth.repository.UserRepository;
 import com.nqvinh.rentofficebackend.domain.auth.service.UserService;
+import com.nqvinh.rentofficebackend.domain.building.dto.CustomerDto;
 import com.nqvinh.rentofficebackend.domain.common.entity.Notification;
 import com.nqvinh.rentofficebackend.domain.common.mapper.NotificationMapper;
 import com.nqvinh.rentofficebackend.domain.common.service.ImageService;
@@ -28,10 +30,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,6 +45,7 @@ public class UserServiceImpl implements UserService {
     ImageService imageService;
     PaginationUtils paginationUtils;
     NotificationMapper notificationMapper;
+    RoleRepository roleRepository;
 
     @Override
     @Transactional
@@ -193,6 +193,24 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getAllUserByCustomerId(Long customerId) {
         return userMapper.toDtoList(userRepository.findUsersByCustomerId(customerId));
+    }
+
+    @Override
+    @Transactional
+    public User createUserForCustomer(CustomerDto customerDto, String password) {
+        Optional<User> existingUser = userRepository.findByEmail(customerDto.getEmail());
+        if (existingUser.isPresent()) {
+            throw new IllegalArgumentException("User with this email already exists");
+        }
+        User user = User.builder()
+                .email(customerDto.getEmail())
+                .customerId(customerDto.getCustomerId())
+                .password(passwordEncoder.encode(password))
+                .firstName(customerDto.getCustomerName())
+                .active(true)
+                .role(roleRepository.findByRoleName("LESSOR"))
+                .build();
+        return userRepository.save(user);
     }
 
     private void validateChangePassword(ChangePasswordReq req, User user) {

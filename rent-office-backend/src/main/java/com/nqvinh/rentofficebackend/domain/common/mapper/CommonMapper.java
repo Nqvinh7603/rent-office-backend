@@ -1,7 +1,7 @@
 package com.nqvinh.rentofficebackend.domain.common.mapper;
 
-import com.nqvinh.rentofficebackend.domain.customer.dto.ConsignmentDto;
-import com.nqvinh.rentofficebackend.domain.customer.entity.Consignment;
+import com.nqvinh.rentofficebackend.domain.building.dto.BuildingDto;
+import com.nqvinh.rentofficebackend.domain.building.entity.Building;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
@@ -31,5 +31,5 @@ public interface CommonMapper<D, E> {
     void partialUpdate(@MappingTarget E entity, D dto);
 
     @Mapping(target = "consignmentStatusHistories", ignore = true)
-    void partialUpdate(@MappingTarget ConsignmentDto dto, Consignment entity);
+    void partialUpdate(@MappingTarget BuildingDto dto, Building entity);
 }

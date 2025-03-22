@@ -43,6 +43,13 @@ public class UrlConstant {
     public static final String UPDATE_BUILDING = "/{id}";
     public static final String DELETE_BUILDING = "/{id}";
     public static final String GET_BUILDING_BY_ID = "/{id}";
+    public static final String VERIFY_TOKEN_BUILDING = "/{id}/verify-token";
+    public static final String CREATE_BUILDING_WITH_CUSTOMER = "/create-building-with-customer";
+    public static final String LIST_BUILDING_OF_COMPANY = "/company";
+    public static final String GET_ALL_BUILDING_OF_COMPANY = "/all";
+    public static final String ASSIGN_BUILDING = "/assign-building";
+    public static final String GET_STAFFS_BY_BUILDING_ID = "/{id}/staffs";
+
 
     public static final String BUILDING_TYPES = API_BASE + "/building-types";
     public static final String UPDATE_BUILDING_TYPE = "/{id}";
@@ -53,6 +60,12 @@ public class UrlConstant {
     public static final String UPDATE_BUILDING_LEVEL = "/{id}";
     public static final String DELETE_BUILDING_LEVEL = "/{id}";
     public static final String GET_ALL_BUILDING_LEVEL = "/all";
+    public static final String GET_ALL_BUILDING_LEVEL_OF_COMPANY = "/company";
+
+
+    //BuildingClient
+    public static final String BUILDING_CLIENTS = API_BASE + "/building-clients";
+    public static final String GET_BUILDING_CLIENT_BY_ID = "/{id}";
 
     //Customer
     public static final String CUSTOMERS = API_BASE + "/customers";
@@ -64,18 +77,17 @@ public class UrlConstant {
     public static final String DELETE_CUSTOMERS_POTENTIAL = "/potentials/{id}";
     public static final String GET_CUSTOMERS_POTENTIAL = "/potentials/all";
 
-    //Consignment
-    public static final String CONSIGNMENTS = API_BASE + "/consignments";
-    public static final String DELETE_CONSIGNMENT = "/{id}";
-    public static final String UPDATE_CONSIGNMENT = "/{id}";
-    public static final String GET_CONSIGNMENT_BY_ID = "/{id}";
-    public static final String VERIFY_TOKEN_CONSIGNMENT = "{id}/verify-token";
-
 
     //Notification
     public static final String NOTIFICATIONS = API_BASE + "/notifications";
     public static final String MARK_ALL_NOTIFICATIONS_AS_READ = "/mark-all-read";
     public static final String MARK_NOTIFICATION_AS_READ = "/{id}/mark-read";
     public static final String GET_NOTIFICATIONS_BY_USER_ID = "/user/{id}";
+
+    //Fee
+    public static final String FEE_TYPES = API_BASE + "/fee-types";
+    public static final String UPDATE_FEE_TYPE = "/{id}";
+    public static final String DELETE_FEE_TYPE = "/{id}";
+    public static final String GET_ALL_FEE_TYPE = "/all";
 
 }

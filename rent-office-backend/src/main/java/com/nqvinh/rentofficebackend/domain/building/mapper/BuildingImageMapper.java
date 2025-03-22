@@ -8,5 +8,4 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring", config = CommonMapperConfig.class)
 public interface BuildingImageMapper extends CommonMapper<BuildingImageDto, BuildingImage> {
-
 }

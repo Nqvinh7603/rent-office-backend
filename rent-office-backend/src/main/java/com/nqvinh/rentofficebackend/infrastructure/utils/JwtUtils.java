@@ -1,6 +1,5 @@
 package com.nqvinh.rentofficebackend.infrastructure.utils;
 
-import com.nqvinh.rentofficebackend.domain.customer.entity.Consignment;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Value;

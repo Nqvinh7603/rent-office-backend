@@ -1,10 +1,8 @@
 package com.nqvinh.rentofficebackend.domain.building.dto;
 
-import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -12,14 +10,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BuildingImageDto {
+
     Long buildingImageId;
 
+    @NotBlank(message = "Image url is required")
     String imgUrl;
-
-    @PastOrPresent(message = "Created at must be in the past or present")
-    LocalDateTime createdAt;
-
-    @PastOrPresent(message = "Updated at must be in the past or present")
-    LocalDateTime updatedAt;
-
 }

@@ -17,7 +17,7 @@ public class NotiEvent {
     String message;
     boolean status;
     List<UUID> userId;
-    Long consignmentId;
+    Long buildingId;
     LocalDateTime createdAt;
     String type;
     String code;

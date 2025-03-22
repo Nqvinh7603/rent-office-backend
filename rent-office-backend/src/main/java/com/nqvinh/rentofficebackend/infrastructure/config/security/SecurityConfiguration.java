@@ -62,10 +62,15 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/", "/api/v1/auth/**",
                                 "/api/v1/building-types/all",
-                                "/api/v1/consignments",
-                                "/api/v1/consignments/{id}",
-                                "/api/v1/consignments/{id}/verify-token",
-                                "/api/v1/customers/potentials"
+                                "/api/v1/buildings/create-building-with-customer",
+                                "/api/v1/buildings/{id}",
+                                "/api/v1/buildings/{id}/verify-token",
+                                "/api/v1/customers/potentials",
+                                "/api/v1/fee-types/all",
+                                "/api/v1/building-clients/**",
+                                "/api/v1/building-clients/{id}",
+                                "/api/v1/building-levels/company",
+                                "/api/v1/building-levels/all"
                                 ).permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

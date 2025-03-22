@@ -3,6 +3,11 @@ package com.nqvinh.rentofficebackend.domain.common.service.impl;
 import com.nqvinh.rentofficebackend.application.exception.ResourceNotFoundException;
 import com.nqvinh.rentofficebackend.domain.auth.dto.UserDto;
 import com.nqvinh.rentofficebackend.domain.auth.mapper.UserMapper;
+import com.nqvinh.rentofficebackend.domain.building.dto.AssignBuildingDto;
+import com.nqvinh.rentofficebackend.domain.building.dto.AssignCustomerDto;
+import com.nqvinh.rentofficebackend.domain.building.dto.BuildingDto;
+import com.nqvinh.rentofficebackend.domain.building.dto.CustomerDto;
+import com.nqvinh.rentofficebackend.domain.building.entity.Customer;
 import com.nqvinh.rentofficebackend.domain.common.constant.MailType;
 import com.nqvinh.rentofficebackend.domain.common.constant.MessageCode;
 import com.nqvinh.rentofficebackend.domain.common.dto.NotificationDto;
@@ -12,10 +17,6 @@ import com.nqvinh.rentofficebackend.domain.common.mapper.NotificationMapper;
 import com.nqvinh.rentofficebackend.domain.common.repository.NotificationRepository;
 import com.nqvinh.rentofficebackend.domain.common.service.NotiProducer;
 import com.nqvinh.rentofficebackend.domain.common.service.NotificationService;
-import com.nqvinh.rentofficebackend.domain.customer.dto.AssignCustomerDto;
-import com.nqvinh.rentofficebackend.domain.customer.dto.ConsignmentDto;
-import com.nqvinh.rentofficebackend.domain.customer.dto.CustomerDto;
-import com.nqvinh.rentofficebackend.domain.customer.entity.Customer;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -39,50 +40,50 @@ public class NotificationServiceImpl implements NotificationService {
     NotificationMapper notificationMapper;
 
     @Override
-    public void createConsignmentNotification(UserDto userDto, Customer savedCustomer) {
-        Long consignmentId = savedCustomer.getConsignments().getFirst().getConsignmentId();
+    public void createBuildingNotification(UserDto userDto, Customer savedCustomer) {
+        Long consignmentId = savedCustomer.getBuildings().getFirst().getBuildingId();
         String message = "Khách hàng " + savedCustomer.getCustomerName() + " đã ký gửi tài sản mới";
 
         Notification notification = Notification.builder()
                 .status(false)
                 .user(userMapper.toEntity(userDto))
-                .consignmentId(consignmentId)
+                .buildingId(consignmentId)
                 .message(message)
                 .build();
         notificationRepository.save(notification);
 
         var notificationEvent = NotiEvent.builder()
                 .status(false)
-                .consignmentId(consignmentId)
+                .buildingId(consignmentId)
                 .userId(List.of(userDto.getUserId()))
                 .message(message)
                 .createdAt(notification.getCreatedAt())
-                .code(MessageCode.NOTIFICATION_CREATE_CONSIGNMENT.getCode())
-                .type(MailType.PENDING_CONSIGNMENT.getType())
+                .code(MessageCode.NOTIFICATION_CREATE_BUILDING.getCode())
+                .type(MailType.PENDING_BUILDING.getType())
                 .build();
         notiProducer.sendNotiCreateConsignment(notificationEvent);
     }
 
     @Override
-    public void updateInfoConsignmentNotification(UserDto userDto, ConsignmentDto savedConsignment) {
-        String message = "Khách hàng " + savedConsignment.getCustomer().getCustomerName() + " đã cập nhật thông tin tài sản ký gửi";
+    public void updateInfoBuildingNotification(UserDto userDto, BuildingDto savedBuilding) {
+        String message = "Khách hàng " + savedBuilding.getCustomer().getCustomerName() + " đã cập nhật thông tin tài sản ký gửi";
 
         Notification notification = Notification.builder()
                 .status(false)
                 .user(userMapper.toEntity(userDto))
-                .consignmentId(savedConsignment.getConsignmentId())
+                .buildingId(savedBuilding.getBuildingId())
                 .message(message)
                 .build();
         notificationRepository.save(notification);
 
         var notificationEvent = NotiEvent.builder()
                 .status(false)
-                .consignmentId(savedConsignment.getConsignmentId())
+                .buildingId(savedBuilding.getBuildingId())
                 .userId(List.of(userDto.getUserId()))
                 .message(message)
                 .createdAt(notification.getCreatedAt())
-                .code(MessageCode.NOTIFICATION_CREATE_CONSIGNMENT.getCode())
-                .type(MailType.PENDING_CONSIGNMENT.getType())
+                .code(MessageCode.NOTIFICATION_CREATE_BUILDING.getCode())
+                .type(MailType.PENDING_BUILDING.getType())
                 .build();
         notiProducer.sendNotiUpdateConsignment(notificationEvent);
     }
@@ -110,6 +111,26 @@ public class NotificationServiceImpl implements NotificationService {
                 .type(MailType.NOTIFICATION_ASSIGN_CUSTOMER.getType())
                 .build();
         notiProducer.sendNotiAssignCustomer(notificationEvent);
+    }
+
+    @Override
+    public void assignBuildingToStaffs(AssignBuildingDto assignBuildingDto) {
+        String message = "Bạn đã được gán tài sản " + assignBuildingDto.getBuilding().getBuildingName();
+
+
+        List<Notification> notifications = userMapper.toEntityList(assignBuildingDto.getUsers()).stream().map(user ->
+                Notification.builder()
+                        .status(false)
+                        .user(user)
+                        .buildingId(assignBuildingDto.getBuilding().getBuildingId())
+                        .message(message)
+                        .build()
+        ).collect(Collectors.toList());
+        notificationRepository.saveAll(notifications);
+
+
+
+
     }
 
     @Override

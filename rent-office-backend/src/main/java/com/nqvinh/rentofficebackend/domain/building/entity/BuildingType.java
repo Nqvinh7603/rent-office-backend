@@ -31,7 +31,6 @@ public class BuildingType extends BaseEntity {
     @Column(name = "description", nullable = true)
     String description;
 
-    @OneToMany(mappedBy = "buildingType", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
+    @OneToMany(mappedBy = "buildingType",cascade = {CascadeType.ALL}, orphanRemoval = true)
     List<Building> buildings;
-
 }

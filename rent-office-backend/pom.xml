@@ -98,6 +98,13 @@
             <version>1.39.0</version>
         </dependency>
 
+        <!--        pdf-->
+        <dependency>
+            <groupId>org.xhtmlrenderer</groupId>
+            <artifactId>flying-saucer-pdf</artifactId>
+            <version>9.5.1</version>
+        </dependency>
+
         <!--        kafka-->
         <dependency>
             <groupId>org.springframework.kafka</groupId>

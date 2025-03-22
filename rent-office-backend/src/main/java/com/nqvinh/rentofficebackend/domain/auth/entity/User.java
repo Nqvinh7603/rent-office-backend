@@ -1,9 +1,10 @@
 package com.nqvinh.rentofficebackend.domain.auth.entity;
 
 import com.nqvinh.rentofficebackend.domain.auth.constant.GenderEnum;
+import com.nqvinh.rentofficebackend.domain.building.entity.Building;
+import com.nqvinh.rentofficebackend.domain.building.entity.Customer;
 import com.nqvinh.rentofficebackend.domain.common.entity.BaseEntity;
 import com.nqvinh.rentofficebackend.domain.common.entity.Notification;
-import com.nqvinh.rentofficebackend.domain.customer.entity.Customer;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -63,6 +64,9 @@ public class User extends BaseEntity implements UserDetails {
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "users")
     List<Customer> customers;
+
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "users")
+    List<Building> buildings;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     List<Notification> notifications;
