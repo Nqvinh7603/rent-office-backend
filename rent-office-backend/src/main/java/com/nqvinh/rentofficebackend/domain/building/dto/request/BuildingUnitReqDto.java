@@ -32,7 +32,7 @@ public class BuildingUnitReqDto {
 
     Integer floor;
 
-    String buildingUnitStatus;
+    String status;
 
     String unitName;
 

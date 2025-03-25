@@ -41,7 +41,7 @@ public class BuildingUnit extends BaseEntity {
 
     @Column(name = "status", nullable = true)
     @Enumerated(EnumType.STRING)
-    BuildingUnitStatus buildingUnitStatus;
+    BuildingUnitStatus status;
 
     @Column(name = "unit_name", nullable = true)
     String unitName;

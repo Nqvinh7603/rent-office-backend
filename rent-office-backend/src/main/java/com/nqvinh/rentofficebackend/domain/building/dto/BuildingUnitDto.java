@@ -33,7 +33,7 @@ public class BuildingUnitDto {
 
     Integer floor;
 
-    String buildingUnitStatus;
+    String status;
 
     String unitName;
 

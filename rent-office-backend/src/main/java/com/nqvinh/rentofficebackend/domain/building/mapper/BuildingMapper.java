@@ -22,7 +22,6 @@ import org.mapstruct.MappingTarget;
                 BuildingLevelMapper.class,
                 FeeMapper.class,
                 PaymentPolicyMapper.class,
-                BuildingDetailMapper.class,
                 BuildingUnitMapper.class,
         })
 public interface BuildingMapper extends CommonMapper<BuildingDto, Building> {

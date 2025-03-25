@@ -88,9 +88,6 @@ public class Building extends BaseEntity {
     List<PaymentPolicy> paymentPolicies;
 
     @OneToMany(mappedBy = "building", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
-    List<BuildingDetail> buildingDetails;
-
-    @OneToMany(mappedBy = "building", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     List<BuildingUnit> buildingUnits;
 
 //    @OneToMany(mappedBy = "building", fetch = FetchType.LAZY, cascade = {CascadeType.ALL})

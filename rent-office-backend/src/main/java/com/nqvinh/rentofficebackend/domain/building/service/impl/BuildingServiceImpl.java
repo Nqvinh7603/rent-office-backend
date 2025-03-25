@@ -72,7 +72,6 @@ public class BuildingServiceImpl implements BuildingService {
     EmailProducer emailProducer;
     RedisService redisService;
     UserRepository userRepository;
-    BuildingUnitRepository buildingUnitRepository;
 
     @Override
     @SneakyThrows
@@ -291,6 +290,7 @@ public class BuildingServiceImpl implements BuildingService {
             });
         });
 
+
         List<BuildingUnit> buildingUnitsToRemove = new ArrayList<>();
         for (BuildingUnit existingUnit : building.getBuildingUnits()) {
             boolean isUnitExistInDto = buildingDto.getBuildingUnits().stream()
@@ -318,7 +318,7 @@ public class BuildingServiceImpl implements BuildingService {
                     .findFirst()
                     .orElseGet(() -> {
                         BuildingUnit newUnit = BuildingUnit.builder()
-                                .buildingUnitStatus(BuildingUnitStatus.valueOf(unitDto.getBuildingUnitStatus()))
+                                .status(BuildingUnitStatus.valueOf(unitDto.getStatus()))
                                 .floor(unitDto.getFloor())
                                 .unitName(unitDto.getUnitName())
                                 .rentAreas(new ArrayList<>())
@@ -329,6 +329,9 @@ public class BuildingServiceImpl implements BuildingService {
                         return newUnit;
                     });
 
+            if (unitDto.getStatus() != null) {
+                unit.setStatus(BuildingUnitStatus.valueOf(unitDto.getStatus()));
+            }
             // Xử lý RentArea
             unit.getRentAreas().clear();
             unitDto.getRentAreas().forEach(unitRentAreaDto -> {

@@ -140,17 +140,23 @@ public class BuildingClientServiceImpl implements BuildingClientService {
 
         if (params.containsKey("ward")) {
             String ward = stringUtils.normalizeString(params.get("ward").trim().toLowerCase());
-            String likePattern = "%" + ward + "%";
+            String likePattern = "%" + ward.replaceAll("\\s+", "%") + "%"; // Thay khoảng trắng bằng % để tìm kiếm linh hoạt
             spec = spec.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower(root.get("ward"))), likePattern)
+                    criteriaBuilder.like(
+                            criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower(root.get("ward"))),
+                            likePattern
+                    )
             );
         }
 
         if (params.containsKey("street")) {
             String street = stringUtils.normalizeString(params.get("street").trim().toLowerCase());
-            String likePattern = "%" + street + "%";
+            String likePattern = "%" + street.replaceAll("\\s+", "%") + "%"; // Thay khoảng trắng bằng % để tìm kiếm linh hoạt
             spec = spec.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower(root.get("street"))), likePattern)
+                    criteriaBuilder.like(
+                            criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower(root.get("street"))),
+                            likePattern
+                    )
             );
         }
 

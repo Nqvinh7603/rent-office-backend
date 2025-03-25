@@ -29,7 +29,6 @@ import org.mapstruct.Mapper;
         BuildingTypeMapper.class,
         FeeMapper.class,
         PaymentPolicyMapper.class,
-        BuildingDetailMapper.class,
         BuildingUnitMapper.class,
 })
 public interface BuildingClientResMapper extends CommonMapper<BuildingClientRes, Building> {
