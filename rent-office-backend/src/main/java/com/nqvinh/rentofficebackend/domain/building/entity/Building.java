@@ -75,8 +75,8 @@ public class Building extends BaseEntity {
     @JoinColumn(name = "building_level_id", nullable = true)
     BuildingLevel buildingLevel;
 
-    @OneToMany(mappedBy = "building", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    List<RentalPricing> rentalPricing;
+//    @OneToMany(mappedBy = "building", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+//    List<RentalPricing> rentalPricing;
 
     @Column(name = "number_of_floors", nullable = true)
     Integer numberOfFloors;

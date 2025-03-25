@@ -19,6 +19,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,6 +52,15 @@ public class BuildingClientController {
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.FETCHED_SUCCESS.getMessage("Building"))
                 .payload(buildingService.getBuildingById(buildingId))
+                .build();
+    }
+
+    @GetMapping(UrlConstant.GET_ALL_STREET)
+    public ApiResponse<List<String>> getAllStreetByWardNameAndDistrictName(@RequestParam("ward") String wardName, @RequestParam("district") String districtName) {
+        return ApiResponse.<List<String>>builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageEnums.FETCHED_SUCCESS.getMessage("Street"))
+                .payload(buildingClientService.getAllStreetByWardNameAndDistrictName(wardName, districtName))
                 .build();
     }
 }

@@ -17,7 +17,7 @@ import org.mapstruct.MappingTarget;
                 BuildingImageMapper.class,
                 CustomerMapper.class,
                 ConsignmentStatusHistoryMapper.class,
-                RentalPricingMapper.class,
+//                RentalPricingMapper.class,
                 BuildingTypeMapper.class,
                 BuildingLevelMapper.class,
                 FeeMapper.class,
@@ -29,7 +29,7 @@ public interface BuildingMapper extends CommonMapper<BuildingDto, Building> {
 
     @Override
     @Mapping(target = "consignmentStatusHistories", ignore = true)
-    @Mapping(target = "rentalPricing", ignore = true)
+//    @Mapping(target = "rentalPricing", ignore = true)
     @Mapping(target = "paymentPolicies", ignore = true)
     @Mapping(target = "fees", ignore = true)
     @Mapping(target = "buildingUnits", ignore = true)

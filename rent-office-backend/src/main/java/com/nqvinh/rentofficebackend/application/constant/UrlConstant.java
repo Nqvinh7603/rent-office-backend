@@ -66,6 +66,7 @@ public class UrlConstant {
     //BuildingClient
     public static final String BUILDING_CLIENTS = API_BASE + "/building-clients";
     public static final String GET_BUILDING_CLIENT_BY_ID = "/{id}";
+    public static final String GET_ALL_STREET = "/streets";
 
     //Customer
     public static final String CUSTOMERS = API_BASE + "/customers";

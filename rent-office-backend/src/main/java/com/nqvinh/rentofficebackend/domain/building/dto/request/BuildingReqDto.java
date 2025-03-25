@@ -51,8 +51,8 @@ public class BuildingReqDto {
     @NotNull(message = "Fee is required")
     List<FeeReqDto> fees;
 
-    @NotNull(message = "Rental pricing is required")
-    List<RentalPricingReqDto> rentalPricing;
+//    @NotNull(message = "Rental pricing is required")
+//    List<RentalPricingReqDto> rentalPricing;
 
     @NotBlank(message = "Description is required")
     String description;
@@ -75,4 +75,7 @@ public class BuildingReqDto {
 
     @NotNull(message = "Payment policy is required")
     List<PaymentPolicyReqDto> paymentPolicies;
+
+    @NotNull(message = "Building unit is required")
+    List<BuildingUnitReqDto> buildingUnits;
 }

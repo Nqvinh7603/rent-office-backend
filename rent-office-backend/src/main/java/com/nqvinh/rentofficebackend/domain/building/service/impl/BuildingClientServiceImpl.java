@@ -12,9 +12,7 @@ import com.nqvinh.rentofficebackend.application.dto.response.Page;
 import com.nqvinh.rentofficebackend.domain.auth.entity.User;
 import com.nqvinh.rentofficebackend.domain.building.constant.OrientationEnum;
 import com.nqvinh.rentofficebackend.domain.building.dto.BuildingDto;
-import com.nqvinh.rentofficebackend.domain.building.entity.Building;
-import com.nqvinh.rentofficebackend.domain.building.entity.Customer;
-import com.nqvinh.rentofficebackend.domain.building.entity.RentalPricing;
+import com.nqvinh.rentofficebackend.domain.building.entity.*;
 import com.nqvinh.rentofficebackend.domain.building.mapper.BuildingMapper;
 import com.nqvinh.rentofficebackend.domain.building.repository.BuildingRepository;
 import com.nqvinh.rentofficebackend.domain.building.service.BuildingClientService;
@@ -32,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -52,21 +51,17 @@ public class BuildingClientServiceImpl implements BuildingClientService {
     StringUtils stringUtils;
     @Override
     public Page<BuildingDto> getBuildingClients(Map<String, String> params) {
-//        UserDto currentUser = userService.getLoggedInUser();
+
         Specification<Building> spec = getBuildingSpec(params);
-
-//        if (!isAdmin(currentUser)) {
-//            spec = spec.and((root, query, criteriaBuilder) -> {
-//                Join<Customer, Building> customerJoin = root.join("customer", JoinType.INNER);
-//                Join<Customer, User> userJoin = customerJoin.join("users", JoinType.INNER);
-//                return criteriaBuilder.equal(userJoin.get("userId"), currentUser.getUserId());
-//            });
-//        }
-
         Pageable pageable = paginationUtils.buildPageable(params);
         org.springframework.data.domain.Page<Building> buildingPage = buildingRepository.findAll(spec, pageable);
         Meta meta = paginationUtils.buildMeta(buildingPage, pageable);
         return paginationUtils.mapPage(buildingPage, meta, buildingMapper::toDto);
+    }
+
+    @Override
+    public List<String> getAllStreetByWardNameAndDistrictName(String ward, String district) {
+        return buildingRepository.findDistinctStreetsByWardAndDistrict(ward, district);
     }
 
     private Specification<Building> getBuildingSpec(Map<String, String> params) {
@@ -155,7 +150,7 @@ public class BuildingClientServiceImpl implements BuildingClientService {
             String street = stringUtils.normalizeString(params.get("street").trim().toLowerCase());
             String likePattern = "%" + street + "%";
             spec = spec.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, root.get("street")), likePattern)
+                    criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower(root.get("street"))), likePattern)
             );
         }
 
@@ -164,10 +159,11 @@ public class BuildingClientServiceImpl implements BuildingClientService {
                 BigDecimal minPrice = new BigDecimal(params.get("minPrice"));
                 spec = spec.and((root, query, criteriaBuilder) -> {
                     Subquery<Long> subquery = query.subquery(Long.class);
-                    Root<RentalPricing> rentalPricingRoot = subquery.from(RentalPricing.class);
+                    Root<BuildingUnit> buildingUnitRoot = subquery.from(BuildingUnit.class);
+                    Join<BuildingUnit, RentalPricing> rentalPricingJoin = buildingUnitRoot.join("rentalPricing");
 
-                    subquery.select(criteriaBuilder.max(rentalPricingRoot.get("rentalPricingId")))
-                            .where(criteriaBuilder.equal(rentalPricingRoot.get("building"), root));
+                    subquery.select(criteriaBuilder.max(rentalPricingJoin.get("rentalPricingId")))
+                            .where(criteriaBuilder.equal(buildingUnitRoot.get("building"), root));
 
                     Subquery<BigDecimal> priceSubquery = query.subquery(BigDecimal.class);
                     Root<RentalPricing> rentalPricingRoot2 = priceSubquery.from(RentalPricing.class);
@@ -178,19 +174,62 @@ public class BuildingClientServiceImpl implements BuildingClientService {
                 });
             }
 
+
             if (params.containsKey("maxPrice")) {
                 BigDecimal maxPrice = new BigDecimal(params.get("maxPrice"));
                 spec = spec.and((root, query, criteriaBuilder) -> {
                     Subquery<Long> subquery = query.subquery(Long.class);
-                    Root<RentalPricing> rentalPricingRoot = subquery.from(RentalPricing.class);
+                    Root<BuildingUnit> buildingUnitRoot = subquery.from(BuildingUnit.class);
+                    Join<BuildingUnit, RentalPricing> rentalPricingJoin = buildingUnitRoot.join("rentalPricing");
 
-                    subquery.select(criteriaBuilder.max(rentalPricingRoot.get("rentalPricingId")))
-                            .where(criteriaBuilder.equal(rentalPricingRoot.get("building"), root));
+                    subquery.select(criteriaBuilder.max(rentalPricingJoin.get("rentalPricingId")))
+                            .where(criteriaBuilder.equal(buildingUnitRoot.get("building"), root));
 
                     Subquery<BigDecimal> priceSubquery = query.subquery(BigDecimal.class);
                     Root<RentalPricing> rentalPricingRoot2 = priceSubquery.from(RentalPricing.class);
                     priceSubquery.select(rentalPricingRoot2.get("price"))
                             .where(criteriaBuilder.equal(rentalPricingRoot2.get("rentalPricingId"), subquery));
+
+                    return criteriaBuilder.lessThanOrEqualTo(priceSubquery, maxPrice);
+                });
+            }
+        }
+
+        if (params.containsKey("minArea") || params.containsKey("maxArea")) {
+            if (params.containsKey("minArea")) {
+                BigDecimal minPrice = new BigDecimal(params.get("minArea"));
+                spec = spec.and((root, query, criteriaBuilder) -> {
+                    Subquery<Long> subquery = query.subquery(Long.class);
+                    Root<BuildingUnit> buildingUnitRoot = subquery.from(BuildingUnit.class);
+                    Join<BuildingUnit, RentArea> rentalPricingJoin = buildingUnitRoot.join("rentAreas");
+
+                    subquery.select(criteriaBuilder.max(rentalPricingJoin.get("rentAreaId")))
+                            .where(criteriaBuilder.equal(buildingUnitRoot.get("building"), root));
+
+                    Subquery<BigDecimal> priceSubquery = query.subquery(BigDecimal.class);
+                    Root<RentArea> rentalPricingRoot2 = priceSubquery.from(RentArea.class);
+                    priceSubquery.select(rentalPricingRoot2.get("area"))
+                            .where(criteriaBuilder.equal(rentalPricingRoot2.get("rentAreaId"), subquery));
+
+                    return criteriaBuilder.greaterThanOrEqualTo(priceSubquery, minPrice);
+                });
+            }
+
+
+            if (params.containsKey("maxArea")) {
+                BigDecimal maxPrice = new BigDecimal(params.get("maxArea"));
+                spec = spec.and((root, query, criteriaBuilder) -> {
+                    Subquery<Long> subquery = query.subquery(Long.class);
+                    Root<BuildingUnit> buildingUnitRoot = subquery.from(BuildingUnit.class);
+                    Join<BuildingUnit, RentArea> rentalPricingJoin = buildingUnitRoot.join("rentAreas");
+
+                    subquery.select(criteriaBuilder.max(rentalPricingJoin.get("rentAreaId")))
+                            .where(criteriaBuilder.equal(buildingUnitRoot.get("building"), root));
+
+                    Subquery<BigDecimal> priceSubquery = query.subquery(BigDecimal.class);
+                    Root<RentArea> rentalPricingRoot2 = priceSubquery.from(RentArea.class);
+                    priceSubquery.select(rentalPricingRoot2.get("area"))
+                            .where(criteriaBuilder.equal(rentalPricingRoot2.get("rentAreaId"), subquery));
 
                     return criteriaBuilder.lessThanOrEqualTo(priceSubquery, maxPrice);
                 });

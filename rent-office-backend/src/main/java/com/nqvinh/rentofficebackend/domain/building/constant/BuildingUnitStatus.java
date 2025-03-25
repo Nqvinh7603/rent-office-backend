@@ -19,5 +19,7 @@ public enum BuildingUnitStatus {
     RENTED,             // Đã được thuê
     UNDER_MAINTENANCE,  // Đang bảo trì
     RESERVED,           // Đã có người đặt trước
-    UNAVAILABLE         // Không thể cho thuê (chủ tòa nhà không muốn cho thuê)
+    UNAVAILABLE,         // Không thể cho thuê (chủ tòa nhà không muốn cho thuê)
+    PENDING           // Đang chờ xác nhận
 }
+

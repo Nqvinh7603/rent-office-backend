@@ -150,7 +150,6 @@ public class BuildingServiceImpl implements BuildingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Building not found"));
         String token = UUID.randomUUID().toString();
         List<ConsignmentStatusHistory> existingStatusHistories = building.getConsignmentStatusHistories();
-        List<RentalPricing> existingRentalPricing = building.getRentalPricing();
         List<PaymentPolicy> existingPaymentPolicies = building.getPaymentPolicies();
         List<Fee> existingFees = building.getFees();
         List<BuildingUnit> existingBuildingUnits = building.getBuildingUnits();
@@ -180,7 +179,6 @@ public class BuildingServiceImpl implements BuildingService {
                     notificationService.updateInfoBuildingNotification(user, buildingDto));
             redisService.delete("additional-info:" + buildingId);
         } else if (buildingDto.getConsignmentStatusHistories().getLast().getStatus().equals(ConsignmentStatus.CANCELLED.toString()) && building.getBuildingStatus() == null) {
-
             var mailCancelledConsignment = MailEvent.builder()
                     .toAddress(buildingDto.getCustomer().getEmail())
                     .subject("Từ chối tài sản ký gửi")
@@ -194,7 +192,7 @@ public class BuildingServiceImpl implements BuildingService {
                     .type(MailType.CANCELLED_BUILDING.getType())
                     .build();
             emailProducer.sendMailCancelledConsignment(mailCancelledConsignment);
-        }else if(buildingDto.getConsignmentStatusHistories().getLast().getStatus().equals(ConsignmentStatus.CONFIRMED.toString()) && building.getBuildingStatus() == null){
+        } else if (buildingDto.getConsignmentStatusHistories().getLast().getStatus().equals(ConsignmentStatus.CONFIRMED.toString()) && building.getBuildingStatus() == null) {
             String generatedPassword = "12345678";
             buildingDto.setBuildingStatus(BuildingStatus.REVIEWING.toString());
             User newUser = userService.createUserForCustomer(buildingDto.getCustomer(), generatedPassword);
@@ -213,7 +211,6 @@ public class BuildingServiceImpl implements BuildingService {
                     .code(MessageCode.MAIL_CONFIRMED_CONSIGNMENT.getCode())
                     .type(MailType.CONFIRMED_BUILDING.getType())
                     .build();
-
             emailProducer.sendMailConfirmedConsignment(mailConfirmedConsignment);
         }
 
@@ -232,30 +229,19 @@ public class BuildingServiceImpl implements BuildingService {
                         .building(building)
                         .build())
                 .forEach(existingStatusHistories::add);
-       buildingDto.getRentalPricing().stream()
-                    .filter(price -> price.getRentalPricingId() == null)
-                    .map(price -> RentalPricing.builder()
-                            .price(price.getPrice())
-                            .building(building)
-                            .build())
-                    .forEach(newPrice -> {
-                        if (existingRentalPricing.stream().noneMatch(existingPrice -> existingPrice.getPrice().compareTo(newPrice.getPrice()) == 0)) {
-                            existingRentalPricing.add(newPrice);
-                        }
-                    });
-       buildingDto.getPaymentPolicies().stream()
-                    .filter(policy -> policy.getPaymentPolicyId() == null)
-                    .map(policy -> PaymentPolicy.builder()
-                            .paymentCycle(policy.getPaymentCycle())
-                            .depositTerm(policy.getDepositTerm())
-                            .building(building)
-                            .build())
-                    .forEach( newPolicy -> {
-                        if (existingPaymentPolicies.stream().noneMatch(existingPolicy -> existingPolicy.getDepositTerm().equals(newPolicy.getDepositTerm()) && existingPolicy.getPaymentCycle().equals(newPolicy.getPaymentCycle()))) {
-                            existingPaymentPolicies.add(newPolicy);
-                        }
-                    });
 
+        buildingDto.getPaymentPolicies().stream()
+                .filter(policy -> policy.getPaymentPolicyId() == null)
+                .map(policy -> PaymentPolicy.builder()
+                        .paymentCycle(policy.getPaymentCycle())
+                        .depositTerm(policy.getDepositTerm())
+                        .building(building)
+                        .build())
+                .forEach(newPolicy -> {
+                    if (existingPaymentPolicies.stream().noneMatch(existingPolicy -> existingPolicy.getDepositTerm().equals(newPolicy.getDepositTerm()) && existingPolicy.getPaymentCycle().equals(newPolicy.getPaymentCycle()))) {
+                        existingPaymentPolicies.add(newPolicy);
+                    }
+                });
 
         List<Fee> feesToRemove = new ArrayList<>();
         for (Fee existingFee : existingFees) {
@@ -271,7 +257,6 @@ public class BuildingServiceImpl implements BuildingService {
                     .filter(existingFee -> Objects.equals(existingFee.getFeeId(), feeDto.getFeeId()))
                     .findFirst()
                     .orElseGet(() -> {
-
                         Fee newFee = Fee.builder()
                                 .feeType(FeeType.builder().feeTypeId(feeDto.getFeeType().getFeeTypeId()).build())
                                 .building(building)
@@ -295,71 +280,16 @@ public class BuildingServiceImpl implements BuildingService {
                     existingPricing.setPriceUnit(feePricingDto.getPriceUnit());
                     existingPricing.setDescription(feePricingDto.getDescription());
                 } else {
-                    // Nếu FeePricing không tồn tại, tạo mới một FeePricing
                     FeePricing newFeePricing = FeePricing.builder()
                             .priceUnit(feePricingDto.getPriceUnit())
                             .priceValue(feePricingDto.getPriceValue())
                             .description(feePricingDto.getDescription())
-                            .fee(fee) // Liên kết với Fee
+                            .fee(fee)
                             .build();
-                    fee.getFeePricing().add(newFeePricing); // Thêm FeePricing mới vào danh sách
+                    fee.getFeePricing().add(newFeePricing);
                 }
             });
         });
-
-//       List<BuildingUnit> buildingUnitsToRemove = new ArrayList<>();
-//        for (BuildingUnit existingUnit : building.getBuildingUnits()) {
-//            boolean isUnitExistInDto = buildingDto.getBuildingUnits().stream()
-//                    .anyMatch(unitDto -> unitDto.getBuildingUnitId().equals(existingUnit.getBuildingUnitId()));
-//            if (!isUnitExistInDto) {
-//                buildingUnitsToRemove.add(existingUnit);
-//            } else {
-//                List<RentArea> rentAreasToRemove = new ArrayList<>();
-//                for (RentArea existingRentArea : existingUnit.getRentAreas()) {
-//                    boolean isRentAreaExistInDto = buildingDto.getBuildingUnits().stream()
-//                            .flatMap(unitDto -> unitDto.getRentAreas().stream())
-//                            .anyMatch(rentAreaDto -> rentAreaDto.getRentAreaId().equals(existingRentArea.getRentAreaId()));
-//                    if (!isRentAreaExistInDto) {
-//                        rentAreasToRemove.add(existingRentArea);
-//                    }
-//                }
-//                existingUnit.getRentAreas().removeAll(rentAreasToRemove);
-//            }
-//        }
-//        existingBuildingUnits.removeAll(buildingUnitsToRemove);
-//
-//        buildingDto.getBuildingUnits().forEach(unitDto -> {
-//            BuildingUnit unit = existingBuildingUnits.stream()
-//                    .filter(existingUnit -> Objects.equals(existingUnit.getBuildingUnitId(), unitDto.getBuildingUnitId()))
-//                    .findFirst()
-//                    .orElseGet(() -> {
-//                        BuildingUnit newUnit = BuildingUnit.builder()
-//                                .buildingUnitStatus(BuildingUnitStatus.valueOf(unitDto.getBuildingUnitStatus()))
-//                                .floor(unitDto.getFloor())
-//                                .unitName(unitDto.getUnitName())
-//                                .rentAreas(new ArrayList<>())
-//                                .building(building)
-//                                .build();
-//                        existingBuildingUnits.add(newUnit);
-//                        return newUnit;
-//                    });
-//            unitDto.getRentAreas().forEach(unitRentAreaDto -> {
-//                Optional<RentArea> existingRentAreaOpt = unit.getRentAreas().stream()
-//                        .filter(existingRentArea ->
-//                                Objects.equals(existingRentArea.getRentAreaId(), unitRentAreaDto.getRentAreaId()))
-//                        .findFirst();
-//                if (existingRentAreaOpt.isPresent()) {
-//                    RentArea existingRentArea = existingRentAreaOpt.get();
-//                    existingRentArea.setArea(unitRentAreaDto.getArea());
-//                } else {
-//                    RentArea newRentArea = RentArea.builder()
-//                            .area(unitRentAreaDto.getArea())
-//                            .buildingUnit(unit)
-//                            .build();
-//                    unit.getRentAreas().add(newRentArea);
-//                }
-//            });
-//        });
 
         List<BuildingUnit> buildingUnitsToRemove = new ArrayList<>();
         for (BuildingUnit existingUnit : building.getBuildingUnits()) {
@@ -392,12 +322,14 @@ public class BuildingServiceImpl implements BuildingService {
                                 .floor(unitDto.getFloor())
                                 .unitName(unitDto.getUnitName())
                                 .rentAreas(new ArrayList<>())
+                                .rentalPricing(new ArrayList<>())
                                 .building(building)
                                 .build();
                         building.getBuildingUnits().add(newUnit);
                         return newUnit;
                     });
-            buildingUnitRepository.saveAndFlush(unit);
+
+            // Xử lý RentArea
             unit.getRentAreas().clear();
             unitDto.getRentAreas().forEach(unitRentAreaDto -> {
                 RentArea newRentArea = RentArea.builder()
@@ -406,9 +338,22 @@ public class BuildingServiceImpl implements BuildingService {
                         .build();
                 unit.getRentAreas().add(newRentArea);
             });
+
+            // Xử lý RentalPricing (giữ logic ban đầu)
+            List<RentalPricing> existingRentalPricing = unit.getRentalPricing();
+            unitDto.getRentalPricing().stream()
+                    .filter(price -> price.getRentalPricingId() == null)
+                    .map(price -> RentalPricing.builder()
+                            .price(price.getPrice())
+                            .buildingUnit(unit)
+                            .build())
+                    .forEach(newPrice -> {
+                        if (existingRentalPricing.stream().noneMatch(existingPrice -> existingPrice.getPrice().compareTo(newPrice.getPrice()) == 0)) {
+                            existingRentalPricing.add(newPrice);
+                        }
+                    });
+            unit.setRentalPricing(existingRentalPricing);
         });
-
-
 
         buildingDto.setBuildingImages(building.getBuildingImages().stream()
                 .map(image -> BuildingImageDto.builder()
@@ -417,18 +362,13 @@ public class BuildingServiceImpl implements BuildingService {
                         .build())
                 .collect(Collectors.toList()));
 
-
         building.setPaymentPolicies(existingPaymentPolicies);
         building.setConsignmentStatusHistories(existingStatusHistories);
-        building.setRentalPricing(existingRentalPricing);
         building.setFees(existingFees);
         building.setBuildingUnits(existingBuildingUnits);
 
-
-
         buildingMapper.partialUpdate(building, buildingDto);
         building.getFees().forEach(fee -> fee.setBuilding(building));
-        building.getRentalPricing().forEach(price -> price.setBuilding(building));
         building.getPaymentPolicies().forEach(policy -> policy.setBuilding(building));
         building.getBuildingImages().forEach(image -> image.setBuilding(building));
         building.getBuildingUnits().forEach(unit -> unit.setBuilding(building));
@@ -609,10 +549,11 @@ public class BuildingServiceImpl implements BuildingService {
                 BigDecimal minPrice = new BigDecimal(params.get("minPrice"));
                 spec = spec.and((root, query, criteriaBuilder) -> {
                     Subquery<Long> subquery = query.subquery(Long.class);
-                    Root<RentalPricing> rentalPricingRoot = subquery.from(RentalPricing.class);
+                    Root<BuildingUnit> buildingUnitRoot = subquery.from(BuildingUnit.class);
+                    Join<BuildingUnit, RentalPricing> rentalPricingJoin = buildingUnitRoot.join("rentalPricing");
 
-                    subquery.select(criteriaBuilder.max(rentalPricingRoot.get("rentalPricingId")))
-                            .where(criteriaBuilder.equal(rentalPricingRoot.get("building"), root));
+                    subquery.select(criteriaBuilder.max(rentalPricingJoin.get("rentalPricingId")))
+                            .where(criteriaBuilder.equal(buildingUnitRoot.get("building"), root));
 
                     Subquery<BigDecimal> priceSubquery = query.subquery(BigDecimal.class);
                     Root<RentalPricing> rentalPricingRoot2 = priceSubquery.from(RentalPricing.class);
@@ -623,19 +564,62 @@ public class BuildingServiceImpl implements BuildingService {
                 });
             }
 
+
             if (params.containsKey("maxPrice")) {
                 BigDecimal maxPrice = new BigDecimal(params.get("maxPrice"));
                 spec = spec.and((root, query, criteriaBuilder) -> {
                     Subquery<Long> subquery = query.subquery(Long.class);
-                    Root<RentalPricing> rentalPricingRoot = subquery.from(RentalPricing.class);
+                    Root<BuildingUnit> buildingUnitRoot = subquery.from(BuildingUnit.class);
+                    Join<BuildingUnit, RentalPricing> rentalPricingJoin = buildingUnitRoot.join("rentalPricing");
 
-                    subquery.select(criteriaBuilder.max(rentalPricingRoot.get("rentalPricingId")))
-                            .where(criteriaBuilder.equal(rentalPricingRoot.get("building"), root));
+                    subquery.select(criteriaBuilder.max(rentalPricingJoin.get("rentalPricingId")))
+                            .where(criteriaBuilder.equal(buildingUnitRoot.get("building"), root));
 
                     Subquery<BigDecimal> priceSubquery = query.subquery(BigDecimal.class);
                     Root<RentalPricing> rentalPricingRoot2 = priceSubquery.from(RentalPricing.class);
                     priceSubquery.select(rentalPricingRoot2.get("price"))
                             .where(criteriaBuilder.equal(rentalPricingRoot2.get("rentalPricingId"), subquery));
+
+                    return criteriaBuilder.lessThanOrEqualTo(priceSubquery, maxPrice);
+                });
+            }
+        }
+
+        if (params.containsKey("minArea") || params.containsKey("maxArea")) {
+            if (params.containsKey("minArea")) {
+                BigDecimal minPrice = new BigDecimal(params.get("minArea"));
+                spec = spec.and((root, query, criteriaBuilder) -> {
+                    Subquery<Long> subquery = query.subquery(Long.class);
+                    Root<BuildingUnit> buildingUnitRoot = subquery.from(BuildingUnit.class);
+                    Join<BuildingUnit, RentArea> rentAreaJoin = buildingUnitRoot.join("rentAreas");
+
+                    subquery.select(criteriaBuilder.max(rentAreaJoin.get("rentAreaId")))
+                            .where(criteriaBuilder.equal(buildingUnitRoot.get("building"), root));
+
+                    Subquery<BigDecimal> priceSubquery = query.subquery(BigDecimal.class);
+                    Root<RentArea> rentalPricingRoot2 = priceSubquery.from(RentArea.class);
+                    priceSubquery.select(rentalPricingRoot2.get("area"))
+                            .where(criteriaBuilder.equal(rentalPricingRoot2.get("rentAreaId"), subquery));
+
+                    return criteriaBuilder.greaterThanOrEqualTo(priceSubquery, minPrice);
+                });
+            }
+
+
+            if (params.containsKey("maxArea")) {
+                BigDecimal maxPrice = new BigDecimal(params.get("maxArea"));
+                spec = spec.and((root, query, criteriaBuilder) -> {
+                    Subquery<Long> subquery = query.subquery(Long.class);
+                    Root<BuildingUnit> buildingUnitRoot = subquery.from(BuildingUnit.class);
+                    Join<BuildingUnit, RentArea> rentalPricingJoin = buildingUnitRoot.join("rentAreas");
+
+                    subquery.select(criteriaBuilder.max(rentalPricingJoin.get("rentAreaId")))
+                            .where(criteriaBuilder.equal(buildingUnitRoot.get("building"), root));
+
+                    Subquery<BigDecimal> priceSubquery = query.subquery(BigDecimal.class);
+                    Root<RentArea> rentalPricingRoot2 = priceSubquery.from(RentArea.class);
+                    priceSubquery.select(rentalPricingRoot2.get("area"))
+                            .where(criteriaBuilder.equal(rentalPricingRoot2.get("rentAreaId"), subquery));
 
                     return criteriaBuilder.lessThanOrEqualTo(priceSubquery, maxPrice);
                 });
@@ -744,37 +728,81 @@ public class BuildingServiceImpl implements BuildingService {
         }
 
         if (params.containsKey("minPrice") || params.containsKey("maxPrice")) {
-            if (params.containsKey("minPrice")) {
-                BigDecimal minPrice = new BigDecimal(params.get("minPrice"));
+                if (params.containsKey("minPrice")) {
+                    BigDecimal minPrice = new BigDecimal(params.get("minPrice"));
+                    spec = spec.and((root, query, criteriaBuilder) -> {
+                        Subquery<Long> subquery = query.subquery(Long.class);
+                        Root<BuildingUnit> buildingUnitRoot = subquery.from(BuildingUnit.class);
+                        Join<BuildingUnit, RentalPricing> rentalPricingJoin = buildingUnitRoot.join("rentalPricing");
+
+                        subquery.select(criteriaBuilder.max(rentalPricingJoin.get("rentalPricingId")))
+                                .where(criteriaBuilder.equal(buildingUnitRoot.get("building"), root));
+
+                        Subquery<BigDecimal> priceSubquery = query.subquery(BigDecimal.class);
+                        Root<RentalPricing> rentalPricingRoot2 = priceSubquery.from(RentalPricing.class);
+                        priceSubquery.select(rentalPricingRoot2.get("price"))
+                                .where(criteriaBuilder.equal(rentalPricingRoot2.get("rentalPricingId"), subquery));
+
+                        return criteriaBuilder.greaterThanOrEqualTo(priceSubquery, minPrice);
+                    });
+                }
+
+
+           if (params.containsKey("maxPrice")) {
+                BigDecimal maxPrice = new BigDecimal(params.get("maxPrice"));
                 spec = spec.and((root, query, criteriaBuilder) -> {
                     Subquery<Long> subquery = query.subquery(Long.class);
-                    Root<RentalPricing> rentalPricingRoot = subquery.from(RentalPricing.class);
+                    Root<BuildingUnit> buildingUnitRoot = subquery.from(BuildingUnit.class);
+                    Join<BuildingUnit, RentalPricing> rentalPricingJoin = buildingUnitRoot.join("rentalPricing");
 
-                    subquery.select(criteriaBuilder.max(rentalPricingRoot.get("rentalPricingId")))
-                            .where(criteriaBuilder.equal(rentalPricingRoot.get("building"), root));
+                    subquery.select(criteriaBuilder.max(rentalPricingJoin.get("rentalPricingId")))
+                            .where(criteriaBuilder.equal(buildingUnitRoot.get("building"), root));
 
                     Subquery<BigDecimal> priceSubquery = query.subquery(BigDecimal.class);
                     Root<RentalPricing> rentalPricingRoot2 = priceSubquery.from(RentalPricing.class);
                     priceSubquery.select(rentalPricingRoot2.get("price"))
                             .where(criteriaBuilder.equal(rentalPricingRoot2.get("rentalPricingId"), subquery));
+
+                    return criteriaBuilder.lessThanOrEqualTo(priceSubquery, maxPrice);
+                });
+            }
+        }
+
+        if (params.containsKey("minArea") || params.containsKey("maxArea")) {
+            if (params.containsKey("minArea")) {
+                BigDecimal minPrice = new BigDecimal(params.get("minArea"));
+                spec = spec.and((root, query, criteriaBuilder) -> {
+                    Subquery<Long> subquery = query.subquery(Long.class);
+                    Root<BuildingUnit> buildingUnitRoot = subquery.from(BuildingUnit.class);
+                    Join<BuildingUnit, RentArea> rentalPricingJoin = buildingUnitRoot.join("rentAreas");
+
+                    subquery.select(criteriaBuilder.max(rentalPricingJoin.get("rentAreaId")))
+                            .where(criteriaBuilder.equal(buildingUnitRoot.get("building"), root));
+
+                    Subquery<BigDecimal> priceSubquery = query.subquery(BigDecimal.class);
+                    Root<RentArea> rentalPricingRoot2 = priceSubquery.from(RentArea.class);
+                    priceSubquery.select(rentalPricingRoot2.get("area"))
+                            .where(criteriaBuilder.equal(rentalPricingRoot2.get("rentAreaId"), subquery));
 
                     return criteriaBuilder.greaterThanOrEqualTo(priceSubquery, minPrice);
                 });
             }
 
-            if (params.containsKey("maxPrice")) {
-                BigDecimal maxPrice = new BigDecimal(params.get("maxPrice"));
+
+            if (params.containsKey("maxArea")) {
+                BigDecimal maxPrice = new BigDecimal(params.get("maxArea"));
                 spec = spec.and((root, query, criteriaBuilder) -> {
                     Subquery<Long> subquery = query.subquery(Long.class);
-                    Root<RentalPricing> rentalPricingRoot = subquery.from(RentalPricing.class);
+                    Root<BuildingUnit> buildingUnitRoot = subquery.from(BuildingUnit.class);
+                    Join<BuildingUnit, RentArea> rentalPricingJoin = buildingUnitRoot.join("rentAreas");
 
-                    subquery.select(criteriaBuilder.max(rentalPricingRoot.get("rentalPricingId")))
-                            .where(criteriaBuilder.equal(rentalPricingRoot.get("building"), root));
+                    subquery.select(criteriaBuilder.max(rentalPricingJoin.get("rentAreaId")))
+                            .where(criteriaBuilder.equal(buildingUnitRoot.get("building"), root));
 
                     Subquery<BigDecimal> priceSubquery = query.subquery(BigDecimal.class);
-                    Root<RentalPricing> rentalPricingRoot2 = priceSubquery.from(RentalPricing.class);
-                    priceSubquery.select(rentalPricingRoot2.get("price"))
-                            .where(criteriaBuilder.equal(rentalPricingRoot2.get("rentalPricingId"), subquery));
+                    Root<RentArea> rentalPricingRoot2 = priceSubquery.from(RentArea.class);
+                    priceSubquery.select(rentalPricingRoot2.get("area"))
+                            .where(criteriaBuilder.equal(rentalPricingRoot2.get("rentAreaId"), subquery));
 
                     return criteriaBuilder.lessThanOrEqualTo(priceSubquery, maxPrice);
                 });

@@ -39,7 +39,7 @@ public class BuildingUnit extends BaseEntity {
     @Column(name = "floor", nullable = false)
     Integer floor;
 
-    @Column(name = "status", nullable = false)
+    @Column(name = "status", nullable = true)
     @Enumerated(EnumType.STRING)
     BuildingUnitStatus buildingUnitStatus;
 
@@ -52,5 +52,8 @@ public class BuildingUnit extends BaseEntity {
 
     @OneToMany(mappedBy = "buildingUnit", cascade = CascadeType.ALL, orphanRemoval = true)
     List<RentArea> rentAreas;
+
+    @OneToMany(mappedBy = "buildingUnit", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<RentalPricing> rentalPricing;
 
 }

@@ -10,6 +10,7 @@ package com.nqvinh.rentofficebackend.domain.building.service;
 import com.nqvinh.rentofficebackend.application.dto.response.Page;
 import com.nqvinh.rentofficebackend.domain.building.dto.BuildingDto;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,4 +22,5 @@ import java.util.Map;
  */
 public interface BuildingClientService {
     Page<BuildingDto> getBuildingClients(Map<String, String> params);
+    List<String> getAllStreetByWardNameAndDistrictName(String wardName, String districtName);
 }

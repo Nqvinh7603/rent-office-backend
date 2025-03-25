@@ -70,7 +70,8 @@ public class SecurityConfiguration {
                                 "/api/v1/building-clients/**",
                                 "/api/v1/building-clients/{id}",
                                 "/api/v1/building-levels/company",
-                                "/api/v1/building-levels/all"
+                                "/api/v1/building-levels/all",
+                                "/api/v1/building-clients/streets"
                                 ).permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -9,12 +9,13 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring", config = CommonMapperConfig.class,
         uses = {
-        BuildingImageReqMapper.class,
+                BuildingImageReqMapper.class,
                 ConsignmentStatusHistoryReqMapper.class,
                 BuildingTypeReqMapper.class,
-                RentalPricingReqMapper.class,
+//                RentalPricingReqMapper.class,
                 FeeReqMapper.class,
-                PaymentPolicyReqMapper.class
+                PaymentPolicyReqMapper.class,
+                BuildingUnitReqMapper.class
         })
 public interface BuildingReqMapper extends CommonMapper<BuildingReqDto, Building> {
 }

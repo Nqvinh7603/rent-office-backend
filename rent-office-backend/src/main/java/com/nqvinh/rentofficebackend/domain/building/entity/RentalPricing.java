@@ -38,7 +38,12 @@ public class RentalPricing extends BaseEntity{
     @Column(name = "price", nullable = false)
     BigDecimal price;
 
+//    @ManyToOne
+//    @JoinColumn(name = "building_unit_id", nullable = false)
+//    Building building;
+
     @ManyToOne
-    @JoinColumn(name = "building_id", nullable = false)
-    Building building;
+    @JoinColumn(name = "building_unit_id", nullable = false)
+    BuildingUnit buildingUnit;
+
 }

@@ -1,5 +1,6 @@
 package com.nqvinh.rentofficebackend.domain.building.service.impl;
 
+import com.nqvinh.rentofficebackend.domain.building.constant.BuildingUnitStatus;
 import com.nqvinh.rentofficebackend.domain.building.constant.ConsignmentStatus;
 import com.nqvinh.rentofficebackend.domain.building.dto.request.BuildingImageReqDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.request.CustomerReqDto;
@@ -85,13 +86,34 @@ public class BuildingImageServiceImpl implements BuildingImageService {
                 .map(buildingDto -> {
                     Building newBuilding = buildingReqMapper.toEntity(buildingDto);
                     newBuilding.setCustomer(customer);
+
                     newBuilding.setBuildingType(newBuilding.getBuildingType());
-                    List<RentalPricing> rentalPricing = buildingDto.getRentalPricing().stream()
-                            .map(rentalPricingDto -> RentalPricing.builder()
-                                    .price(rentalPricingDto.getPrice())
-                                    .building(newBuilding)
-                                    .build())
-                            .collect(Collectors.toList());
+
+                    List<BuildingUnit> buildingUnits = buildingDto.getBuildingUnits().stream()
+                                .map(buildingUnitDto -> {
+                                    BuildingUnit buildingUnit = BuildingUnit.builder()
+                                        .unitName(buildingUnitDto.getUnitName())
+                                        .floor(buildingUnitDto.getFloor())
+                                        .building(newBuilding)
+                                        .build();
+
+                                    buildingUnit.setRentAreas(buildingUnitDto.getRentAreas().stream()
+                                        .map(rentAreaDto -> RentArea.builder()
+                                            .area(rentAreaDto.getArea())
+                                            .buildingUnit(buildingUnit)
+                                            .build())
+                                        .collect(Collectors.toList()));
+
+                                    buildingUnit.setRentalPricing(buildingUnitDto.getRentalPricing().stream()
+                                        .map(rentalPricingDto -> RentalPricing.builder()
+                                            .price(rentalPricingDto.getPrice())
+                                            .buildingUnit(buildingUnit)
+                                            .build())
+                                        .collect(Collectors.toList()));
+
+                                    return buildingUnit;
+                                })
+                                .collect(Collectors.toList());
 
                     List<PaymentPolicy> paymentPolicies = buildingDto.getPaymentPolicies().stream()
                             .map(paymentPolicyDto -> PaymentPolicy.builder()
@@ -132,7 +154,7 @@ public class BuildingImageServiceImpl implements BuildingImageService {
 
                     newBuilding.setBuildingImages(buildingImageEntities);
                     newBuilding.setConsignmentStatusHistories(buildingStatusHistories);
-                    newBuilding.setRentalPricing(rentalPricing);
+                    newBuilding.setBuildingUnits(buildingUnits);
                     newBuilding.setFees(fees);
                     newBuilding.setPaymentPolicies(paymentPolicies);
 

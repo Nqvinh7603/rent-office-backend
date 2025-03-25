@@ -1,6 +1,5 @@
 package com.nqvinh.rentofficebackend.domain.building.dto;
 
-import com.nqvinh.rentofficebackend.domain.building.dto.request.RentalPricingReqDto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
@@ -37,8 +36,8 @@ public class BuildingDto {
     @NotNull(message = "List image is required")
     List<BuildingImageDto> buildingImages = List.of();
 
-    @NotNull(message = "Rental pricing is required")
-    List<RentalPricingReqDto> rentalPricing;
+//    @NotNull(message = "Rental pricing is required")
+//    List<RentalPricingReqDto> rentalPricing;
 
     @NotBlank(message = "Description is required")
     String description;

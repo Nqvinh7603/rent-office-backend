@@ -10,9 +10,10 @@ import org.mapstruct.Mapper;
         uses = {BuildingImageResMapper.class,
                 ConsignmentStatusHistoryResMapper.class,
                 BuildingTypeResMapper.class,
-                RentalPricingResMapper.class,
+//                RentalPricingResMapper.class,
                 FeeResMapper.class,
-                PaymentPolicyResMapper.class
+                PaymentPolicyResMapper.class,
+                BuildingUnitResMapper.class,
         })
 public interface BuildingResMapper extends CommonMapper<BuildingResDto, Building> {
 }

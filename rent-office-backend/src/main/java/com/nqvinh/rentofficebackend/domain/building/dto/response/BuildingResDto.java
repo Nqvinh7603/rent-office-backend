@@ -75,4 +75,7 @@ public class BuildingResDto {
 
     @NotNull(message = "Payment policies is required")
     List<PaymentPolicyResDto> paymentPolicies;
+
+    @NotNull(message = "Building units is required")
+    List<BuildingUnitResDto> buildingUnits;
 }
