@@ -7,15 +7,11 @@
  ******************************************************************************/
 package com.nqvinh.rentofficebackend.domain.building.mapper;
 
-import com.nqvinh.rentofficebackend.domain.building.dto.BuildingDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.BuildingUnitDto;
-import com.nqvinh.rentofficebackend.domain.building.entity.Building;
 import com.nqvinh.rentofficebackend.domain.building.entity.BuildingUnit;
 import com.nqvinh.rentofficebackend.domain.common.mapper.CommonMapper;
 import com.nqvinh.rentofficebackend.domain.common.mapper.CommonMapperConfig;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 
 /**
  * BuildingUnitMapper

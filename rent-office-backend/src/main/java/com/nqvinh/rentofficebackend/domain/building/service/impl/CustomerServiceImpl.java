@@ -7,6 +7,7 @@ import com.nqvinh.rentofficebackend.domain.auth.entity.User;
 import com.nqvinh.rentofficebackend.domain.auth.mapper.UserMapper;
 import com.nqvinh.rentofficebackend.domain.auth.repository.UserRepository;
 import com.nqvinh.rentofficebackend.domain.auth.service.UserService;
+import com.nqvinh.rentofficebackend.domain.building.constant.PotentialCustomerStatus;
 import com.nqvinh.rentofficebackend.domain.building.constant.RequireTypeEnum;
 import com.nqvinh.rentofficebackend.domain.building.dto.AssignCustomerDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.CustomerDto;
@@ -119,13 +120,22 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     @Transactional
     public CustomerDto createPotentialCustomer(CustomerDto customerDto) {
+        Customer existingCustomer = customerRepository.findByEmail(customerDto.getEmail()).orElse(null);
+        List<UserDto> adminsAndManagers = userService.getAllAdminsAndManagers();
+        adminsAndManagers.forEach(adminOrManager -> notificationService.createPotentialCustomerNotification(adminOrManager, customerDto));
+
         sendMailForPotentialCustomer(customerDto);
+        if (existingCustomer != null) {
+            existingCustomer.setNote(customerDto.getNote());
+            existingCustomer.setStatus(PotentialCustomerStatus.valueOf(customerDto.getStatus()));
+            return customerMapper.toDto(customerRepository.save(existingCustomer));
+        }
+
+
         Customer customer = customerMapper.toEntity(customerDto);
         Customer savedCustomer = customerRepository.save(customer);
 
-        List<UserDto> adminsAndManagers = userService.getAllAdminsAndManagers();
-        adminsAndManagers.forEach(adminOrManager -> notificationService.createPotentialCustomerNotification(adminOrManager, customerDto));
-        return customerMapper.toDto(savedCustomer);
+       return customerMapper.toDto(savedCustomer);
     }
 
     @Override

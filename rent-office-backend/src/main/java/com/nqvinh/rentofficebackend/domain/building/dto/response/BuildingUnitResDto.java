@@ -7,7 +7,6 @@
  ******************************************************************************/
 package com.nqvinh.rentofficebackend.domain.building.dto.response;
 
-import com.nqvinh.rentofficebackend.domain.building.dto.request.RentAreaReqDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.request.RentalPricingReqDto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;

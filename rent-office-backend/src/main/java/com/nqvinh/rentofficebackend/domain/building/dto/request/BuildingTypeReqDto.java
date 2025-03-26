@@ -7,7 +7,6 @@
  ******************************************************************************/
 package com.nqvinh.rentofficebackend.domain.building.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 import lombok.experimental.FieldDefaults;

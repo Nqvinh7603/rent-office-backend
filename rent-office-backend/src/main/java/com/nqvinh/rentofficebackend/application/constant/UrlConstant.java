@@ -91,4 +91,7 @@ public class UrlConstant {
     public static final String DELETE_FEE_TYPE = "/{id}";
     public static final String GET_ALL_FEE_TYPE = "/all";
 
+
+    //Appointment
+    public static final String APPOINTMENTS = API_BASE + "/appointments";
 }

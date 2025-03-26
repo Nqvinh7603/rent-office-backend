@@ -36,7 +36,7 @@ public class Customer extends BaseEntity {
     @Column(name = "address", nullable = true)
     String address;
 
-    @Column(name = "require_type", nullable = false)
+    @Column(name = "require_type", nullable = true)
     @Enumerated(EnumType.STRING)
     RequireTypeEnum requireType;
 

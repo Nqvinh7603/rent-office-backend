@@ -21,7 +21,6 @@ import com.nqvinh.rentofficebackend.domain.building.entity.*;
 import com.nqvinh.rentofficebackend.domain.building.mapper.BuildingMapper;
 import com.nqvinh.rentofficebackend.domain.building.mapper.response.CustomerResMapper;
 import com.nqvinh.rentofficebackend.domain.building.repository.BuildingRepository;
-import com.nqvinh.rentofficebackend.domain.building.repository.BuildingUnitRepository;
 import com.nqvinh.rentofficebackend.domain.building.repository.CustomerRepository;
 import com.nqvinh.rentofficebackend.domain.building.service.BuildingImageService;
 import com.nqvinh.rentofficebackend.domain.building.service.BuildingService;

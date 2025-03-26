@@ -15,8 +15,13 @@ package com.nqvinh.rentofficebackend.domain.building.constant;
  * @since 01-00
  */
 public enum AppointmentStatus {
-    PENDING,
-    CONFIRMED,
-    COMPLETED,
-    CANCELLED;
+    PENDING,          // Cuộc hẹn vừa được tạo, đang chờ xử lý
+    CONFIRMED,        // Cuộc hẹn đã được xác nhận
+    IN_PROGRESS,      // Cuộc hẹn đang diễn ra (khách hàng đang xem văn phòng)
+    COMPLETED,        // Cuộc hẹn đã hoàn tất (khách hàng đã xem xong)
+    SUCCESSFUL,       // Cuộc hẹn thành công (khách hàng đồng ý thuê văn phòng)
+    UNSUCCESSFUL,     // Cuộc hẹn không thành công (khách hàng không đồng ý thuê)
+    CANCELLED,        // Cuộc hẹn bị hủy
+    FOLLOW_UP,        // Cần theo dõi thêm (ví dụ: khách hàng chưa quyết định, cần liên hệ lại)
+    RESCHEDULED       // Cuộc hẹn được lên lịch lại (khách hàng yêu cầu đổi thời gian)
 }

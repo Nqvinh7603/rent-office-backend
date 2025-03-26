@@ -47,12 +47,12 @@ public class Building extends BaseEntity {
     @Column(name = "building_number", nullable = true)
     String buildingNumber;
 
-    @Column(name = "orientation", nullable = true )
+    @Column(name = "orientation", nullable = true)
     @Enumerated(EnumType.STRING)
     OrientationEnum orientation; // Hướng
 
-    @OneToMany(mappedBy = "building",fetch = FetchType.LAZY,cascade = CascadeType.ALL, orphanRemoval = true)
-    List<BuildingImage>  buildingImages = new ArrayList<>();
+    @OneToMany(mappedBy = "building", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    List<BuildingImage> buildingImages = new ArrayList<>();
 
     @Column(name = "description", nullable = true, columnDefinition = "TEXT")
     String description;
@@ -64,7 +64,7 @@ public class Building extends BaseEntity {
     @OneToMany(mappedBy = "building", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     List<ConsignmentStatusHistory> consignmentStatusHistories;
 
-    @OneToMany(mappedBy = "building",fetch = FetchType.EAGER ,cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "building", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     List<Fee> fees;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -75,8 +75,6 @@ public class Building extends BaseEntity {
     @JoinColumn(name = "building_level_id", nullable = true)
     BuildingLevel buildingLevel;
 
-//    @OneToMany(mappedBy = "building", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-//    List<RentalPricing> rentalPricing;
 
     @Column(name = "number_of_floors", nullable = true)
     Integer numberOfFloors;
@@ -90,8 +88,6 @@ public class Building extends BaseEntity {
     @OneToMany(mappedBy = "building", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     List<BuildingUnit> buildingUnits;
 
-//    @OneToMany(mappedBy = "building", fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
-//    List<Contract> contracts;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -100,6 +96,6 @@ public class Building extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     List<User> users;
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "buildings")
-    List<Appointment> appointments;
+    @OneToMany(mappedBy = "building", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    List<AppointmentBuilding> appointmentBuildings;
 }

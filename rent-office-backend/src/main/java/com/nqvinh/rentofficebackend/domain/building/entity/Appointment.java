@@ -7,13 +7,11 @@
  ******************************************************************************/
 package com.nqvinh.rentofficebackend.domain.building.entity;
 
-import com.nqvinh.rentofficebackend.domain.building.constant.AppointmentStatus;
 import com.nqvinh.rentofficebackend.domain.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -41,21 +39,9 @@ public class Appointment extends BaseEntity {
     @JoinColumn(name = "customer_id", nullable = false)
     Customer customer;
 
-//    @ManyToOne
-//    @JoinColumn(name = "building_id", nullable = false)
-//    Building building;
+    @OneToMany(mappedBy = "appointment",fetch = FetchType.LAZY,cascade = CascadeType.ALL, orphanRemoval = true)
+    List<AppointmentBuilding> appointmentBuildings;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "appointment_building",
-            joinColumns = @JoinColumn(name = "appointment_id"),
-            inverseJoinColumns = @JoinColumn(name = "building_id"))
-    List<Building> buildings;
-
-    @Column(name = "appointment_date", nullable = false)
-    LocalDateTime appointmentDate;
-
-    @Column(name = "status", nullable = false)
-    @Enumerated(EnumType.STRING)
-    AppointmentStatus status;
+    @OneToMany(mappedBy = "appointment",fetch = FetchType.LAZY,cascade = CascadeType.ALL, orphanRemoval = true)
+    List<AppointmentStatusHistory> appointmentStatusHistories;
 }

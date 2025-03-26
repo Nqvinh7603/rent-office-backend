@@ -1,6 +1,5 @@
 package com.nqvinh.rentofficebackend.domain.building.service.impl;
 
-import com.nqvinh.rentofficebackend.domain.building.constant.BuildingUnitStatus;
 import com.nqvinh.rentofficebackend.domain.building.constant.ConsignmentStatus;
 import com.nqvinh.rentofficebackend.domain.building.dto.request.BuildingImageReqDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.request.CustomerReqDto;
