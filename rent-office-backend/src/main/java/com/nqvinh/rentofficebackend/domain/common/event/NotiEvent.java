@@ -18,6 +18,8 @@ public class NotiEvent {
     boolean status;
     List<UUID> userId;
     Long buildingId;
+    Long customerId;
+    Long appointmentId;
     LocalDateTime createdAt;
     String type;
     String code;

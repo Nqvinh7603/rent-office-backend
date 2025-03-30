@@ -7,4 +7,5 @@ public interface NotiProducer {
     void sendNotiUpdateConsignment(NotiEvent noti);
     void sendNotiAssignCustomer(NotiEvent noti);
     void sendNotiCreatePotentialCustomer(NotiEvent noti);
+    void sendNotiCreateAppointment(NotiEvent noti);
 }

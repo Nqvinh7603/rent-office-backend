@@ -15,10 +15,10 @@ package com.nqvinh.rentofficebackend.domain.building.constant;
  * @since 01-00
  */
 public enum PotentialCustomerStatus {
-    CONTACTED_NO_RESPONSE, //  đã liên hệ _ chưa phản hồi
-    CONTACTED_SCHEDULED, // đã liên hệ _ HẸN GỌI LẠI
-    NOT_CONTACTED,// chưa liên hệ
-    DEAL_DONE, // đã chấp nhận
-    IN_PROGRESS, // đang xử lý
-    CANCELED // không còn nhu cầu
+    NOT_CONTACTED,         // Chưa liên hệ
+    CONTACTED,             // Đã liên hệ (gộp cả "đã liên hệ chưa phản hồi", "hẹn gọi lại")
+    DEAL_IN_PROGRESS,      // Đang xử lý deal (đã vào phễu)
+    DEAL_DONE,             // Đã chốt thuê
+    CANCELED               // Không còn nhu cầu
 }
+

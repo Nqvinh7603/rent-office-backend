@@ -110,4 +110,20 @@ public class EmailProducerImpl implements EmailProducer {
         }
     }
 
+    @Override
+    public void sendMailAppointment(MailEvent mail) {
+        try{
+            var message = MessageBuilder.build(
+                    serviceId,
+                    EventType.EVENT,
+                    MessageCode.MAIL_APPOINTMENT.getCode(),
+                    mail
+            );
+            kafkaTemplate.send(emailTopic, message);
+            log.info("Produced a message to topic: {}, value: {}", emailTopic, message);
+        } catch (Exception e) {
+            log.error("Failed to produce the message to topic: {}", emailTopic, e);
+        }
+    }
+
 }

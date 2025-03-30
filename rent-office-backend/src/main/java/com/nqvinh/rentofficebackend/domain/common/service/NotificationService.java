@@ -21,4 +21,5 @@ public interface NotificationService {
     void assignCustomerToStaffs(AssignCustomerDto assignCustomerDto);
     void assignBuildingToStaffs(AssignBuildingDto assignBuildingDto);
     void createPotentialCustomerNotification(UserDto userDto, CustomerDto savedCustomer);
+    void createAppointment(UserDto userDto, Customer savedCustomer);
 }

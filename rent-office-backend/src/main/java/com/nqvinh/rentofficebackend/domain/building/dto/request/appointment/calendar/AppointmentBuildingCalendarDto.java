@@ -1,13 +1,13 @@
 /*******************************************************************************
- * Class        ：CustomerAppointmentReqDto
+ * Class        ：AppointmentBuildingDto
  * Created date ：2025/03/26
  * Lasted date  ：2025/03/26
  * Author       ：vinhNQ2
  * Change log   ：2025/03/26：01-00 vinhNQ2 create a new
  ******************************************************************************/
-package com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.request;
+package com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.calendar;
 
-import jakarta.validation.constraints.NotBlank;
+import com.nqvinh.rentofficebackend.domain.building.dto.BuildingDto;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -16,45 +16,33 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * CustomerAppointmentReqDto
+ * AppointmentBuildingDto
  *
  * @author vinhNQ2
  * @version 01-00
  * @since 01-00
  */
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CustomerAppointmentReqDto {
-    Long customerId;
+public class AppointmentBuildingCalendarDto {
+    Long appointmentBuildingId;
 
-    @NotBlank(message = "Customer name is required")
-    String customerName;
+    List<AppointmentBuildingStatusHistoryCalendarDto> appointmentBuildingStatusHistories;
 
-    @NotBlank(message = "Phone number is required")
-    String phoneNumber;
+    LocalDateTime visitTime;
 
-    @NotBlank(message = "Email is required")
-    String email;
+    AppointmentCalendarDto appointment;
 
-    String address;
+    BuildingDto building;
 
-    @NotBlank(message = "Require type is required")
-    String requireType;
-
-    String note;
-
-    String status;
-
-    List<AppointmentReqDto> appointments;
-
+    String area;
     @PastOrPresent(message = "Created at must be in the past or present")
     LocalDateTime createdAt;
 
     @PastOrPresent(message = "Updated at must be in the past or present")
     LocalDateTime updatedAt;
-
-
 }

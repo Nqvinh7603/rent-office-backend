@@ -9,4 +9,5 @@ public interface EmailProducer {
     void sendMailIncompleteConsignment(MailEvent mail);
     void sendMailNewPotentialCustomer(MailEvent mail);
     void sendMailConfirmedConsignment(MailEvent mail);
+    void sendMailAppointment(MailEvent mail);
 }

@@ -13,6 +13,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Fee
@@ -45,4 +46,5 @@ public class Fee extends BaseEntity {
 
     @OneToMany(mappedBy = "fee", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     List<FeePricing> feePricing;
+
 }

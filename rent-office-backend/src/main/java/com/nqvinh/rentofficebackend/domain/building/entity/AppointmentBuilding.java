@@ -40,16 +40,16 @@ public class AppointmentBuilding extends BaseEntity {
     List<AppointmentBuildingStatusHistory> appointmentBuildingStatusHistories;
 
     @ManyToOne
-    @JoinColumn(name = "appointment_id", nullable = false)
+    @JoinColumn(name = "appointment_id", nullable = true)
     Appointment appointment;
 
     @ManyToOne
-    @JoinColumn(name = "building_id", nullable = false)
+    @JoinColumn(name = "building_id", nullable = true)
     Building building;
 
-    @Column(name = "visit_time", nullable = false)
+    @Column(name = "visit_time", nullable = true)
     LocalDateTime visitTime;
 
-    @Column(name = "area", nullable = false)
+    @Column(name = "area", nullable = true)
     String area;
 }

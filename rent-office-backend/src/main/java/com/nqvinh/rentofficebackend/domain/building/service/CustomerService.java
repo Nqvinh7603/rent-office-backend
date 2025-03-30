@@ -4,6 +4,7 @@ import com.nqvinh.rentofficebackend.application.dto.response.Page;
 import com.nqvinh.rentofficebackend.domain.auth.dto.UserDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.AssignCustomerDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.CustomerDto;
+import com.nqvinh.rentofficebackend.domain.building.dto.CustomerPotentialDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.request.CustomerReqDto;
 import com.nqvinh.rentofficebackend.domain.building.entity.Customer;
 
@@ -18,8 +19,10 @@ public interface CustomerService {
 
     //khách hàng tiềm năng
     CustomerDto createPotentialCustomer(CustomerDto customerDto);
-    CustomerDto updatePotentialCustomer(Long customerId, CustomerDto customerDto);
+    CustomerPotentialDto updatePotentialCustomer(Long customerId, CustomerPotentialDto customerDto);
     void deletePotentialCustomer(Long customerId);
-    Page<CustomerDto> getPotentialCustomers(Map<String, String> params);
+    Page<CustomerPotentialDto> getPotentialCustomers(Map<String, String> params);
     List<CustomerDto> getPotentialCustomers();
+    CustomerPotentialDto getPotentialCustomersById(Long customerId);
+    List<CustomerDto> getAllCustomers();
 }

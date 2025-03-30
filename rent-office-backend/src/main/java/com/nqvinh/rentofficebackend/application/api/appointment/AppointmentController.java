@@ -9,16 +9,19 @@ package com.nqvinh.rentofficebackend.application.api.appointment;
 
 import com.nqvinh.rentofficebackend.application.constant.UrlConstant;
 import com.nqvinh.rentofficebackend.application.dto.response.ApiResponse;
+import com.nqvinh.rentofficebackend.application.dto.response.Page;
 import com.nqvinh.rentofficebackend.application.enums.MessageEnums;
+import com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.calendar.AppointmentBuildingCalendarDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.request.CustomerAppointmentReqDto;
 import com.nqvinh.rentofficebackend.domain.building.service.AppointmentService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 /**
  * AppointmentController
@@ -41,6 +44,35 @@ public class AppointmentController {
         return ApiResponse.<Void>builder()
                 .status(HttpStatus.CREATED.value())
                 .message(MessageEnums.CREATED_SUCCESS.getMessage("Appointment"))
+                .build();
+    }
+
+    @GetMapping(UrlConstant.GET_APPOINTMENTS_CALENDAR)
+    public ApiResponse<Map<LocalDateTime, List<AppointmentBuildingCalendarDto>>> getAllAppointmentCalendars() {
+       return ApiResponse.<Map<LocalDateTime, List<AppointmentBuildingCalendarDto>>>builder()
+                        .status(HttpStatus.OK.value())
+                        .message(MessageEnums.FETCHED_SUCCESS.getMessage("Appointment"))
+                        .payload(appointmentService.getAllAppointmentCalendars())
+                        .build();
+    }
+
+    @GetMapping(UrlConstant.GET_APPOINTMENTS_CALENDAR_BY_ID)
+    public ApiResponse<AppointmentBuildingCalendarDto> getAppointmentCalendarById(
+            @PathVariable Long id) {
+        return ApiResponse.<AppointmentBuildingCalendarDto>builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageEnums.FETCHED_SUCCESS.getMessage("Appointment"))
+                .payload(appointmentService.getAppointmentCalendarById(id))
+                .build();
+    }
+
+    @GetMapping
+    public ApiResponse<Page<AppointmentBuildingCalendarDto>> getAllAppointmentCalendars(
+            @RequestParam Map<String, String> params) {
+        return ApiResponse.<Page<AppointmentBuildingCalendarDto>>builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageEnums.FETCHED_SUCCESS.getMessage("Appointment"))
+                .payload(appointmentService.getAllAppointmentCalendars( params))
                 .build();
     }
 

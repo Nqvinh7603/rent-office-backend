@@ -191,25 +191,35 @@ public class BuildingServiceImpl implements BuildingService {
                     .build();
             emailProducer.sendMailCancelledConsignment(mailCancelledConsignment);
         } else if (buildingDto.getConsignmentStatusHistories().getLast().getStatus().equals(ConsignmentStatus.CONFIRMED.toString()) && building.getBuildingStatus() == null) {
-            String generatedPassword = "12345678";
-            buildingDto.setBuildingStatus(BuildingStatus.REVIEWING.toString());
-            User newUser = userService.createUserForCustomer(buildingDto.getCustomer(), generatedPassword);
-            String url = "http://localhost:5000/login";
-            var mailConfirmedConsignment = MailEvent.builder()
-                    .toAddress(buildingDto.getCustomer().getEmail())
-                    .subject("Tài khoản quản lý tài sản ký gửi")
-                    .templateName("confirmed-consignment-template")
-                    .context(Map.of(
-                            "customerName", buildingDto.getCustomer().getCustomerName(),
-                            "email", newUser.getEmail(),
-                            "generatedPassword", generatedPassword,
-                            "loginUrl", url
-                    ))
-                    .status(MailStatus.INIT.getStatus())
-                    .code(MessageCode.MAIL_CONFIRMED_CONSIGNMENT.getCode())
-                    .type(MailType.CONFIRMED_BUILDING.getType())
-                    .build();
-            emailProducer.sendMailConfirmedConsignment(mailConfirmedConsignment);
+          String generatedPassword = "12345678";
+          buildingDto.setBuildingStatus(BuildingStatus.REVIEWING.toString());
+          Building buildingE = buildingRepository.findById(buildingDto.getBuildingId()).orElseThrow(() -> new ResourceNotFoundException("Building not found"));
+          User newUser = null;
+            if (buildingE.getCustomer().getUsers().isEmpty()) {
+                Optional<User> existingUser = userRepository.findByEmail(buildingDto.getCustomer().getEmail());
+                if (existingUser.isEmpty()) {
+                    newUser = userService.createUserForCustomer(buildingDto.getCustomer(), generatedPassword);
+                } else {
+                    newUser = existingUser.get();
+                }
+            }
+
+          String url = "http://localhost:5000/login";
+          var mailConfirmedConsignment = MailEvent.builder()
+                  .toAddress(buildingDto.getCustomer().getEmail())
+                  .subject("Tài khoản quản lý tài sản ký gửi")
+                  .templateName("confirmed-consignment-template")
+                  .context(Map.of(
+                          "customerName", buildingDto.getCustomer().getCustomerName(),
+                          "email", newUser != null ? newUser.getEmail() : "",
+                          "generatedPassword", generatedPassword,
+                          "loginUrl", url
+                  ))
+                  .status(MailStatus.INIT.getStatus())
+                  .code(MessageCode.MAIL_CONFIRMED_CONSIGNMENT.getCode())
+                  .type(MailType.CONFIRMED_BUILDING.getType())
+                  .build();
+          emailProducer.sendMailConfirmedConsignment(mailConfirmedConsignment);
         }
 
         if (buildingImages != null && !buildingImages.isEmpty()) {
@@ -241,18 +251,74 @@ public class BuildingServiceImpl implements BuildingService {
                     }
                 });
 
+//        List<Fee> feesToRemove = new ArrayList<>();
+//        for (Fee existingFee : existingFees) {
+//            boolean isFeeExistInDto = buildingDto.getFees().stream()
+//                    .anyMatch(feeDto -> feeDto.getFeeId().equals(existingFee.getFeeId()));
+//            if (!isFeeExistInDto) {
+//                feesToRemove.add(existingFee);
+//            }
+//        }
+//        existingFees.removeAll(feesToRemove);
+//        feesToRemove.forEach(fee -> {
+//            fee.setBuilding(null);
+//        });
+//
+//        buildingDto.getFees().forEach(feeDto -> {
+//            Fee fee = existingFees.stream()
+//                    .filter(existingFee -> Objects.equals(existingFee.getFeeId(), feeDto.getFeeId()))
+//                    .findFirst()
+//                    .orElseGet(() -> {
+//                        Fee newFee = Fee.builder()
+//                                .feeType(FeeType.builder().feeTypeId(feeDto.getFeeType().getFeeTypeId()).build())
+//                                .building(building)
+//                                .feePricing(new ArrayList<>())
+//                                .build();
+//                        existingFees.add(newFee);
+//                        return newFee;
+//                    });
+//
+//            feeDto.getFeePricing().forEach(feePricingDto -> {
+//                Optional<FeePricing> existingPricingOpt = fee.getFeePricing().stream()
+//                        .filter(existingPricing ->
+//                                (Objects.equals(existingPricing.getPriceUnit(), feePricingDto.getPriceUnit()) &&
+//                                        Objects.equals(existingPricing.getPriceValue(), feePricingDto.getPriceValue())) ||
+//                                        Objects.equals(existingPricing.getDescription(), feePricingDto.getDescription()))
+//                        .findFirst();
+//
+//                if (existingPricingOpt.isPresent()) {
+//                    FeePricing existingPricing = existingPricingOpt.get();
+//                    existingPricing.setPriceValue(feePricingDto.getPriceValue());
+//                    existingPricing.setPriceUnit(feePricingDto.getPriceUnit());
+//                    existingPricing.setDescription(feePricingDto.getDescription());
+//                } else {
+//                    FeePricing newFeePricing = FeePricing.builder()
+//                            .priceUnit(feePricingDto.getPriceUnit())
+//                            .priceValue(feePricingDto.getPriceValue())
+//                            .description(feePricingDto.getDescription())
+//                            .fee(fee)
+//                            .build();
+//                    fee.getFeePricing().add(newFeePricing);
+//                }
+//            });
+//        });
+
         List<Fee> feesToRemove = new ArrayList<>();
         for (Fee existingFee : existingFees) {
             boolean isFeeExistInDto = buildingDto.getFees().stream()
-                    .anyMatch(feeDto -> feeDto.getFeeId().equals(existingFee.getFeeId()));
+                    .anyMatch(feeDto -> feeDto.getFeeId() != null && feeDto.getFeeId().equals(existingFee.getFeeId()));  // Kiểm tra feeId có phải null trước khi gọi equals()
             if (!isFeeExistInDto) {
                 feesToRemove.add(existingFee);
             }
         }
         existingFees.removeAll(feesToRemove);
+        feesToRemove.forEach(fee -> {
+            fee.setBuilding(null);
+        });
+
         buildingDto.getFees().forEach(feeDto -> {
             Fee fee = existingFees.stream()
-                    .filter(existingFee -> Objects.equals(existingFee.getFeeId(), feeDto.getFeeId()))
+                    .filter(existingFee -> existingFee.getFeeId() != null && Objects.equals(existingFee.getFeeId(), feeDto.getFeeId()))
                     .findFirst()
                     .orElseGet(() -> {
                         Fee newFee = Fee.builder()
@@ -267,8 +333,8 @@ public class BuildingServiceImpl implements BuildingService {
             feeDto.getFeePricing().forEach(feePricingDto -> {
                 Optional<FeePricing> existingPricingOpt = fee.getFeePricing().stream()
                         .filter(existingPricing ->
-                                Objects.equals(existingPricing.getPriceUnit(), feePricingDto.getPriceUnit()) ||
-                                        Objects.equals(existingPricing.getPriceValue(), feePricingDto.getPriceValue()) ||
+                                (Objects.equals(existingPricing.getPriceUnit(), feePricingDto.getPriceUnit()) ||
+                                        Objects.equals(existingPricing.getPriceValue(), feePricingDto.getPriceValue())) &&
                                         Objects.equals(existingPricing.getDescription(), feePricingDto.getDescription()))
                         .findFirst();
 

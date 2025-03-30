@@ -1,12 +1,13 @@
 /*******************************************************************************
- * Class        ：CustomerAppointmentReqDto
- * Created date ：2025/03/26
- * Lasted date  ：2025/03/26
+ * Class        ：CustomerPotentialDto
+ * Created date ：2025/03/27
+ * Lasted date  ：2025/03/27
  * Author       ：vinhNQ2
- * Change log   ：2025/03/26：01-00 vinhNQ2 create a new
+ * Change log   ：2025/03/27：01-00 vinhNQ2 create a new
  ******************************************************************************/
-package com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.request;
+package com.nqvinh.rentofficebackend.domain.building.dto;
 
+import com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.request.AppointmentReqDto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * CustomerAppointmentReqDto
+ * CustomerPotentialDto
  *
  * @author vinhNQ2
  * @version 01-00
@@ -27,7 +28,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CustomerAppointmentReqDto {
+public class CustomerPotentialDto {
+
     Long customerId;
 
     @NotBlank(message = "Customer name is required")
@@ -39,6 +41,7 @@ public class CustomerAppointmentReqDto {
     @NotBlank(message = "Email is required")
     String email;
 
+    //    @NotBlank(message = "Address is required")
     String address;
 
     @NotBlank(message = "Require type is required")
@@ -55,6 +58,4 @@ public class CustomerAppointmentReqDto {
 
     @PastOrPresent(message = "Updated at must be in the past or present")
     LocalDateTime updatedAt;
-
-
 }

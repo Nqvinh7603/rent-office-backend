@@ -15,11 +15,10 @@ package com.nqvinh.rentofficebackend.domain.building.constant;
  * @since 01-00
  */
 public enum AppointmentBuildingStatus {
-    PENDING,      // Tòa nhà vừa được thêm vào cuộc hẹn, đang chờ xử lý
-    CONFIRMED,    // Tòa nhà đã được xác nhận sẽ xem trong cuộc hẹn
-    VIEWED,       // Tòa nhà đã được khách hàng xem
-    SUCCESSFUL,   // Khách hàng đồng ý thuê văn phòng trong tòa nhà
-    UNSUCCESSFUL, // Khách hàng không đồng ý thuê văn phòng trong tòa nhà
-    CANCELLED,    // Tòa nhà bị hủy (khách hàng không muốn xem nữa)
-    RESCHEDULED   // Thời gian xem tòa nhà được lên lịch lại
+    PENDING, // Mới tạo
+    CONFIRMED, // Đã xác nhận
+    VIEWED, // Đã xem
+    SUCCESSFUL, // Khách đã thuê
+    UNSUCCESSFUL, // Khách không thuê
+    CANCELLED // Cuộc hẹn bị hủy hoặc không diễn ra
 }

@@ -36,12 +36,10 @@ public class Appointment extends BaseEntity {
     Long appointmentId;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id", nullable = false)
+    @JoinColumn(name = "customer_id", nullable = true)
     Customer customer;
 
     @OneToMany(mappedBy = "appointment",fetch = FetchType.LAZY,cascade = CascadeType.ALL, orphanRemoval = true)
     List<AppointmentBuilding> appointmentBuildings;
 
-    @OneToMany(mappedBy = "appointment",fetch = FetchType.LAZY,cascade = CascadeType.ALL, orphanRemoval = true)
-    List<AppointmentStatusHistory> appointmentStatusHistories;
 }

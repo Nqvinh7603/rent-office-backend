@@ -8,9 +8,11 @@
 package com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.request;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -32,6 +34,10 @@ public class AppointmentReqDto {
     @NotNull(message = "Appointment is required")
     List<AppointmentBuildingReqDto> appointmentBuildings;
 
-    List<AppointmentStatusHistoryReqDto> appointmentStatusHistories;
+    @PastOrPresent(message = "Created at must be in the past or present")
+    LocalDateTime createdAt;
+
+    @PastOrPresent(message = "Updated at must be in the past or present")
+    LocalDateTime updatedAt;
 
 }

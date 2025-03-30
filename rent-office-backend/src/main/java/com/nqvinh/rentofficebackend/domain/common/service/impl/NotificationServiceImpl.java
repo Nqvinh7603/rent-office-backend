@@ -64,6 +64,32 @@ public class NotificationServiceImpl implements NotificationService {
         notiProducer.sendNotiCreateConsignment(notificationEvent);
     }
 
+
+    @Override
+    public void createAppointment(UserDto userDto, Customer savedCustomer) {
+        Long appointmentId = savedCustomer.getAppointments().getFirst().getAppointmentId();
+        String message = "Khách hàng " + savedCustomer.getCustomerName() + " đã đặt lịch hẹn";
+
+        Notification notification = Notification.builder()
+                .status(false)
+                .user(userMapper.toEntity(userDto))
+                .appointmentId(appointmentId)
+                .message(message)
+                .build();
+        notificationRepository.save(notification);
+
+        var notificationEvent = NotiEvent.builder()
+                .status(false)
+                .appointmentId(appointmentId)
+                .userId(List.of(userDto.getUserId()))
+                .message(message)
+                .createdAt(notification.getCreatedAt())
+                .code(MessageCode.NOTIFICATION_CREATE_BUILDING.getCode())
+                .type(MailType.PENDING_BUILDING.getType())
+                .build();
+        notiProducer.sendNotiCreateAppointment(notificationEvent);
+    }
+
     @Override
     public void updateInfoBuildingNotification(UserDto userDto, BuildingDto savedBuilding) {
         String message = "Khách hàng " + savedBuilding.getCustomer().getCustomerName() + " đã cập nhật thông tin tài sản ký gửi";
@@ -156,6 +182,8 @@ public class NotificationServiceImpl implements NotificationService {
 
         notiProducer.sendNotiCreatePotentialCustomer(notificationEvent);
     }
+
+
 
     @Override
     @Transactional

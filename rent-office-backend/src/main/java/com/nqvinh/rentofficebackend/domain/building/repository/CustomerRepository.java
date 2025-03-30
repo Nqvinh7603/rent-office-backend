@@ -20,8 +20,8 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSp
     @Query("SELECT DISTINCT c FROM Customer c JOIN c.users u WHERE c.requireType = :requireType AND u.userId = :userId")
     List<Customer> findCustomersByRequireTypeAndUser(@Param("requireType") RequireTypeEnum requireType, @Param("userId") UUID userId);
 
-    @Query("SELECT c FROM Customer c WHERE c.status IS NOT NULL")
-    Page<Customer> findCustomersWithStatusNotNull(Specification<Customer> spec, Pageable pageable);
+   @Query("SELECT DISTINCT c FROM Customer c JOIN c.users u WHERE (:isAdminOrManager = true OR u.userId = :userId)")
+    List<Customer> findAllCustomer(@Param("userId") UUID userId, @Param("isAdminOrManager") boolean isAdminOrManager);
 
     @Query("SELECT c FROM Customer c WHERE c.status IS NOT NULL")
     List<Customer> findPotentialCustomer();

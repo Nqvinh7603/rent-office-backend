@@ -25,6 +25,9 @@ public class Notification extends BaseEntity {
     @Column(name = "customer_id", nullable = true)
     Long customerId;
 
+    @Column(name = "appointment_id", nullable = true)
+    Long appointmentId;
+
     @Column(name = "message", nullable = true, columnDefinition = "TEXT")
     String message;
 

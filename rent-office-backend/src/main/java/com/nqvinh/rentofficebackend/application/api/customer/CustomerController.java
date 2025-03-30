@@ -7,6 +7,7 @@ import com.nqvinh.rentofficebackend.application.enums.MessageEnums;
 import com.nqvinh.rentofficebackend.domain.auth.dto.UserDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.AssignCustomerDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.CustomerDto;
+import com.nqvinh.rentofficebackend.domain.building.dto.CustomerPotentialDto;
 import com.nqvinh.rentofficebackend.domain.building.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -61,8 +62,8 @@ public class CustomerController {
     }
 
     @GetMapping(UrlConstant.CUSTOMERS_POTENTIAL)
-    public ApiResponse<Page<CustomerDto>> getPotentialCustomers(@RequestParam Map<String,String> params){
-        return ApiResponse.<Page<CustomerDto>>builder()
+    public ApiResponse<Page<CustomerPotentialDto>> getPotentialCustomers(@RequestParam Map<String,String> params){
+        return ApiResponse.<Page<CustomerPotentialDto>>builder()
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.FETCHED_SUCCESS.getMessage("Potential customers"))
                 .payload(customerService.getPotentialCustomers(params))
@@ -70,8 +71,8 @@ public class CustomerController {
     }
 
     @PutMapping(UrlConstant.UPDATE_CUSTOMERS_POTENTIAL)
-    public ApiResponse<CustomerDto> updatePotentialCustomer(@PathVariable("id") Long customerId, @RequestBody CustomerDto customerDto){
-        return ApiResponse.<CustomerDto>builder()
+    public ApiResponse<CustomerPotentialDto> updatePotentialCustomer(@PathVariable("id") Long customerId, @RequestBody CustomerPotentialDto customerDto){
+        return ApiResponse.<CustomerPotentialDto>builder()
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.UPDATED_SUCCESS.getMessage("Potential customer"))
                 .payload(customerService.updatePotentialCustomer(customerId, customerDto))
@@ -94,6 +95,24 @@ public class CustomerController {
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.FETCHED_SUCCESS.getMessage("Potential customers"))
                 .payload(customerService.getPotentialCustomers())
+                .build();
+    }
+
+    @GetMapping(UrlConstant.GET_CUSTOMERS_POTENTIAL_BY_ID)
+    public ApiResponse<CustomerPotentialDto> getPotentialCustomersById(@PathVariable("id") Long customerId){
+        return ApiResponse.<CustomerPotentialDto>builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageEnums.FETCHED_SUCCESS.getMessage("Potential customer"))
+                .payload(customerService.getPotentialCustomersById(customerId))
+                .build();
+    }
+
+    @GetMapping(UrlConstant.GET_ALL_CUSTOMER)
+    public ApiResponse<List<CustomerDto>> getAllCustomers() {
+        return ApiResponse.<List<CustomerDto>>builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageEnums.FETCHED_SUCCESS.getMessage("Customers"))
+                .payload(customerService.getAllCustomers())
                 .build();
     }
 

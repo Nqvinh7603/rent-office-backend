@@ -77,7 +77,8 @@ public class UrlConstant {
     public static final String UPDATE_CUSTOMERS_POTENTIAL = "/potentials/{id}";
     public static final String DELETE_CUSTOMERS_POTENTIAL = "/potentials/{id}";
     public static final String GET_CUSTOMERS_POTENTIAL = "/potentials/all";
-
+    public static final String GET_CUSTOMERS_POTENTIAL_BY_ID = "/potentials/{id}";
+    public static final String GET_ALL_CUSTOMER = "/all";
 
     //Notification
     public static final String NOTIFICATIONS = API_BASE + "/notifications";
@@ -94,4 +95,7 @@ public class UrlConstant {
 
     //Appointment
     public static final String APPOINTMENTS = API_BASE + "/appointments";
+    public static final String GET_APPOINTMENTS_CALENDAR = "/calendar";
+    public static final String GET_APPOINTMENTS_CALENDAR_BY_ID = "/calendar/{id}";
+    public static final String DELETE_APPOINTMENT = "/{id}";
 }

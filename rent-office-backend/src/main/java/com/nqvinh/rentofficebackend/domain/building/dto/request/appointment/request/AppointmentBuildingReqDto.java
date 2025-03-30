@@ -7,6 +7,9 @@
  ******************************************************************************/
 package com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.request;
 
+import com.nqvinh.rentofficebackend.domain.building.dto.BuildingDto;
+import com.nqvinh.rentofficebackend.domain.building.entity.Building;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -35,5 +38,13 @@ public class AppointmentBuildingReqDto {
 
     Long buildingId;
 
+    BuildingDto building;
+
     String area;
+
+    @PastOrPresent(message = "Created at must be in the past or present")
+    LocalDateTime createdAt;
+
+    @PastOrPresent(message = "Updated at must be in the past or present")
+    LocalDateTime updatedAt;
 }

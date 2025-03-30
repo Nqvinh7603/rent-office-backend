@@ -7,14 +7,19 @@ import com.nqvinh.rentofficebackend.domain.auth.entity.User;
 import com.nqvinh.rentofficebackend.domain.auth.mapper.UserMapper;
 import com.nqvinh.rentofficebackend.domain.auth.repository.UserRepository;
 import com.nqvinh.rentofficebackend.domain.auth.service.UserService;
-import com.nqvinh.rentofficebackend.domain.building.constant.PotentialCustomerStatus;
-import com.nqvinh.rentofficebackend.domain.building.constant.RequireTypeEnum;
+import com.nqvinh.rentofficebackend.domain.building.constant.*;
 import com.nqvinh.rentofficebackend.domain.building.dto.AssignCustomerDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.CustomerDto;
+import com.nqvinh.rentofficebackend.domain.building.dto.CustomerPotentialDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.request.CustomerReqDto;
-import com.nqvinh.rentofficebackend.domain.building.entity.Customer;
+import com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.request.AppointmentBuildingReqDto;
+import com.nqvinh.rentofficebackend.domain.building.entity.*;
 import com.nqvinh.rentofficebackend.domain.building.mapper.CustomerMapper;
+import com.nqvinh.rentofficebackend.domain.building.mapper.appointment.request.CustomerPotentialMapper;
 import com.nqvinh.rentofficebackend.domain.building.mapper.request.CustomerReqMapper;
+import com.nqvinh.rentofficebackend.domain.building.repository.AppointmentBuildingRepository;
+import com.nqvinh.rentofficebackend.domain.building.repository.AppointmentRepository;
+import com.nqvinh.rentofficebackend.domain.building.repository.BuildingRepository;
 import com.nqvinh.rentofficebackend.domain.building.repository.CustomerRepository;
 import com.nqvinh.rentofficebackend.domain.building.service.CustomerService;
 import com.nqvinh.rentofficebackend.domain.common.constant.MailStatus;
@@ -25,6 +30,7 @@ import com.nqvinh.rentofficebackend.domain.common.service.EmailProducer;
 import com.nqvinh.rentofficebackend.domain.common.service.NotificationService;
 import com.nqvinh.rentofficebackend.infrastructure.utils.PaginationUtils;
 import com.nqvinh.rentofficebackend.infrastructure.utils.StringUtils;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.transaction.Transactional;
@@ -36,10 +42,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static lombok.AccessLevel.PRIVATE;
@@ -59,6 +62,9 @@ public class CustomerServiceImpl implements CustomerService {
     EmailProducer emailProducer;
     StringUtils stringUtils;
     PaginationUtils paginationUtils;
+    CustomerPotentialMapper customerPotentialMapper;
+    EntityManager entityManager;
+    private final AppointmentRepository appointmentRepository;
 
     @Override
     @SneakyThrows
@@ -135,17 +141,75 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = customerMapper.toEntity(customerDto);
         Customer savedCustomer = customerRepository.save(customer);
 
-       return customerMapper.toDto(savedCustomer);
+        return customerMapper.toDto(savedCustomer);
     }
 
     @Override
     @Transactional
-    public CustomerDto updatePotentialCustomer(Long customerId, CustomerDto customerDto) {
+    public CustomerPotentialDto updatePotentialCustomer(Long customerId, CustomerPotentialDto customerDto) {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
-        customerMapper.partialUpdate(customer, customerDto);
-        return customerMapper.toDto(customerRepository.save(customer));
+        List<Appointment> existingAppointments = customer.getAppointments();
+
+        List<Appointment> appointmentsToRemove = new ArrayList<>();
+        for (Appointment existingAppointment : existingAppointments) {
+            boolean isAppointmentExistInDto = customerDto.getAppointments().stream()
+                    .anyMatch(appointmentDto -> appointmentDto.getAppointmentId().equals(existingAppointment.getAppointmentId()));
+            if (!isAppointmentExistInDto) {
+                appointmentsToRemove.add(existingAppointment);
+            }
+        }
+        customer.getAppointments().removeAll(appointmentsToRemove);
+        appointmentsToRemove.forEach(appointment -> appointment.setCustomer(null));
+        appointmentRepository.deleteAll(appointmentsToRemove);
+
+        customerDto.getAppointments().forEach(appointmentDto -> {
+            Appointment appointment = customer.getAppointments().stream()
+                    .filter(existingAppointment -> Objects.equals(existingAppointment.getAppointmentId(), appointmentDto.getAppointmentId()))
+                    .findFirst()
+                    .orElseGet(() -> {
+                        Appointment newAppointment = Appointment.builder()
+                                .appointmentBuildings(new ArrayList<>())
+                                .customer(customer)
+                                .build();
+                        customer.getAppointments().add(newAppointment);
+                        return newAppointment;
+                    });
+
+            appointment.getAppointmentBuildings().clear();
+
+            appointmentDto.getAppointmentBuildings().forEach(appointmentBuildingDto -> {
+                AppointmentBuilding appointmentBuilding = AppointmentBuilding.builder()
+                        .appointmentBuildingId(appointmentBuildingDto.getAppointmentBuildingId())
+                        .appointment(appointment)
+                        .building(Building.builder().buildingId(appointmentBuildingDto.getBuilding().getBuildingId()).build())
+                        .visitTime(appointmentBuildingDto.getVisitTime())
+                        .area(appointmentBuildingDto.getArea())
+                        .appointmentBuildingStatusHistories(new ArrayList<>())
+                        .build();
+
+                appointment.getAppointmentBuildings().add(appointmentBuilding);
+
+                appointmentBuilding.setAppointmentBuildingStatusHistories(Collections.singletonList(
+                        AppointmentBuildingStatusHistory.builder()
+                                .status(AppointmentBuildingStatus.PENDING)
+                                .appointmentBuilding(appointmentBuilding)
+                                .build()
+
+                ));
+
+                appointment.getAppointmentBuildings().add(appointmentBuilding);
+            });
+        });
+
+        customer.setAppointments(existingAppointments);
+        customerPotentialMapper.partialUpdate(customer, customerDto);
+        customer.getAppointments().forEach(appointment -> appointment.setCustomer(customer));
+        return customerPotentialMapper.toDto(customerRepository.save(customer));
     }
+
+
+
 
     @Override
     public void deletePotentialCustomer(Long customerId) {
@@ -155,17 +219,32 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Page<CustomerDto> getPotentialCustomers(Map<String, String> params) {
+    public Page<CustomerPotentialDto> getPotentialCustomers(Map<String, String> params) {
         Specification<Customer> spec = getCustomerSpec(params);
         Pageable pageable = paginationUtils.buildPageable(params);
         org.springframework.data.domain.Page<Customer> customerPage = customerRepository.findAll(spec, pageable);
         Meta meta = paginationUtils.buildMeta(customerPage, pageable);
-        return paginationUtils.mapPage(customerPage, meta, customerMapper::toDto);
+        return paginationUtils.mapPage(customerPage, meta, customerPotentialMapper::toDto);
     }
 
     @Override
     public List<CustomerDto> getPotentialCustomers() {
         return customerMapper.toDtoList(customerRepository.findPotentialCustomer());
+    }
+
+    @Override
+    public CustomerPotentialDto getPotentialCustomersById(Long customerId) {
+        return customerRepository.findById(customerId)
+                .map(customerPotentialMapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+    }
+
+    @Override
+    @SneakyThrows
+    public List<CustomerDto> getAllCustomers() {
+        UserDto currentUser = userService.getLoggedInUser();
+        boolean isAdminOrManager = "ADMIN".equals(currentUser.getRole().getRoleName()) || "MANAGER".equals(currentUser.getRole().getRoleName());
+        return customerMapper.toDtoList(customerRepository.findAllCustomer(currentUser.getUserId(), isAdminOrManager));
     }
 
     private Specification<Customer> getCustomerSpec(Map<String, String> params) {
@@ -196,7 +275,7 @@ public class CustomerServiceImpl implements CustomerService {
             );
         }
 
-        if(params.containsKey("phoneNumber")) {
+        if (params.containsKey("phoneNumber")) {
             String phoneNumber = stringUtils.normalizeString(params.get("phoneNumber").trim().toLowerCase());
             String likePattern = "%" + phoneNumber + "%";
             spec = spec.and((root, query, criteriaBuilder) ->
@@ -204,7 +283,7 @@ public class CustomerServiceImpl implements CustomerService {
             );
         }
 
-        if(params.containsKey("customerName")) {
+        if (params.containsKey("customerName")) {
             String customerName = stringUtils.normalizeString(params.get("customerName").trim().toLowerCase());
             String likePattern = "%" + customerName + "%";
             spec = spec.and((root, query, criteriaBuilder) ->
