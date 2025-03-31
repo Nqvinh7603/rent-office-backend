@@ -251,58 +251,6 @@ public class BuildingServiceImpl implements BuildingService {
                     }
                 });
 
-//        List<Fee> feesToRemove = new ArrayList<>();
-//        for (Fee existingFee : existingFees) {
-//            boolean isFeeExistInDto = buildingDto.getFees().stream()
-//                    .anyMatch(feeDto -> feeDto.getFeeId().equals(existingFee.getFeeId()));
-//            if (!isFeeExistInDto) {
-//                feesToRemove.add(existingFee);
-//            }
-//        }
-//        existingFees.removeAll(feesToRemove);
-//        feesToRemove.forEach(fee -> {
-//            fee.setBuilding(null);
-//        });
-//
-//        buildingDto.getFees().forEach(feeDto -> {
-//            Fee fee = existingFees.stream()
-//                    .filter(existingFee -> Objects.equals(existingFee.getFeeId(), feeDto.getFeeId()))
-//                    .findFirst()
-//                    .orElseGet(() -> {
-//                        Fee newFee = Fee.builder()
-//                                .feeType(FeeType.builder().feeTypeId(feeDto.getFeeType().getFeeTypeId()).build())
-//                                .building(building)
-//                                .feePricing(new ArrayList<>())
-//                                .build();
-//                        existingFees.add(newFee);
-//                        return newFee;
-//                    });
-//
-//            feeDto.getFeePricing().forEach(feePricingDto -> {
-//                Optional<FeePricing> existingPricingOpt = fee.getFeePricing().stream()
-//                        .filter(existingPricing ->
-//                                (Objects.equals(existingPricing.getPriceUnit(), feePricingDto.getPriceUnit()) &&
-//                                        Objects.equals(existingPricing.getPriceValue(), feePricingDto.getPriceValue())) ||
-//                                        Objects.equals(existingPricing.getDescription(), feePricingDto.getDescription()))
-//                        .findFirst();
-//
-//                if (existingPricingOpt.isPresent()) {
-//                    FeePricing existingPricing = existingPricingOpt.get();
-//                    existingPricing.setPriceValue(feePricingDto.getPriceValue());
-//                    existingPricing.setPriceUnit(feePricingDto.getPriceUnit());
-//                    existingPricing.setDescription(feePricingDto.getDescription());
-//                } else {
-//                    FeePricing newFeePricing = FeePricing.builder()
-//                            .priceUnit(feePricingDto.getPriceUnit())
-//                            .priceValue(feePricingDto.getPriceValue())
-//                            .description(feePricingDto.getDescription())
-//                            .fee(fee)
-//                            .build();
-//                    fee.getFeePricing().add(newFeePricing);
-//                }
-//            });
-//        });
-
         List<Fee> feesToRemove = new ArrayList<>();
         for (Fee existingFee : existingFees) {
             boolean isFeeExistInDto = buildingDto.getFees().stream()
@@ -379,7 +327,7 @@ public class BuildingServiceImpl implements BuildingService {
 
         buildingDto.getBuildingUnits().forEach(unitDto -> {
             BuildingUnit unit = building.getBuildingUnits().stream()
-                    .filter(existingUnit -> Objects.equals(existingUnit.getBuildingUnitId(), unitDto.getBuildingUnitId()))
+                    .filter(existingUnit -> existingUnit.getBuildingUnitId() != null && Objects.equals(existingUnit.getBuildingUnitId(), unitDto.getBuildingUnitId()))
                     .findFirst()
                     .orElseGet(() -> {
                         BuildingUnit newUnit = BuildingUnit.builder()

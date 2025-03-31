@@ -8,11 +8,10 @@
 package com.nqvinh.rentofficebackend.domain.building.service;
 
 import com.nqvinh.rentofficebackend.application.dto.response.Page;
+import com.nqvinh.rentofficebackend.domain.building.dto.CustomerPotentialDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.calendar.AppointmentBuildingCalendarDto;
-import com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.calendar.AppointmentCalendarDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.request.CustomerAppointmentReqDto;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -30,4 +29,5 @@ public interface AppointmentService {
     Page<AppointmentBuildingCalendarDto> getAllAppointmentCalendars( Map<String, String> params);
     AppointmentBuildingCalendarDto getAppointmentCalendarById(Long appointmentBuildingId);
     void deleteAppointmentCalendarById(Long appointmentBuildingId);
+    void  createPotentialCustomer(CustomerPotentialDto customerDto);
 }

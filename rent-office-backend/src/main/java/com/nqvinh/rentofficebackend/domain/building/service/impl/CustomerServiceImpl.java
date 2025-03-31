@@ -7,19 +7,18 @@ import com.nqvinh.rentofficebackend.domain.auth.entity.User;
 import com.nqvinh.rentofficebackend.domain.auth.mapper.UserMapper;
 import com.nqvinh.rentofficebackend.domain.auth.repository.UserRepository;
 import com.nqvinh.rentofficebackend.domain.auth.service.UserService;
-import com.nqvinh.rentofficebackend.domain.building.constant.*;
+import com.nqvinh.rentofficebackend.domain.building.constant.AppointmentBuildingStatus;
+import com.nqvinh.rentofficebackend.domain.building.constant.PotentialCustomerStatus;
+import com.nqvinh.rentofficebackend.domain.building.constant.RequireTypeEnum;
 import com.nqvinh.rentofficebackend.domain.building.dto.AssignCustomerDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.CustomerDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.CustomerPotentialDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.request.CustomerReqDto;
-import com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.request.AppointmentBuildingReqDto;
 import com.nqvinh.rentofficebackend.domain.building.entity.*;
 import com.nqvinh.rentofficebackend.domain.building.mapper.CustomerMapper;
 import com.nqvinh.rentofficebackend.domain.building.mapper.appointment.request.CustomerPotentialMapper;
 import com.nqvinh.rentofficebackend.domain.building.mapper.request.CustomerReqMapper;
-import com.nqvinh.rentofficebackend.domain.building.repository.AppointmentBuildingRepository;
 import com.nqvinh.rentofficebackend.domain.building.repository.AppointmentRepository;
-import com.nqvinh.rentofficebackend.domain.building.repository.BuildingRepository;
 import com.nqvinh.rentofficebackend.domain.building.repository.CustomerRepository;
 import com.nqvinh.rentofficebackend.domain.building.service.CustomerService;
 import com.nqvinh.rentofficebackend.domain.common.constant.MailStatus;
@@ -165,7 +164,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         customerDto.getAppointments().forEach(appointmentDto -> {
             Appointment appointment = customer.getAppointments().stream()
-                    .filter(existingAppointment -> Objects.equals(existingAppointment.getAppointmentId(), appointmentDto.getAppointmentId()))
+                    .filter(existingAppointment -> existingAppointment.getAppointmentId() != null && Objects.equals(existingAppointment.getAppointmentId(), appointmentDto.getAppointmentId()))
                     .findFirst()
                     .orElseGet(() -> {
                         Appointment newAppointment = Appointment.builder()

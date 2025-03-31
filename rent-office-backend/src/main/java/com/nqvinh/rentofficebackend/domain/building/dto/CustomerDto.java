@@ -1,13 +1,11 @@
 package com.nqvinh.rentofficebackend.domain.building.dto;
 
-import com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.request.AppointmentReqDto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Builder

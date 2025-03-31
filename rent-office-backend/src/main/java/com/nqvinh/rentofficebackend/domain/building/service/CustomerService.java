@@ -25,4 +25,6 @@ public interface CustomerService {
     List<CustomerDto> getPotentialCustomers();
     CustomerPotentialDto getPotentialCustomersById(Long customerId);
     List<CustomerDto> getAllCustomers();
+
+
 }

@@ -45,4 +45,6 @@ public class AppointmentBuildingCalendarDto {
 
     @PastOrPresent(message = "Updated at must be in the past or present")
     LocalDateTime updatedAt;
+
+    String createdBy;
 }

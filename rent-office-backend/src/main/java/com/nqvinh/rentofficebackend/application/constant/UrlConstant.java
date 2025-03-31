@@ -96,6 +96,7 @@ public class UrlConstant {
     //Appointment
     public static final String APPOINTMENTS = API_BASE + "/appointments";
     public static final String GET_APPOINTMENTS_CALENDAR = "/calendar";
+    public static final String CREATE_APPOINTMENT_CALENDAR = "/calendar";
     public static final String GET_APPOINTMENTS_CALENDAR_BY_ID = "/calendar/{id}";
-    public static final String DELETE_APPOINTMENT = "/{id}";
+    public static final String DELETE_APPOINTMENT_CALENDAR = "/calendar/{id}";
 }

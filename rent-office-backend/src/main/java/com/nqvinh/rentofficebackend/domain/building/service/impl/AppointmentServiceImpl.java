@@ -14,9 +14,11 @@ import com.nqvinh.rentofficebackend.domain.auth.dto.UserDto;
 import com.nqvinh.rentofficebackend.domain.auth.entity.User;
 import com.nqvinh.rentofficebackend.domain.auth.mapper.UserMapper;
 import com.nqvinh.rentofficebackend.domain.auth.service.UserService;
-import com.nqvinh.rentofficebackend.domain.building.constant.*;
+import com.nqvinh.rentofficebackend.domain.building.constant.AppointmentBuildingStatus;
+import com.nqvinh.rentofficebackend.domain.building.constant.PotentialCustomerStatus;
+import com.nqvinh.rentofficebackend.domain.building.constant.RequireTypeEnum;
+import com.nqvinh.rentofficebackend.domain.building.dto.CustomerPotentialDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.calendar.AppointmentBuildingCalendarDto;
-import com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.calendar.AppointmentCalendarDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.request.AppointmentBuildingReqDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.request.AppointmentReqDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.request.CustomerAppointmentReqDto;
@@ -75,7 +77,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     UserMapper userMapper;
     PaginationUtils paginationUtils;
     DateUtils dateUtils;
-    AppointmentRepository appointmentRepository;
 
     private boolean isAdmin(UserDto userDto) {
         User user = userMapper.toEntity(userDto);
@@ -198,9 +199,67 @@ public class AppointmentServiceImpl implements AppointmentService {
     @SneakyThrows
     @Transactional
     public void deleteAppointmentCalendarById(Long appointmentBuildingId) {
-        appointmentBuildingRepository.findById(appointmentBuildingId)
+        AppointmentBuilding appointment = appointmentBuildingRepository.findById(appointmentBuildingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id: " + appointmentBuildingId));
-        appointmentBuildingRepository.deleteById(appointmentBuildingId);
+        appointmentBuildingRepository.delete(appointment);
+    }
+
+    @Override
+    @Transactional
+    @SneakyThrows
+    public void createPotentialCustomer(CustomerPotentialDto appointmentReq) {
+        Customer customer = customerRepository.findByEmail(appointmentReq.getEmail())
+                .map(existingCustomer -> {
+                    existingCustomer.setNote(appointmentReq.getNote());
+                    return existingCustomer;
+                })
+                .orElseGet(() -> Customer.builder()
+                        .customerName(appointmentReq.getCustomerName())
+                        .phoneNumber(appointmentReq.getPhoneNumber())
+                        .email(appointmentReq.getEmail())
+                        .address(appointmentReq.getAddress())
+                        .requireType(RequireTypeEnum.RENT)
+                        .status(PotentialCustomerStatus.NOT_CONTACTED)
+                        .note(appointmentReq.getNote())
+                        .appointments(new ArrayList<>())
+                        .build());
+
+        if (appointmentReq.getAppointments() != null) {
+            for (AppointmentReqDto appointmentReqDto : appointmentReq.getAppointments()) {
+                Appointment appointment = Appointment.builder()
+                        .customer(customer)
+                        .appointmentBuildings(new ArrayList<>())
+                        .build();
+
+                if (appointmentReqDto.getAppointmentBuildings() != null) {
+                    for (AppointmentBuildingReqDto buildingDto : appointmentReqDto.getAppointmentBuildings()) {
+                        Building building = buildingRepository.findById(buildingDto.getBuildingId())
+                                .orElseThrow(() -> new ResourceNotFoundException("Building not found with id: " + buildingDto.getBuildingId()));
+
+                        AppointmentBuilding appointmentBuilding = AppointmentBuilding.builder()
+                                .appointment(appointment)
+                                .building(building)
+                                .area(buildingDto.getArea())
+                                .visitTime(buildingDto.getVisitTime())
+                                .appointmentBuildingStatusHistories(new ArrayList<>())
+                                .build();
+
+                        AppointmentBuildingStatusHistory buildingStatusHistory = AppointmentBuildingStatusHistory.builder()
+                                .appointmentBuilding(appointmentBuilding)
+                                .status(AppointmentBuildingStatus.PENDING)
+                                .build();
+
+                        appointmentBuilding.getAppointmentBuildingStatusHistories().add(buildingStatusHistory);
+
+                        appointment.getAppointmentBuildings().add(appointmentBuilding);
+                    }
+
+                }
+
+                customer.getAppointments().add(appointment);
+            }
+        }
+        customerRepository.save(customer);
     }
 
 

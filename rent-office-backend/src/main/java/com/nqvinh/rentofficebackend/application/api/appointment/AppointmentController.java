@@ -76,4 +76,23 @@ public class AppointmentController {
                 .build();
     }
 
+    @DeleteMapping(UrlConstant.DELETE_APPOINTMENT_CALENDAR)
+    public ApiResponse<Void> deleteAppointmentCalendarById(
+            @PathVariable Long id) {
+        appointmentService.deleteAppointmentCalendarById(id);
+        return ApiResponse.<Void>builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageEnums.DELETED_SUCCESS.getMessage("Appointment"))
+                .build();
+    }
+
+    @PostMapping(UrlConstant.CREATE_APPOINTMENT_CALENDAR)
+    public ApiResponse<Void> createPotentialCustomer(@RequestBody CustomerAppointmentReqDto customerDto) {
+        appointmentService.createAppointment(customerDto);
+        return ApiResponse.<Void>builder()
+                .status(HttpStatus.CREATED.value())
+                .message(MessageEnums.CREATED_SUCCESS.getMessage("Potential customer"))
+                .build();
+    }
+
 }
