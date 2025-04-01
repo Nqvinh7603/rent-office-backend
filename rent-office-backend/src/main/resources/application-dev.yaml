@@ -66,12 +66,18 @@ kafka:
 
 application:
   security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://accounts.google.com
     rsa:
       rsa-public-key: classpath:certs/public-key.pem
       rsa-private-key: classpath:certs/private-key.pem
     jwt:
       access-token-validity-in-seconds: 604800 # 1 day
       refresh-token-validity-in-seconds: 604800 # 7 days
+
+
 
 cloudinary:
   url: ${CLOUDINARY_URL}
@@ -81,3 +87,5 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
+    org.springframework.security: DEBUG
+    org.springframework.web.filter: DEBUG

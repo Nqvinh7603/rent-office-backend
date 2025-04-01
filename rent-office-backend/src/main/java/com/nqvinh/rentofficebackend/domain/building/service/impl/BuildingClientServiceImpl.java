@@ -59,6 +59,15 @@ public class BuildingClientServiceImpl implements BuildingClientService {
         return paginationUtils.mapPage(buildingPage, meta, buildingMapper::toDto);
     }
 
+
+    @Override
+    public List<BuildingDto> getBuildingClientsList(Map<String, String> params) {
+        Specification<Building> spec = getBuildingSpec(params);
+        Pageable pageable = paginationUtils.buildPageable(params);
+        List<Building> buildings = buildingRepository.findAll(spec);
+        return buildingMapper.toDtoList(buildings);
+    }
+
     @Override
     public List<String> getAllStreetByWardNameAndDistrictName(String ward, String district) {
         return buildingRepository.findDistinctStreetsByWardAndDistrict(ward, district);
@@ -68,10 +77,18 @@ public class BuildingClientServiceImpl implements BuildingClientService {
         Specification<Building> spec = (root, query, cb) -> cb.isNotNull(root.get("buildingStatus"));
 
         spec = spec.and((root, query, cb) -> cb.equal(root.get("buildingStatus"), "AVAILABLE"));
-        if(params.containsKey("orientation")){
-            String orientation = params.get("orientation").trim().toUpperCase();
+
+//        if(params.containsKey("orientation")){
+//            String orientation = params.get("orientation").trim().toUpperCase();
+//            spec = spec.and((root, query, criteriaBuilder) ->
+//                    criteriaBuilder.equal(root.get("orientation"), OrientationEnum.valueOf(orientation.toUpperCase()))
+//            );
+//        }
+
+        if (params.containsKey("orientation")) {
+            String orientation = stringUtils.normalizeString(params.get("orientation").trim().toUpperCase());
             spec = spec.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("orientation"), OrientationEnum.valueOf(orientation.toUpperCase()))
+                    criteriaBuilder.equal(root.get("orientation"), orientation)
             );
         }
 

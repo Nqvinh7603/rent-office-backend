@@ -8,13 +8,11 @@
 package com.nqvinh.rentofficebackend.domain.building.mapper.appointment.calendar;
 
 import com.nqvinh.rentofficebackend.domain.building.dto.BuildingDto;
-import com.nqvinh.rentofficebackend.domain.building.dto.BuildingTypeDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.calendar.AppointmentBuildingCalendarDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.calendar.AppointmentCalendarDto;
 import com.nqvinh.rentofficebackend.domain.building.entity.Appointment;
 import com.nqvinh.rentofficebackend.domain.building.entity.AppointmentBuilding;
 import com.nqvinh.rentofficebackend.domain.building.entity.Building;
-import com.nqvinh.rentofficebackend.domain.building.entity.BuildingType;
 import com.nqvinh.rentofficebackend.domain.building.mapper.BuildingMapper;
 import com.nqvinh.rentofficebackend.domain.common.mapper.CommonMapper;
 import com.nqvinh.rentofficebackend.domain.common.mapper.CommonMapperConfig;

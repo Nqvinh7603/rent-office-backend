@@ -10,6 +10,7 @@ import com.nqvinh.rentofficebackend.infrastructure.config.security.filter.JwtAut
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,8 +22,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -35,11 +36,14 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @EnableMethodSecurity
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class SecurityConfiguration {
 
-    RSAKeyRecord rsaKeyRecord;
-    JwtAuthFilter jwtAuthFilter;
+    final RSAKeyRecord rsaKeyRecord;
+    final JwtAuthFilter jwtAuthFilter;
+
+    @Value("${application.security.oauth2.resourceserver.jwt.issuer-uri}")
+    String issuerUri;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -52,14 +56,15 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(corsConfig -> corsConfig.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5000"));
+                    config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5000", "https://dialogflow.cloud.google.com"));
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
                     config.setAllowCredentials(true);
-                    config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "siteUrl"));
+                    config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
                     config.setMaxAge(3600L);
                     return config;
                 }))
                 .authorizeHttpRequests(requests -> requests
+                        .requestMatchers("/api/v1/webhook").permitAll()  // Cho phép webhook mà không cần token
                         .requestMatchers("/", "/api/v1/auth/**",
                                 "/api/v1/building-types/all",
                                 "/api/v1/buildings/create-building-with-customer",
@@ -73,10 +78,11 @@ public class SecurityConfiguration {
                                 "/api/v1/building-levels/all",
                                 "/api/v1/building-clients/streets",
                                 "/api/v1/appointments"
-                                ).permitAll()
+                        ).permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults())
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(withDefaults())
                         .authenticationEntryPoint(rentOfficeAuthEntryPoint))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .formLogin(AbstractHttpConfigurer::disable);
@@ -86,8 +92,9 @@ public class SecurityConfiguration {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withPublicKey(rsaKeyRecord.rsaPublicKey()).build();
+        return JwtDecoders.fromOidcIssuerLocation(issuerUri);
     }
+
 
     @Bean
     public JwtEncoder jwtEncoder() {

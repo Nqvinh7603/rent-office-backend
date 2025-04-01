@@ -23,4 +23,5 @@ import java.util.Map;
 public interface BuildingClientService {
     Page<BuildingDto> getBuildingClients(Map<String, String> params);
     List<String> getAllStreetByWardNameAndDistrictName(String wardName, String districtName);
+    List<BuildingDto> getBuildingClientsList(Map<String, String> params);
 }

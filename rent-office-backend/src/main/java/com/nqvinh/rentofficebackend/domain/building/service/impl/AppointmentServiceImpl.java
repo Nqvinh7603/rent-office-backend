@@ -25,7 +25,6 @@ import com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.requ
 import com.nqvinh.rentofficebackend.domain.building.entity.*;
 import com.nqvinh.rentofficebackend.domain.building.mapper.appointment.calendar.AppointmentBuildingCalendarMapper;
 import com.nqvinh.rentofficebackend.domain.building.repository.AppointmentBuildingRepository;
-import com.nqvinh.rentofficebackend.domain.building.repository.AppointmentRepository;
 import com.nqvinh.rentofficebackend.domain.building.repository.BuildingRepository;
 import com.nqvinh.rentofficebackend.domain.building.repository.CustomerRepository;
 import com.nqvinh.rentofficebackend.domain.building.service.AppointmentService;
