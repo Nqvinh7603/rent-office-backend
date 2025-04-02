@@ -10,9 +10,11 @@ import com.nqvinh.rentofficebackend.infrastructure.config.security.filter.JwtAut
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -21,10 +23,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtDecoders;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -41,8 +40,9 @@ public class SecurityConfiguration {
 
     final RSAKeyRecord rsaKeyRecord;
     final JwtAuthFilter jwtAuthFilter;
+    final CustomJwtDecoder jwtDecoder;
 
-    @Value("${application.security.oauth2.resourceserver.jwt.issuer-uri}")
+    @Value("${spring.security.oauth2.resource-server.jwt.issuer-uri}")
     String issuerUri;
 
     @Bean
@@ -82,7 +82,7 @@ public class SecurityConfiguration {
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(withDefaults())
+                        .jwt(jwt -> jwt.decoder(jwtDecoder))
                         .authenticationEntryPoint(rentOfficeAuthEntryPoint))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .formLogin(AbstractHttpConfigurer::disable);
@@ -90,10 +90,15 @@ public class SecurityConfiguration {
         return http.build();
     }
 
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        return JwtDecoders.fromOidcIssuerLocation(issuerUri);
-    }
+//    @Bean
+//    public JwtDecoder jwtDecoder() {
+//        return JwtDecoders.fromOidcIssuerLocation(issuerUri);
+//    }
+//
+//    @Bean
+//    public JwtDecoder jwtDecoder() {
+//        return NimbusJwtDecoder.withPublicKey(rsaKeyRecord.rsaPublicKey()).build();
+//    }
 
 
     @Bean

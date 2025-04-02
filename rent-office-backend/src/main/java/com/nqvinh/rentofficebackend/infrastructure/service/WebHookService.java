@@ -62,7 +62,7 @@ public class WebHookService {
                         RichContentItem.builder()
                                 .type("chips")
                                 .options(buildingLevels.stream()
-                                        .map(level -> new RichContentItem.Option(level.getBuildingLevelName()))
+                                        .map(level -> new RichContentItem.Option(level.getBuildingLevelName(), null))
                                         .collect(Collectors.toList()))
                                 .build()
                 )
@@ -94,7 +94,7 @@ public class WebHookService {
                         RichContentItem.builder()
                                 .type("chips")
                                 .options(buildingTypes.stream()
-                                        .map(level -> new RichContentItem.Option(level.getBuildingTypeName()))
+                                        .map(level -> new RichContentItem.Option(level.getBuildingTypeName(), null))
                                         .collect(Collectors.toList()))
                                 .build()
                 )
@@ -117,98 +117,67 @@ public class WebHookService {
                     )
             ));
         }
-        RichContent richContent = new RichContent(List.of(
-                List.of(
-                        RichContentItem.builder()
-                                .type("description")
-                                .title("Danh sách văn phòng phù hợp:")
-                                .text(buildingClients.stream()
-                                        .map(BuildingDto::getBuildingName)
-                                        .collect(Collectors.toList()))
-                                .build(),
-                        RichContentItem.builder()
-                                .type("divider")
-                                .build(),
-                        RichContentItem.builder()
-                                .type("description")
-                                .title("Bạn muốn xem chi tiết văn phòng nào?")
-                                .build(),
-                        RichContentItem.builder()
-                                .type("chips")
-                                .options(buildingClients.stream()
-                                        .map(building -> new RichContentItem.Option(building.getBuildingName()))
-                                        .collect(Collectors.toList()))
-                                .build()
-                )
-        ));
-        return richContent;
+        if (buildingClients.size() == 1) {
+            BuildingDto building = buildingClients.getFirst();
+            return new RichContent(List.of(
+                    List.of(
+                            RichContentItem.builder()
+                                    .type("image")
+                                    .rawUrl(building.getBuildingImages().getFirst().getImgUrl())
+                                    .build(),
+                            RichContentItem.builder()
+                                    .type("info")
+                                    .title(building.getBuildingName())
+                                    .subTitle(building.getBuildingNumber() + ", " + building.getStreet() + ", " + building.getWard() + ", " + building.getDistrict())
+                                    .actionLink("http://localhost:5173/van-phong/" + building.getBuildingId())
+                                    .build(),
+                            RichContentItem.builder()
+                                    .type("chips")
+                                    .options(List.of(
+                                            new RichContentItem.Option(
+                                                    "Xem chi tiết",
+                                                    "http://localhost:5173/van-phong/" + building.getBuildingId()
+                                            )
+                                    ))
+                                    .build()
+                    )
+            ));
+        }
+        else {
+            RichContent richContent = new RichContent(List.of(
+                    List.of(
+                            RichContentItem.builder()
+                                    .type("description")
+                                    .title("Danh sách văn phòng phù hợp:")
+                                    .text(buildingClients.stream()
+                                            .map(BuildingDto::getBuildingName)
+                                            .collect(Collectors.toList()))
+                                    .build(),
+                            RichContentItem.builder()
+                                    .type("divider")
+                                    .build(),
+                            RichContentItem.builder()
+                                    .type("description")
+                                    .title("Bạn muốn xem chi tiết văn phòng nào?")
+                                    .build(),
+                            RichContentItem.builder()
+                                    .type("chips")
+                                    .options(buildingClients.stream()
+                                            .map(building -> new RichContentItem.Option(
+                                                    building.getBuildingName(),
+                                                    "http://localhost:5173/van-phong/" + building.getBuildingId()
+                                            ))
+                                            .collect(Collectors.toList()))
+                                    .build()
+                    )
+            ));
+
+            return richContent;
+        }
+
     }
 
-//    public RichContent getChildCategories(String parentCategoryName) {
-//        String slug = formatSlugify(parentCategoryName);
-//        List<String> childCategoryNames = categoryService.getChildCategoryNames(slug);
-//
-//        RichContent richContent = new RichContent(List.of(
-//                List.of(
-//                        RichContentItem.builder()
-//                                .type("description")
-//                                .title("Danh mục con của " + parentCategoryName + " bao gồm:")
-//                                .text(String.join("\r\n", childCategoryNames))
-//                                .build(),
-//                        RichContentItem.builder()
-//                                .type("divider")
-//                                .build(),
-//                        RichContentItem.builder()
-//                                .type("description")
-//                                .title("Bạn muốn xem danh mục con nào?")
-//                                .build(),
-//                        RichContentItem.builder()
-//                                .type("chips")
-//                                .options(childCategoryNames.stream().map(name -> new RichContentItem.Option(name)).collect(Collectors.toList()))
-//                                .build()
-//                )
-//        ));
-//        return richContent;
-//    }
-//
-//    public RichContent getProductsOfChildCategory(String childCategoryName) {
-//        String slug = formatSlugify(childCategoryName);
-//        List<String> productNames = productService.getProductNamesByCategory(slug, ProductType.TRENDING);
-//
-//        RichContent richContent = new RichContent(List.of(
-//                List.of(
-//                        RichContentItem.builder()
-//                                .type("description")
-//                                .title("Một số sản phẩm bán chạy thuộc danh mục " + childCategoryName + " bao gồm:")
-//                                .text(String.join("\r\n", productNames))
-//                                .build(),
-//                        RichContentItem.builder()
-//                                .type("chips")
-//                                .options(productNames.stream().map(name -> new RichContentItem.Option(name)).collect(Collectors.toList()))
-//                                .build()
-//                )
-//        ));
-//        return richContent;
-//    }
-//
-//    public RichContent getPolicies() {
-//        RichContent richContent = new RichContent(List.of(
-//                List.of(
-//                        RichContentItem.builder()
-//                                .type("description")
-//                                .title("Để xem chính sách, vui lòng truy cập vào đường link sau:")
-//                                .build(),
-//                        RichContentItem.builder()
-//                                .type("info")
-//                                .title("Chính sách")
-//                                .subtitle("Chính sách của Decorpic")
-//                                .image(new RichContentItem.Image("/logo.png"))
-//                                .actionLink(System.getenv("FRONTEND_URL") + "/chinh-sach-thanh-toan")
-//                                .build()
-//                )
-//        ));
-//        return richContent;
-//    }
+
 //
 //    private String formatSlugify(String input) {
 //        return input.toLowerCase().replace(" ", "-");

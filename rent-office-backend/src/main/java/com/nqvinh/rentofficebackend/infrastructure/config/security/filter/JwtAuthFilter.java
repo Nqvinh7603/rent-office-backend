@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
@@ -30,6 +32,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     final UserDetailsService userDetailsService;
     final ApplicationContext applicationContext;
+
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -58,10 +61,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         return authHeader != null && authHeader.startsWith("Bearer ");
     }
 
-    private Jwt decodeToken(String token) {
+        private Jwt decodeToken(String token) {
         JwtDecoder jwtDecoder = applicationContext.getBean(JwtDecoder.class);
         return jwtDecoder.decode(token);
     }
+
 
     private void authenticateUser(HttpServletRequest request, Jwt jwtToken, String userEmail) {
         JwtUtils jwtUtils = applicationContext.getBean(JwtUtils.class);

@@ -12,11 +12,13 @@ import com.nqvinh.rentofficebackend.domain.building.mapper.client.BuildingLevelC
 import com.nqvinh.rentofficebackend.domain.building.repository.BuildingLevelRepository;
 import com.nqvinh.rentofficebackend.domain.building.service.BuildingLevelService;
 import com.nqvinh.rentofficebackend.infrastructure.utils.PaginationUtils;
+import com.nqvinh.rentofficebackend.infrastructure.utils.StringUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,6 +32,7 @@ public class BuildingLevelServiceImpl implements BuildingLevelService {
     BuildingLevelMapper buildingLevelMapper;
     PaginationUtils paginationUtils;
     BuildingLevelClientResMapper buildingLevelClientResMapper;
+    StringUtils stringUtils;
 
     @Override
     @Transactional
@@ -75,4 +78,5 @@ public class BuildingLevelServiceImpl implements BuildingLevelService {
     public List<BuildingLevelClientRes> getBuildingLevelsForClient(String city) {
         return buildingLevelClientResMapper.toDtoList(buildingLevelRepository.findByBuildingStatusAndCity(BuildingStatus.AVAILABLE, city));
     }
+
 }

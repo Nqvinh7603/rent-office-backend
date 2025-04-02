@@ -19,10 +19,9 @@ import com.nqvinh.rentofficebackend.infrastructure.utils.JwtUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,18 +33,33 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+//@RequiredArgsConstructor
+//@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthServiceImpl implements AuthService {
 
-    AuthenticationManager authenticationManager;
-    UserRepository userRepository;
-    JwtDecoder jwtDecoder;
-    AuditAwareImpl auditAware;
-    JwtUtils jwtUtils;
-    EmailProducer emailProducer;
-    RedisService redisService;
-    PasswordEncoder passwordEncoder;
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private JwtDecoder jwtDecoder;
+
+    @Autowired
+    private AuditAwareImpl auditAware;
+
+    @Autowired
+    private JwtUtils jwtUtils;
+
+    @Autowired
+    private EmailProducer emailProducer;
+
+    @Autowired
+    private RedisService redisService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     @SneakyThrows

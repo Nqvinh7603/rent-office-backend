@@ -5,6 +5,16 @@ spring:
   application:
     name: rent-office-backend
 
+  security:
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#          issuer-uri: https://accounts.google.com
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://accounts.google.com
+
   datasource:
     url: ${DB_URL}
     username: ${POSTGRES_USER}
@@ -64,12 +74,11 @@ kafka:
   noti: nqv-noti-service-dev
   email: nqv-email-service-dev
 
+
+
+
 application:
   security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: https://accounts.google.com
     rsa:
       rsa-public-key: classpath:certs/public-key.pem
       rsa-private-key: classpath:certs/private-key.pem

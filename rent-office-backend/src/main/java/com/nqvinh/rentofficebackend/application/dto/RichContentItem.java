@@ -30,7 +30,12 @@ public class RichContentItem {
     String title;
     List<String> text;
     List<Option> options;
-    Image image;
+
+    @JsonProperty("rawUrl")
+    String rawUrl;
+
+    @JsonProperty("subtitle")
+    String subTitle;
 
     @JsonProperty("actionLink")
     String actionLink;
@@ -42,15 +47,7 @@ public class RichContentItem {
     @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class Option {
         String text;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class Image {
-        String src;
+        String link;
     }
 
 }

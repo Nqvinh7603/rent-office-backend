@@ -36,39 +36,64 @@ public class WebhookController {
         String intentName = (String) intent.get("displayName");
 
         Map<String, Object> parameters = (Map<String, Object>) queryResult.get("parameters");
-//        String orientation = (String) parameters.get("orientation");
-        String buildingLevel = (String) parameters.get("buildingLevel");
-        String buildingType = (String) parameters.get("buildingType");
-//        String district = (String) parameters.get("district");
-//        String city = (String) parameters.get("city");
-
-
+        String orientation = (String) parameters.getOrDefault("orientation", "");
+        String buildingLevel = (String) parameters.getOrDefault("buildingLevel", "");
+        String buildingType = (String) parameters.getOrDefault("buildingType", "");
+        String city = (String) parameters.getOrDefault("city", "");
+        String district = (String) parameters.getOrDefault("district", "");
+        String ward = (String) parameters.getOrDefault("ward", "");
+        String minArea = parameters.get("minArea") != null ? parameters.get("minArea").toString() : "";
+        String maxArea = parameters.get("maxArea") != null ? parameters.get("maxArea").toString() : "";
+        String minPrice = parameters.get("minPrice") != null ? parameters.get("minPrice").toString() : "";
+        String maxPrice = parameters.get("maxPrice") != null ? parameters.get("maxPrice").toString() : "";
         switch (intentName) {
             case "buildingLevel":
                 response = Map.of("fulfillmentMessages", List.of(Map.of("payload", webHookService.getAllLevelServices())));
                 break;
+
             case "buildingType":
                 response = Map.of("fulfillmentMessages", List.of(Map.of("payload", webHookService.getAllTypeServices())));
                 break;
+
             case "searchOffice":
-                // Giả sử intent "searchOffice" sẽ tìm văn phòng theo các tham số đã cung cấp
-                response = Map.of("fulfillmentMessages", List.of(Map.of("payload", webHookService.getBuildingClientsList(
-                        Map.of(
-                                "buildingLevel", buildingLevel,
-                                "buildingType", buildingType
-                        )
-                ))));
+                Map<String, String> searchParams = new HashMap<>();
+                if (!orientation.isEmpty()) {
+                    searchParams.put("orientation", orientation);
+                }
+                if (!buildingLevel.isEmpty()) {
+                    searchParams.put("buildingLevel", buildingLevel);
+                }
+                if (!buildingType.isEmpty()) {
+                    searchParams.put("buildingType", buildingType);
+                }
+                if (!city.isEmpty()) {
+                    searchParams.put("city", city);
+                }
+                if (!district.isEmpty()) {
+                    searchParams.put("district", district);
+                }
+                if (!ward.isEmpty()) {
+                    searchParams.put("ward", ward);
+                }
+                if (!minArea.isEmpty()) {
+                    searchParams.put("minArea", minArea);
+                }
+                if (!maxArea.isEmpty()) {
+                    searchParams.put("maxArea", maxArea);
+                }
+                if (!minPrice.isEmpty()) {
+                    searchParams.put("minPrice", minPrice);
+                }
+                if (!maxPrice.isEmpty()) {
+                    searchParams.put("maxPrice", maxPrice);
+                }
+
+                response = Map.of("fulfillmentMessages", List.of(Map.of("payload", webHookService.getBuildingClientsList(searchParams))));
                 break;
-//            case "GetChildCategories":
-//                response = Map.of("fulfillmentMessages", List.of(Map.of("payload", webHookService.getChildCategories((String) queryResult.get("parameters")))));
-//                break;
-//            case "GetProductsOfChildCategory":
-//                response = Map.of("fulfillmentMessages", List.of(Map.of("payload", webHookService.getProductsOfChildCategory((String) queryResult.get("parameters")))));
-//                break;
-//            default:
-//                response.put("fulfillmentText", "Sorry, I couldn't understand your request.");
+
             default:
-                response.put("fulfillmentText", "Xin lỗi tôi không thể hiểu yêu cầu của bạn.");
+                // Nếu không tìm thấy intent, trả về thông báo lỗi
+                response.put("fulfillmentText", "Xin lỗi, tôi không thể hiểu yêu cầu của bạn.");
                 break;
         }
 
