@@ -29,5 +29,6 @@ public interface AppointmentService {
     Page<AppointmentBuildingCalendarDto> getAllAppointmentCalendars( Map<String, String> params);
     AppointmentBuildingCalendarDto getAppointmentCalendarById(Long appointmentBuildingId);
     void deleteAppointmentCalendarById(Long appointmentBuildingId);
-    void  createPotentialCustomer(CustomerPotentialDto customerDto);
+    void createAppointmentAdmin(CustomerAppointmentReqDto customerAppointment);
+    AppointmentBuildingCalendarDto updateAppointmentCalendarById(Long appointmentBuildingId, AppointmentBuildingCalendarDto appointmentBuildingCalendarDto);
 }

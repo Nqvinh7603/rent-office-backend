@@ -49,11 +49,11 @@ public class AppointmentController {
 
     @GetMapping(UrlConstant.GET_APPOINTMENTS_CALENDAR)
     public ApiResponse<Map<LocalDateTime, List<AppointmentBuildingCalendarDto>>> getAllAppointmentCalendars() {
-       return ApiResponse.<Map<LocalDateTime, List<AppointmentBuildingCalendarDto>>>builder()
-                        .status(HttpStatus.OK.value())
-                        .message(MessageEnums.FETCHED_SUCCESS.getMessage("Appointment"))
-                        .payload(appointmentService.getAllAppointmentCalendars())
-                        .build();
+        return ApiResponse.<Map<LocalDateTime, List<AppointmentBuildingCalendarDto>>>builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageEnums.FETCHED_SUCCESS.getMessage("Appointment"))
+                .payload(appointmentService.getAllAppointmentCalendars())
+                .build();
     }
 
     @GetMapping(UrlConstant.GET_APPOINTMENTS_CALENDAR_BY_ID)
@@ -72,7 +72,7 @@ public class AppointmentController {
         return ApiResponse.<Page<AppointmentBuildingCalendarDto>>builder()
                 .status(HttpStatus.OK.value())
                 .message(MessageEnums.FETCHED_SUCCESS.getMessage("Appointment"))
-                .payload(appointmentService.getAllAppointmentCalendars( params))
+                .payload(appointmentService.getAllAppointmentCalendars(params))
                 .build();
     }
 
@@ -88,10 +88,21 @@ public class AppointmentController {
 
     @PostMapping(UrlConstant.CREATE_APPOINTMENT_CALENDAR)
     public ApiResponse<Void> createPotentialCustomer(@RequestBody CustomerAppointmentReqDto customerDto) {
-        appointmentService.createAppointment(customerDto);
+        appointmentService.createAppointmentAdmin(customerDto);
         return ApiResponse.<Void>builder()
                 .status(HttpStatus.CREATED.value())
                 .message(MessageEnums.CREATED_SUCCESS.getMessage("Potential customer"))
+                .build();
+    }
+
+    @PutMapping(UrlConstant.UPDATE_APPOINTMENT_CALENDAR)
+    public ApiResponse<AppointmentBuildingCalendarDto> updateAppointmentCalendarById(
+            @PathVariable Long id,
+            @RequestBody AppointmentBuildingCalendarDto appointmentBuildingCalendarDto) {
+        return ApiResponse.<AppointmentBuildingCalendarDto>builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageEnums.UPDATED_SUCCESS.getMessage("Appointment"))
+                .payload(appointmentService.updateAppointmentCalendarById(id, appointmentBuildingCalendarDto))
                 .build();
     }
 

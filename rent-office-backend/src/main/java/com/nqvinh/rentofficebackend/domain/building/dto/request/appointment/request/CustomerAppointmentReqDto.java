@@ -30,18 +30,18 @@ import java.util.List;
 public class CustomerAppointmentReqDto {
     Long customerId;
 
-    @NotBlank(message = "Customer name is required")
+    //@NotBlank(message = "Customer name is required")
     String customerName;
 
-    @NotBlank(message = "Phone number is required")
+    //@NotBlank(message = "Phone number is required")
     String phoneNumber;
 
-    @NotBlank(message = "Email is required")
+    //@NotBlank(message = "Email is required")
     String email;
 
     String address;
 
-    @NotBlank(message = "Require type is required")
+   // @NotBlank(message = "Require type is required")
     String requireType;
 
     String note;

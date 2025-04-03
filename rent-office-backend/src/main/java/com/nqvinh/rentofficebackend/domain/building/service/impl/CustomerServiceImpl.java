@@ -217,10 +217,27 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepository.delete(customer);
     }
 
+    private boolean isAdmin(UserDto userDto) {
+        User user = userMapper.toEntity(userDto);
+        String roleName = user.getRole().getRoleName();
+        return roleName.equals("ADMIN") || roleName.equals("MANAGER");
+    }
+
     @Override
+    @SneakyThrows
     public Page<CustomerPotentialDto> getPotentialCustomers(Map<String, String> params) {
         Specification<Customer> spec = getCustomerSpec(params);
+        UserDto currentUser = userService.getLoggedInUser();
+
+       if (!isAdmin(currentUser)) {
+            spec = spec.and((root, query, criteriaBuilder) -> {
+                Join<Customer, User> customerJoin = root.join("users", JoinType.INNER);
+                return criteriaBuilder.equal(customerJoin.get("userId"), currentUser.getUserId());
+            });
+        }
         Pageable pageable = paginationUtils.buildPageable(params);
+
+
         org.springframework.data.domain.Page<Customer> customerPage = customerRepository.findAll(spec, pageable);
         Meta meta = paginationUtils.buildMeta(customerPage, pageable);
         return paginationUtils.mapPage(customerPage, meta, customerPotentialMapper::toDto);
@@ -243,7 +260,12 @@ public class CustomerServiceImpl implements CustomerService {
     public List<CustomerDto> getAllCustomers() {
         UserDto currentUser = userService.getLoggedInUser();
         boolean isAdminOrManager = "ADMIN".equals(currentUser.getRole().getRoleName()) || "MANAGER".equals(currentUser.getRole().getRoleName());
-        return customerMapper.toDtoList(customerRepository.findAllCustomer(currentUser.getUserId(), isAdminOrManager));
+        if(isAdminOrManager) {
+            return customerMapper.toDtoList(customerRepository.findAll());
+        }else {
+            return customerMapper.toDtoList(customerRepository.findAllCustomers(currentUser.getUserId(), isAdminOrManager));
+        }
+        //return customerMapper.toDtoList(customerRepository.findAll());
     }
 
     private Specification<Customer> getCustomerSpec(Map<String, String> params) {

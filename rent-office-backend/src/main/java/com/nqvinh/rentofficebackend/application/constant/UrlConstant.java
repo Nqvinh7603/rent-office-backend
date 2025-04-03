@@ -99,6 +99,7 @@ public class UrlConstant {
     public static final String CREATE_APPOINTMENT_CALENDAR = "/calendar";
     public static final String GET_APPOINTMENTS_CALENDAR_BY_ID = "/calendar/{id}";
     public static final String DELETE_APPOINTMENT_CALENDAR = "/calendar/{id}";
+    public static final String UPDATE_APPOINTMENT_CALENDAR = "/calendar/{id}";
 
     //web-hook
     public static final String WEB_HOOK = API_BASE + "/webhook";

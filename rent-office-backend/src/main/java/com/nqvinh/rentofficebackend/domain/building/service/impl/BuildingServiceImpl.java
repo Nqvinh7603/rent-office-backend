@@ -418,9 +418,9 @@ public class BuildingServiceImpl implements BuildingService {
 
         if (!isAdmin(currentUser)) {
             spec = spec.and((root, query, criteriaBuilder) -> {
-                Join<Customer, Building> customerJoin = root.join("customer", JoinType.INNER);
-                Join<Customer, User> userJoin = customerJoin.join("users", JoinType.INNER);
-                return criteriaBuilder.equal(userJoin.get("userId"), currentUser.getUserId());
+                Join<User, Building> customerJoin = root.join("users", JoinType.INNER);
+//                Join<Customer, User> userJoin = customerJoin.join("users", JoinType.INNER);
+                return criteriaBuilder.equal(customerJoin.get("userId"), currentUser.getUserId());
             });
         }
 
@@ -652,8 +652,8 @@ public class BuildingServiceImpl implements BuildingService {
                     : "%" + nameParts[0] + "%";
             String likePatternLastName = "%" + nameParts[nameParts.length - 1] + "%";
             spec = spec.and((root, query, criteriaBuilder) -> {
-                Join<Customer, Building> customerJoin = root.join("customer", JoinType.INNER);
-                Join<Customer, User> userJoin = customerJoin.join("users", JoinType.INNER);
+                //Join<Customer, Building> customerJoin = root.join("customer", JoinType.INNER);
+                Join<Building, User> userJoin = root.join("users", JoinType.INNER);
                 return criteriaBuilder.and(
                         criteriaBuilder.isNotNull(userJoin.get("userId")),
                         criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower(userJoin.get("firstName"))), likePatternFirstName),

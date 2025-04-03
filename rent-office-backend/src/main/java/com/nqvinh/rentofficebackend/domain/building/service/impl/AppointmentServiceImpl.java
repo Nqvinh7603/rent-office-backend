@@ -25,6 +25,7 @@ import com.nqvinh.rentofficebackend.domain.building.dto.request.appointment.requ
 import com.nqvinh.rentofficebackend.domain.building.entity.*;
 import com.nqvinh.rentofficebackend.domain.building.mapper.appointment.calendar.AppointmentBuildingCalendarMapper;
 import com.nqvinh.rentofficebackend.domain.building.repository.AppointmentBuildingRepository;
+import com.nqvinh.rentofficebackend.domain.building.repository.AppointmentRepository;
 import com.nqvinh.rentofficebackend.domain.building.repository.BuildingRepository;
 import com.nqvinh.rentofficebackend.domain.building.repository.CustomerRepository;
 import com.nqvinh.rentofficebackend.domain.building.service.AppointmentService;
@@ -76,6 +77,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     UserMapper userMapper;
     PaginationUtils paginationUtils;
     DateUtils dateUtils;
+    AppointmentRepository appointmentRepository;
 
     private boolean isAdmin(UserDto userDto) {
         User user = userMapper.toEntity(userDto);
@@ -198,15 +200,21 @@ public class AppointmentServiceImpl implements AppointmentService {
     @SneakyThrows
     @Transactional
     public void deleteAppointmentCalendarById(Long appointmentBuildingId) {
-        AppointmentBuilding appointment = appointmentBuildingRepository.findById(appointmentBuildingId)
+        AppointmentBuilding appointmentBuilding = appointmentBuildingRepository.findById(appointmentBuildingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id: " + appointmentBuildingId));
-        appointmentBuildingRepository.delete(appointment);
+
+        Appointment appointment = appointmentBuilding.getAppointment();
+        appointmentBuildingRepository.delete(appointmentBuilding);
+
+        if (appointment.getAppointmentBuildings().isEmpty()) {
+            appointmentRepository.delete(appointment);
+        }
     }
 
     @Override
     @Transactional
     @SneakyThrows
-    public void createPotentialCustomer(CustomerPotentialDto appointmentReq) {
+    public void createAppointmentAdmin(CustomerAppointmentReqDto appointmentReq) {
         Customer customer = customerRepository.findByEmail(appointmentReq.getEmail())
                 .map(existingCustomer -> {
                     existingCustomer.setNote(appointmentReq.getNote());
@@ -258,7 +266,32 @@ public class AppointmentServiceImpl implements AppointmentService {
                 customer.getAppointments().add(appointment);
             }
         }
+
         customerRepository.save(customer);
+    }
+
+    @Override
+    @Transactional
+    @SneakyThrows
+    public AppointmentBuildingCalendarDto updateAppointmentCalendarById(Long appointmentBuildingId, AppointmentBuildingCalendarDto appointmentBuildingCalendarDto) {
+        AppointmentBuilding appointmentBuilding = appointmentBuildingRepository.findById(appointmentBuildingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id: " + appointmentBuildingId));
+        List<AppointmentBuildingStatusHistory> existingStatusHistories = appointmentBuilding.getAppointmentBuildingStatusHistories();
+        appointmentBuildingCalendarDto.getAppointmentBuildingStatusHistories().stream().
+               filter(appointmentBuildingStatusHistory -> appointmentBuildingStatusHistory != null && appointmentBuildingStatusHistory.getAppointmentBuildingStatusHistoryId() == null)
+                .map(appointmentBuildingStatusHistory ->
+                   AppointmentBuildingStatusHistory.builder()
+                           .appointmentBuilding(appointmentBuilding)
+                            .status(AppointmentBuildingStatus.valueOf(appointmentBuildingStatusHistory.getStatus()))
+                           .note(appointmentBuildingStatusHistory.getNote())
+                           .build()
+                )
+                .forEach(existingStatusHistories::add);
+        appointmentBuilding.setAppointmentBuildingStatusHistories(existingStatusHistories);
+        appointmentBuildingCalendarMapper.partialUpdate(appointmentBuilding, appointmentBuildingCalendarDto);
+        appointmentBuilding.getAppointmentBuildingStatusHistories().forEach(status -> status.setAppointmentBuilding(appointmentBuilding));
+
+        return appointmentBuildingCalendarMapper.toDto(appointmentBuildingRepository.save(appointmentBuilding));
     }
 
 
