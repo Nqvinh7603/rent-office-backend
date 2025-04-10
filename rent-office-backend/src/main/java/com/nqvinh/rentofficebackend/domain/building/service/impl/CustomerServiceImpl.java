@@ -287,14 +287,19 @@ public class CustomerServiceImpl implements CustomerService {
 
 
         //thống kê theo trạng thái khách hàng thuê
-        statistics.put("NOT_CONTACTED_RENT_CUSTOMER", customers.stream().filter(customer -> customer.getStatus() == PotentialCustomerStatus.NOT_CONTACTED || customer.getRequireType() == RequireTypeEnum.RENT).count());
-        statistics.put("CONTACTED_RENT_CUSTOMER", customers.stream().filter(customer -> customer.getStatus() == PotentialCustomerStatus.CONTACTED || customer.getRequireType() == RequireTypeEnum.RENT).count());
-        statistics.put("DEAL_IN_PROGRESS_RENT_CUSTOMER", customers.stream().filter(customer -> customer.getStatus() == PotentialCustomerStatus.DEAL_IN_PROGRESS || customer.getRequireType() == RequireTypeEnum.RENT).count());
-        statistics.put("DEAL_DONE_RENT_CUSTOMER", customers.stream().filter(customer -> customer.getStatus() == PotentialCustomerStatus.DEAL_DONE || customer.getRequireType() == RequireTypeEnum.RENT).count());
-        statistics.put("CANCELED_RENT_CUSTOMER", customers.stream().filter(customer -> customer.getStatus() == PotentialCustomerStatus.CANCELED || customer.getRequireType() == RequireTypeEnum.RENT).count());
-
+//        statistics.put("NOT_CONTACTED_RENT_CUSTOMER", customers.stream().filter(customer -> customer.getStatus() == PotentialCustomerStatus.NOT_CONTACTED || customer.getRequireType() == RequireTypeEnum.RENT).count());
+//        statistics.put("CONTACTED_RENT_CUSTOMER", customers.stream().filter(customer -> customer.getStatus() == PotentialCustomerStatus.CONTACTED || customer.getRequireType() == RequireTypeEnum.RENT).count());
+//        statistics.put("DEAL_IN_PROGRESS_RENT_CUSTOMER", customers.stream().filter(customer -> customer.getStatus() == PotentialCustomerStatus.DEAL_IN_PROGRESS || customer.getRequireType() == RequireTypeEnum.RENT).count());
+//        statistics.put("DEAL_DONE_RENT_CUSTOMER", customers.stream().filter(customer -> customer.getStatus() == PotentialCustomerStatus.DEAL_DONE || customer.getRequireType() == RequireTypeEnum.RENT).count());
+//        statistics.put("CANCELED_RENT_CUSTOMER", customers.stream().filter(customer -> customer.getStatus() == PotentialCustomerStatus.CANCELED || customer.getRequireType() == RequireTypeEnum.RENT).count());
+        statistics.put("notContactedRentCustomer", customers.stream().filter(customer -> customer.getStatus() == PotentialCustomerStatus.NOT_CONTACTED || customer.getRequireType() == RequireTypeEnum.RENT).count());
+        statistics.put("contactedRentCustomer", customers.stream().filter(customer -> customer.getStatus() == PotentialCustomerStatus.CONTACTED || customer.getRequireType() == RequireTypeEnum.RENT).count());
+        statistics.put("dealInProgressRentCustomer", customers.stream().filter(customer -> customer.getStatus() == PotentialCustomerStatus.DEAL_IN_PROGRESS || customer.getRequireType() == RequireTypeEnum.RENT).count());
+        statistics.put("dealDoneRentCustomer", customers.stream().filter(customer -> customer.getStatus() == PotentialCustomerStatus.DEAL_DONE || customer.getRequireType() == RequireTypeEnum.RENT).count());
+        statistics.put("canceledRentCustomer", customers.stream().filter(customer -> customer.getStatus() == PotentialCustomerStatus.CANCELED || customer.getRequireType() == RequireTypeEnum.RENT).count());
         //thống kê theo trạng thái khách hàng ký gửi
-        statistics.put("PENDING_CONSIGNMENT_CUSTOMER", customers.stream()
+//        statistics.put("PENDING_CONSIGNMENT_CUSTOMER", customers.stream()
+        statistics.put("pendingConsignmentCustomer", customers.stream()
                 .filter(customer -> customer.getRequireType() == RequireTypeEnum.CONSIGNMENT && customer.getBuildings().stream()
                         .anyMatch(building -> {
                             ConsignmentStatusHistory lastHistory = building.getConsignmentStatusHistories()
@@ -305,7 +310,8 @@ public class CustomerServiceImpl implements CustomerService {
                         })
                 ).count());
 
-        statistics.put("CONFIRMED_CONSIGNMENT_CUSTOMER", customers.stream()
+//        statistics.put("CONFIRMED_CONSIGNMENT_CUSTOMER", customers.stream()
+        statistics.put("confirmedConsignmentCustomer", customers.stream()
                 .filter(customer -> customer.getRequireType() == RequireTypeEnum.CONSIGNMENT && customer.getBuildings().stream()
                         .anyMatch(building -> {
                             ConsignmentStatusHistory lastHistory = building.getConsignmentStatusHistories()
@@ -316,7 +322,8 @@ public class CustomerServiceImpl implements CustomerService {
                         })
                 ).count());
 
-        statistics.put("CANCELLED_CONSIGNMENT_CUSTOMER", customers.stream()
+//        statistics.put("CANCELLED_CONSIGNMENT_CUSTOMER", customers.stream()
+        statistics.put("cancelledConsignmentCustomer", customers.stream()
                 .filter(customer -> customer.getRequireType() == RequireTypeEnum.CONSIGNMENT && customer.getBuildings().stream()
                         .anyMatch(building -> {
                             ConsignmentStatusHistory lastHistory = building.getConsignmentStatusHistories()
@@ -327,7 +334,8 @@ public class CustomerServiceImpl implements CustomerService {
                         })
                 ).count());
 
-        statistics.put("INCOMPLETE_CONSIGNMENT_CUSTOMER", customers.stream()
+//        statistics.put("INCOMPLETE_CONSIGNMENT_CUSTOMER", customers.stream()
+        statistics.put("incompleteConsignmentCustomer", customers.stream()
                 .filter(customer -> customer.getRequireType() == RequireTypeEnum.CONSIGNMENT && customer.getBuildings().stream()
                         .anyMatch(building -> {
                             ConsignmentStatusHistory lastHistory = building.getConsignmentStatusHistories()
@@ -338,7 +346,8 @@ public class CustomerServiceImpl implements CustomerService {
                         })
                 ).count());
 
-        statistics.put("ADDITIONAL_INFO_CONSIGNMENT_CUSTOMER", customers.stream()
+//        statistics.put("ADDITIONAL_INFO_CONSIGNMENT_CUSTOMER", customers.stream()
+        statistics.put("additionalInfoConsignmentCustomer", customers.stream()
                 .filter(customer -> customer.getRequireType() == RequireTypeEnum.CONSIGNMENT && customer.getBuildings().stream()
                         .anyMatch(building -> {
                             ConsignmentStatusHistory lastHistory = building.getConsignmentStatusHistories()
