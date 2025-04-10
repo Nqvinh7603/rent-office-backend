@@ -62,6 +62,8 @@ public class UrlConstant {
     public static final String GET_ALL_BUILDING_LEVEL = "/all";
     public static final String GET_ALL_BUILDING_LEVEL_OF_COMPANY = "/company";
 
+    public  static final String BUILDING_STATISTICS = "/statistics";
+
 
     //BuildingClient
     public static final String BUILDING_CLIENTS = API_BASE + "/building-clients";
@@ -79,6 +81,10 @@ public class UrlConstant {
     public static final String GET_CUSTOMERS_POTENTIAL = "/potentials/all";
     public static final String GET_CUSTOMERS_POTENTIAL_BY_ID = "/potentials/{id}";
     public static final String GET_ALL_CUSTOMER = "/all";
+    public static final String CUSTOMER_STATISTICS = "/statistics";
+    public static final String CUSTOMER_STATISTICS_TIME = "/statistics-time";
+    public static final String CUSTOMER_STATISTICS_TIME_AND_TYPE_POTENTIAL = "/statistics-time-and-type-potential";
+    public static final String CUSTOMER_STATISTICS_TIME_AND_TYPE_CONSIGNMENT = "/statistics-time-and-type-consignment";
 
     //Notification
     public static final String NOTIFICATIONS = API_BASE + "/notifications";
@@ -100,6 +106,8 @@ public class UrlConstant {
     public static final String GET_APPOINTMENTS_CALENDAR_BY_ID = "/calendar/{id}";
     public static final String DELETE_APPOINTMENT_CALENDAR = "/calendar/{id}";
     public static final String UPDATE_APPOINTMENT_CALENDAR = "/calendar/{id}";
+    public static final String STATISTICS_APPOINTMENT = "/statistics";
+    public static final String STATISTICS_APPOINTMENT_TIME = "/statistics-time";
 
     //web-hook
     public static final String WEB_HOOK = API_BASE + "/webhook";

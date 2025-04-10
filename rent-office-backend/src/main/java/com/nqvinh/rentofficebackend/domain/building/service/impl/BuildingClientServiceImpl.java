@@ -18,10 +18,7 @@ import com.nqvinh.rentofficebackend.domain.building.repository.BuildingRepositor
 import com.nqvinh.rentofficebackend.domain.building.service.BuildingClientService;
 import com.nqvinh.rentofficebackend.infrastructure.utils.PaginationUtils;
 import com.nqvinh.rentofficebackend.infrastructure.utils.StringUtils;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Root;
-import jakarta.persistence.criteria.Subquery;
+import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
@@ -78,12 +75,6 @@ public class BuildingClientServiceImpl implements BuildingClientService {
 
         spec = spec.and((root, query, cb) -> cb.equal(root.get("buildingStatus"), "AVAILABLE"));
 
-//        if(params.containsKey("orientation")){
-//            String orientation = params.get("orientation").trim().toUpperCase();
-//            spec = spec.and((root, query, criteriaBuilder) ->
-//                    criteriaBuilder.equal(root.get("orientation"), OrientationEnum.valueOf(orientation.toUpperCase()))
-//            );
-//        }
 
         if (params.containsKey("orientation")) {
             String orientation = stringUtils.normalizeString(params.get("orientation").trim().toUpperCase());

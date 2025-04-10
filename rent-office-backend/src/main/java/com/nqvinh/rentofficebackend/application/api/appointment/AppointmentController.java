@@ -106,4 +106,21 @@ public class AppointmentController {
                 .build();
     }
 
+    @GetMapping(UrlConstant.STATISTICS_APPOINTMENT)
+    public ApiResponse<Map<String, Object>> getAppointmentStatistics(@RequestParam Map<String, String> params) {
+        return ApiResponse.<Map<String, Object>>builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageEnums.FETCHED_SUCCESS.getMessage("Appointment"))
+                .payload(appointmentService.getAppointmentStatistics(params))
+                .build();
+    }
+
+    @GetMapping(UrlConstant.STATISTICS_APPOINTMENT_TIME)
+    public ApiResponse<Map<String, Object>> getAppointmentStatisticsByTime(@RequestParam Map<String, String> params) {
+        return ApiResponse.<Map<String, Object>>builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageEnums.FETCHED_SUCCESS.getMessage("Appointment"))
+                .payload(appointmentService.getAppointmentStatisticsByTime(params))
+                .build();
+    }
 }

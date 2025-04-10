@@ -116,4 +116,40 @@ public class CustomerController {
                 .build();
     }
 
+    @GetMapping(UrlConstant.CUSTOMER_STATISTICS)
+    public ApiResponse<Map<String, Object>> getCustomerStatistics(@RequestParam Map<String, String> params) {
+        return ApiResponse.<Map<String, Object>>builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageEnums.FETCHED_SUCCESS.getMessage("Customer statistics"))
+                .payload(customerService.getCustomerStatistics(params))
+                .build();
+    }
+
+    @GetMapping(UrlConstant.CUSTOMER_STATISTICS_TIME)
+    public ApiResponse<Map<String, Object>> getCustomerStatisticsByTime(@RequestParam Map<String, String> params) {
+        return ApiResponse.<Map<String, Object>>builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageEnums.FETCHED_SUCCESS.getMessage("Customer statistics by time"))
+                .payload(customerService.getCustomerStatisticsByTime(params))
+                .build();
+    }
+
+    @GetMapping(UrlConstant.CUSTOMER_STATISTICS_TIME_AND_TYPE_CONSIGNMENT)
+    public ApiResponse<Map<String, Object>> getCustomerStatisticsByTimeAndType(@RequestParam Map<String, String> params) {
+        return ApiResponse.<Map<String, Object>>builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageEnums.FETCHED_SUCCESS.getMessage("Customer statistics by time and type"))
+                .payload(customerService.getCustomerStatisticsByTimeAndTypeConsignment(params))
+                .build();
+    }
+
+    @GetMapping(UrlConstant.CUSTOMER_STATISTICS_TIME_AND_TYPE_POTENTIAL)
+    public ApiResponse<Map<String, Object>> getCustomerStatisticsByTimeAndTypePotential(@RequestParam Map<String, String> params) {
+        return ApiResponse.<Map<String, Object>>builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageEnums.FETCHED_SUCCESS.getMessage("Customer statistics by time and type potential"))
+                .payload(customerService.getCustomerStatisticsByTimeAndTypePotential(params))
+                .build();
+    }
+
 }

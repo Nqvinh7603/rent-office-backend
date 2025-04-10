@@ -26,5 +26,11 @@ public interface CustomerService {
     CustomerPotentialDto getPotentialCustomersById(Long customerId);
     List<CustomerDto> getAllCustomers();
 
+    //statistics
+    Map<String, Object> getCustomerStatistics(Map<String, String> params);
+    Map<String, Object> getCustomerStatisticsByTime(Map<String, String> params);
+    Map<String, Object> getCustomerStatisticsByTimeAndTypeConsignment(Map<String, String> params);
+    Map<String, Object> getCustomerStatisticsByTimeAndTypePotential(Map<String, String> params);
+
 
 }

@@ -6,6 +6,4 @@ public enum ConsignmentStatus {
     CANCELLED, // Đã từ chối
     INCOMPLETE, // Thiếu thông tin
     ADDITIONAL_INFO, // Bổ sung thông tin
-    APPROVED, // Đax duyệt chuẩn bị đăng tin
-    LISTED, // Đã đăng
 }

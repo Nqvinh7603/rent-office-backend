@@ -8,10 +8,7 @@ import com.nqvinh.rentofficebackend.domain.auth.entity.User;
 import com.nqvinh.rentofficebackend.domain.auth.mapper.UserMapper;
 import com.nqvinh.rentofficebackend.domain.auth.repository.UserRepository;
 import com.nqvinh.rentofficebackend.domain.auth.service.UserService;
-import com.nqvinh.rentofficebackend.domain.building.constant.BuildingStatus;
-import com.nqvinh.rentofficebackend.domain.building.constant.BuildingUnitStatus;
-import com.nqvinh.rentofficebackend.domain.building.constant.ConsignmentStatus;
-import com.nqvinh.rentofficebackend.domain.building.constant.OrientationEnum;
+import com.nqvinh.rentofficebackend.domain.building.constant.*;
 import com.nqvinh.rentofficebackend.domain.building.dto.AssignBuildingDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.BuildingDto;
 import com.nqvinh.rentofficebackend.domain.building.dto.BuildingImageDto;
@@ -20,7 +17,9 @@ import com.nqvinh.rentofficebackend.domain.building.dto.response.CustomerResDto;
 import com.nqvinh.rentofficebackend.domain.building.entity.*;
 import com.nqvinh.rentofficebackend.domain.building.mapper.BuildingMapper;
 import com.nqvinh.rentofficebackend.domain.building.mapper.response.CustomerResMapper;
+import com.nqvinh.rentofficebackend.domain.building.repository.BuildingLevelRepository;
 import com.nqvinh.rentofficebackend.domain.building.repository.BuildingRepository;
+import com.nqvinh.rentofficebackend.domain.building.repository.BuildingTypeRepository;
 import com.nqvinh.rentofficebackend.domain.building.repository.CustomerRepository;
 import com.nqvinh.rentofficebackend.domain.building.service.BuildingImageService;
 import com.nqvinh.rentofficebackend.domain.building.service.BuildingService;
@@ -32,6 +31,7 @@ import com.nqvinh.rentofficebackend.domain.common.event.MailEvent;
 import com.nqvinh.rentofficebackend.domain.common.service.EmailProducer;
 import com.nqvinh.rentofficebackend.domain.common.service.NotificationService;
 import com.nqvinh.rentofficebackend.domain.common.service.RedisService;
+import com.nqvinh.rentofficebackend.infrastructure.utils.DateUtils;
 import com.nqvinh.rentofficebackend.infrastructure.utils.PaginationUtils;
 import com.nqvinh.rentofficebackend.infrastructure.utils.StringUtils;
 import jakarta.persistence.criteria.Join;
@@ -49,8 +49,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
 
 @Service
 @RequiredArgsConstructor
@@ -71,6 +79,9 @@ public class BuildingServiceImpl implements BuildingService {
     EmailProducer emailProducer;
     RedisService redisService;
     UserRepository userRepository;
+    DateUtils dateUtils;
+    private final BuildingTypeRepository buildingTypeRepository;
+    private final BuildingLevelRepository buildingLevelRepository;
 
     @Override
     @SneakyThrows
@@ -191,10 +202,10 @@ public class BuildingServiceImpl implements BuildingService {
                     .build();
             emailProducer.sendMailCancelledConsignment(mailCancelledConsignment);
         } else if (buildingDto.getConsignmentStatusHistories().getLast().getStatus().equals(ConsignmentStatus.CONFIRMED.toString()) && building.getBuildingStatus() == null) {
-          String generatedPassword = "12345678";
-          buildingDto.setBuildingStatus(BuildingStatus.REVIEWING.toString());
-          Building buildingE = buildingRepository.findById(buildingDto.getBuildingId()).orElseThrow(() -> new ResourceNotFoundException("Building not found"));
-          User newUser = null;
+            String generatedPassword = "12345678";
+            buildingDto.setBuildingStatus(BuildingStatus.REVIEWING.toString());
+            Building buildingE = buildingRepository.findById(buildingDto.getBuildingId()).orElseThrow(() -> new ResourceNotFoundException("Building not found"));
+            User newUser = null;
             if (buildingE.getCustomer().getUsers().isEmpty()) {
                 Optional<User> existingUser = userRepository.findByEmail(buildingDto.getCustomer().getEmail());
                 if (existingUser.isEmpty()) {
@@ -204,22 +215,22 @@ public class BuildingServiceImpl implements BuildingService {
                 }
             }
 
-          String url = "http://localhost:5000/login";
-          var mailConfirmedConsignment = MailEvent.builder()
-                  .toAddress(buildingDto.getCustomer().getEmail())
-                  .subject("Tài khoản quản lý tài sản ký gửi")
-                  .templateName("confirmed-consignment-template")
-                  .context(Map.of(
-                          "customerName", buildingDto.getCustomer().getCustomerName(),
-                          "email", newUser != null ? newUser.getEmail() : "",
-                          "generatedPassword", generatedPassword,
-                          "loginUrl", url
-                  ))
-                  .status(MailStatus.INIT.getStatus())
-                  .code(MessageCode.MAIL_CONFIRMED_CONSIGNMENT.getCode())
-                  .type(MailType.CONFIRMED_BUILDING.getType())
-                  .build();
-          emailProducer.sendMailConfirmedConsignment(mailConfirmedConsignment);
+            String url = "http://localhost:5000/login";
+            var mailConfirmedConsignment = MailEvent.builder()
+                    .toAddress(buildingDto.getCustomer().getEmail())
+                    .subject("Tài khoản quản lý tài sản ký gửi")
+                    .templateName("confirmed-consignment-template")
+                    .context(Map.of(
+                            "customerName", buildingDto.getCustomer().getCustomerName(),
+                            "email", newUser != null ? newUser.getEmail() : "",
+                            "generatedPassword", generatedPassword,
+                            "loginUrl", url
+                    ))
+                    .status(MailStatus.INIT.getStatus())
+                    .code(MessageCode.MAIL_CONFIRMED_CONSIGNMENT.getCode())
+                    .type(MailType.CONFIRMED_BUILDING.getType())
+                    .build();
+            emailProducer.sendMailConfirmedConsignment(mailConfirmedConsignment);
         }
 
         if (buildingImages != null && !buildingImages.isEmpty()) {
@@ -471,10 +482,124 @@ public class BuildingServiceImpl implements BuildingService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Map<String, Object> getBuildingStatistics(Map<String, String> params) {
+        Specification<Building> spec = getBuildingStatisticSpec(params);
+
+        Map<String, Object> statistics = new HashMap<>();
+        List<Building> buildings = buildingRepository.findAll(spec);
+        List<BuildingType> buildingTypes = buildingTypeRepository.findAll();
+        List<BuildingLevel> buildingLevels = buildingLevelRepository.findAll();
+
+
+        statistics.put("totalBuilding", (long) buildings.size());
+        statistics.put("totalBuildingType", (long) buildingTypes.size());
+        statistics.put("totalBuildingLevel", (long) buildingLevels.size());
+
+        //thống kê theo hướng
+        statistics.put("east", buildings.stream()
+                .filter(appointment -> appointment.getOrientation() == OrientationEnum.EAST)
+                .count());
+        statistics.put("west", buildings.stream()
+                .filter(appointment -> appointment.getOrientation() == OrientationEnum.WEST)
+                .count());
+        statistics.put("south", buildings.stream()
+                .filter(appointment -> appointment.getOrientation() == OrientationEnum.SOUTH)
+                .count());
+        statistics.put("north", buildings.stream()
+                .filter(appointment -> appointment.getOrientation() == OrientationEnum.NORTH)
+                .count());
+        statistics.put("southeast", buildings.stream()
+                .filter(appointment -> appointment.getOrientation() == OrientationEnum.SOUTHEAST)
+                .count());
+        statistics.put("northeast", buildings.stream()
+                .filter(appointment -> appointment.getOrientation() == OrientationEnum.NORTHEAST)
+                .count());
+        statistics.put("southwest", buildings.stream()
+                .filter(appointment -> appointment.getOrientation() == OrientationEnum.SOUTHWEST)
+                .count());
+        statistics.put("northwest", buildings.stream()
+                .filter(appointment -> appointment.getOrientation() == OrientationEnum.NORTHWEST)
+                .count());
+        statistics.put("undetermined", buildings.stream()
+                .filter(appointment -> appointment.getOrientation() == OrientationEnum.UNDETERMINED)
+                .count());
+
+        //thống kê theo trạng thái
+        statistics.put("reviewing", buildings.stream()
+                .filter(appointment -> appointment.getBuildingStatus() == BuildingStatus.REVIEWING)
+                .count());
+
+        statistics.put("available", buildings.stream()
+                .filter(appointment -> appointment.getBuildingStatus() == BuildingStatus.AVAILABLE)
+                .count());
+
+        // Thống kê cuộc hẹn theo từng tòa nhà
+        Map<String, Long> buildingAppointmentCounts = new HashMap<>();
+        for (Building building : buildings) {
+            Long count = building.getAppointmentBuildings().stream()
+                    .filter(appointmentBuilding -> appointmentBuilding.getVisitTime() != null)
+                    .count();
+            if (count > 0) {
+                buildingAppointmentCounts.put(building.getBuildingName(), count);
+            }
+        }
+
+// Lọc các tòa nhà theo số lượng cuộc hẹn và lấy top 10 tòa nhà có nhiều cuộc hẹn nhất
+        List<Map.Entry<String, Long>> top10Buildings = buildingAppointmentCounts.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())  // Sắp xếp theo số lượng cuộc hẹn
+                .limit(10)  // Lấy top 10 tòa nhà có số cuộc hẹn nhiều nhất
+                .collect(Collectors.toList());
+
+// Đưa dữ liệu vào statistics
+//        statistics.put("top10Buildings", top10Buildings);
+        statistics.put("top10Buildings", top10Buildings);
+
+
+        return statistics;
+    }
+
+
+    private Specification<Building> getBuildingStatisticSpec(Map<String, String> params) {
+        Specification<Building> spec = Specification.where(null);
+
+        if (params.containsKey("startDate") && params.containsKey("type")) {
+            String visitTimeStr = params.get("startDate");
+            String type = params.get("type");
+            LocalDate visitTime = dateUtils.parseDate(visitTimeStr, type);
+            spec = spec.and((root, query, cb) -> {
+                LocalDate endDate;
+                if (type.equalsIgnoreCase("date")) {
+                    endDate = visitTime.plusDays(1);
+                } else if (type.equalsIgnoreCase("month")) {
+                    endDate = visitTime.withDayOfMonth(visitTime.lengthOfMonth()).plusDays(1);
+                } else if (type.equalsIgnoreCase("quarter")) {
+                    endDate = visitTime.plusMonths(3).withDayOfMonth(1).minusDays(1).plusDays(1);
+                } else if (type.equalsIgnoreCase("year")) {
+                    endDate = visitTime.withDayOfYear(visitTime.lengthOfYear()).plusDays(1);
+                } else {
+                    throw new IllegalArgumentException("Invalid date type: " + type);
+                }
+                return cb.between(root.get("createdAt"), visitTime.atStartOfDay(), endDate.atStartOfDay());
+            });
+        }
+
+        if (params.containsKey("startDate") && params.containsKey("endDate")) {
+            String visitTimeStr = params.get("startDate");
+            LocalDate visitTime = dateUtils.parseDate(visitTimeStr, "date");
+            String endVisitTimeStr = params.get("endDate");
+            LocalDate endVisitTime = dateUtils.parseDate(endVisitTimeStr, "date").plusDays(1);
+            spec = spec.and((root, query, cb) -> cb.between(root.get("createdAt"), visitTime.atStartOfDay(), endVisitTime.atStartOfDay()));
+
+        }
+
+        return spec;
+    }
+
     private Specification<Building> getBuildingSpec(Map<String, String> params) {
         Specification<Building> spec = (root, query, cb) -> cb.isNotNull(root.get("buildingStatus"));
 
-        if(params.containsKey("orientation")){
+        if (params.containsKey("orientation")) {
             String orientation = params.get("orientation").trim().toUpperCase();
             spec = spec.and((root, query, criteriaBuilder) ->
                     criteriaBuilder.equal(root.get("orientation"), OrientationEnum.valueOf(orientation.toUpperCase()))
@@ -673,7 +798,7 @@ public class BuildingServiceImpl implements BuildingService {
     private Specification<Building> getCustomerSpec(Map<String, String> params) {
         Specification<Building> spec = Specification.where(null);
 
-        if(params.containsKey("orientation")){
+        if (params.containsKey("orientation")) {
             String orientation = params.get("orientation").trim().toUpperCase();
             spec = spec.and((root, query, criteriaBuilder) ->
                     criteriaBuilder.equal(root.get("orientation"), OrientationEnum.valueOf(orientation.toUpperCase()))
@@ -744,27 +869,27 @@ public class BuildingServiceImpl implements BuildingService {
         }
 
         if (params.containsKey("minPrice") || params.containsKey("maxPrice")) {
-                if (params.containsKey("minPrice")) {
-                    BigDecimal minPrice = new BigDecimal(params.get("minPrice"));
-                    spec = spec.and((root, query, criteriaBuilder) -> {
-                        Subquery<Long> subquery = query.subquery(Long.class);
-                        Root<BuildingUnit> buildingUnitRoot = subquery.from(BuildingUnit.class);
-                        Join<BuildingUnit, RentalPricing> rentalPricingJoin = buildingUnitRoot.join("rentalPricing");
+            if (params.containsKey("minPrice")) {
+                BigDecimal minPrice = new BigDecimal(params.get("minPrice"));
+                spec = spec.and((root, query, criteriaBuilder) -> {
+                    Subquery<Long> subquery = query.subquery(Long.class);
+                    Root<BuildingUnit> buildingUnitRoot = subquery.from(BuildingUnit.class);
+                    Join<BuildingUnit, RentalPricing> rentalPricingJoin = buildingUnitRoot.join("rentalPricing");
 
-                        subquery.select(criteriaBuilder.max(rentalPricingJoin.get("rentalPricingId")))
-                                .where(criteriaBuilder.equal(buildingUnitRoot.get("building"), root));
+                    subquery.select(criteriaBuilder.max(rentalPricingJoin.get("rentalPricingId")))
+                            .where(criteriaBuilder.equal(buildingUnitRoot.get("building"), root));
 
-                        Subquery<BigDecimal> priceSubquery = query.subquery(BigDecimal.class);
-                        Root<RentalPricing> rentalPricingRoot2 = priceSubquery.from(RentalPricing.class);
-                        priceSubquery.select(rentalPricingRoot2.get("price"))
-                                .where(criteriaBuilder.equal(rentalPricingRoot2.get("rentalPricingId"), subquery));
+                    Subquery<BigDecimal> priceSubquery = query.subquery(BigDecimal.class);
+                    Root<RentalPricing> rentalPricingRoot2 = priceSubquery.from(RentalPricing.class);
+                    priceSubquery.select(rentalPricingRoot2.get("price"))
+                            .where(criteriaBuilder.equal(rentalPricingRoot2.get("rentalPricingId"), subquery));
 
-                        return criteriaBuilder.greaterThanOrEqualTo(priceSubquery, minPrice);
-                    });
-                }
+                    return criteriaBuilder.greaterThanOrEqualTo(priceSubquery, minPrice);
+                });
+            }
 
 
-           if (params.containsKey("maxPrice")) {
+            if (params.containsKey("maxPrice")) {
                 BigDecimal maxPrice = new BigDecimal(params.get("maxPrice"));
                 spec = spec.and((root, query, criteriaBuilder) -> {
                     Subquery<Long> subquery = query.subquery(Long.class);
@@ -845,7 +970,7 @@ public class BuildingServiceImpl implements BuildingService {
             });
         }
 
-       if (params.containsKey("status")) {
+        if (params.containsKey("status")) {
             List<String> statuses = Arrays.asList(params.get("status").split(","));
             spec = spec.and((root, query, criteriaBuilder) -> {
                 Join<Building, ConsignmentStatusHistory> statusJoin = root.join("consignmentStatusHistories", JoinType.INNER);

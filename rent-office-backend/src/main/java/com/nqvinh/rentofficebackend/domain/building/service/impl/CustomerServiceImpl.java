@@ -8,6 +8,7 @@ import com.nqvinh.rentofficebackend.domain.auth.mapper.UserMapper;
 import com.nqvinh.rentofficebackend.domain.auth.repository.UserRepository;
 import com.nqvinh.rentofficebackend.domain.auth.service.UserService;
 import com.nqvinh.rentofficebackend.domain.building.constant.AppointmentBuildingStatus;
+import com.nqvinh.rentofficebackend.domain.building.constant.ConsignmentStatus;
 import com.nqvinh.rentofficebackend.domain.building.constant.PotentialCustomerStatus;
 import com.nqvinh.rentofficebackend.domain.building.constant.RequireTypeEnum;
 import com.nqvinh.rentofficebackend.domain.building.dto.AssignCustomerDto;
@@ -27,6 +28,7 @@ import com.nqvinh.rentofficebackend.domain.common.constant.MessageCode;
 import com.nqvinh.rentofficebackend.domain.common.event.MailEvent;
 import com.nqvinh.rentofficebackend.domain.common.service.EmailProducer;
 import com.nqvinh.rentofficebackend.domain.common.service.NotificationService;
+import com.nqvinh.rentofficebackend.infrastructure.utils.DateUtils;
 import com.nqvinh.rentofficebackend.infrastructure.utils.PaginationUtils;
 import com.nqvinh.rentofficebackend.infrastructure.utils.StringUtils;
 import jakarta.persistence.EntityManager;
@@ -41,9 +43,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
 import static lombok.AccessLevel.PRIVATE;
 
 @Service
@@ -62,7 +72,7 @@ public class CustomerServiceImpl implements CustomerService {
     StringUtils stringUtils;
     PaginationUtils paginationUtils;
     CustomerPotentialMapper customerPotentialMapper;
-    EntityManager entityManager;
+    DateUtils dateUtils;
     private final AppointmentRepository appointmentRepository;
 
     @Override
@@ -208,8 +218,6 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
 
-
-
     @Override
     public void deletePotentialCustomer(Long customerId) {
         Customer customer = customerRepository.findById(customerId)
@@ -229,7 +237,7 @@ public class CustomerServiceImpl implements CustomerService {
         Specification<Customer> spec = getCustomerSpec(params);
         UserDto currentUser = userService.getLoggedInUser();
 
-       if (!isAdmin(currentUser)) {
+        if (!isAdmin(currentUser)) {
             spec = spec.and((root, query, criteriaBuilder) -> {
                 Join<Customer, User> customerJoin = root.join("users", JoinType.INNER);
                 return criteriaBuilder.equal(customerJoin.get("userId"), currentUser.getUserId());
@@ -260,12 +268,365 @@ public class CustomerServiceImpl implements CustomerService {
     public List<CustomerDto> getAllCustomers() {
         UserDto currentUser = userService.getLoggedInUser();
         boolean isAdminOrManager = "ADMIN".equals(currentUser.getRole().getRoleName()) || "MANAGER".equals(currentUser.getRole().getRoleName());
-        if(isAdminOrManager) {
+        if (isAdminOrManager) {
             return customerMapper.toDtoList(customerRepository.findAll());
-        }else {
+        } else {
             return customerMapper.toDtoList(customerRepository.findAllCustomers(currentUser.getUserId(), isAdminOrManager));
         }
         //return customerMapper.toDtoList(customerRepository.findAll());
+    }
+
+    @Override
+    public Map<String, Object> getCustomerStatistics(Map<String, String> params) {
+        Map<String, Object> statistics = new HashMap<>();
+        List<Customer> customers = customerRepository.findAll(getCustomerStatisticSpec(params));
+
+        statistics.put("totalCustomers", (long) customers.size());
+        statistics.put("potentialCustomers", customers.stream().filter(customer -> customer.getStatus() != null && customer.getRequireType() == RequireTypeEnum.RENT).count());
+        statistics.put("consignmentCustomers", customers.stream().filter(customer -> customer.getRequireType() == RequireTypeEnum.CONSIGNMENT).count());
+
+
+        //thống kê theo trạng thái khách hàng thuê
+        statistics.put("NOT_CONTACTED_RENT_CUSTOMER", customers.stream().filter(customer -> customer.getStatus() == PotentialCustomerStatus.NOT_CONTACTED || customer.getRequireType() == RequireTypeEnum.RENT).count());
+        statistics.put("CONTACTED_RENT_CUSTOMER", customers.stream().filter(customer -> customer.getStatus() == PotentialCustomerStatus.CONTACTED || customer.getRequireType() == RequireTypeEnum.RENT).count());
+        statistics.put("DEAL_IN_PROGRESS_RENT_CUSTOMER", customers.stream().filter(customer -> customer.getStatus() == PotentialCustomerStatus.DEAL_IN_PROGRESS || customer.getRequireType() == RequireTypeEnum.RENT).count());
+        statistics.put("DEAL_DONE_RENT_CUSTOMER", customers.stream().filter(customer -> customer.getStatus() == PotentialCustomerStatus.DEAL_DONE || customer.getRequireType() == RequireTypeEnum.RENT).count());
+        statistics.put("CANCELED_RENT_CUSTOMER", customers.stream().filter(customer -> customer.getStatus() == PotentialCustomerStatus.CANCELED || customer.getRequireType() == RequireTypeEnum.RENT).count());
+
+        //thống kê theo trạng thái khách hàng ký gửi
+        statistics.put("PENDING_CONSIGNMENT_CUSTOMER", customers.stream()
+                .filter(customer -> customer.getRequireType() == RequireTypeEnum.CONSIGNMENT && customer.getBuildings().stream()
+                        .anyMatch(building -> {
+                            ConsignmentStatusHistory lastHistory = building.getConsignmentStatusHistories()
+                                    .stream()
+                                    .reduce((first, second) -> second)
+                                    .orElse(null);
+                            return lastHistory != null && lastHistory.getStatus() == ConsignmentStatus.PENDING;
+                        })
+                ).count());
+
+        statistics.put("CONFIRMED_CONSIGNMENT_CUSTOMER", customers.stream()
+                .filter(customer -> customer.getRequireType() == RequireTypeEnum.CONSIGNMENT && customer.getBuildings().stream()
+                        .anyMatch(building -> {
+                            ConsignmentStatusHistory lastHistory = building.getConsignmentStatusHistories()
+                                    .stream()
+                                    .reduce((first, second) -> second)
+                                    .orElse(null);
+                            return lastHistory != null && lastHistory.getStatus() == ConsignmentStatus.CONFIRMED;
+                        })
+                ).count());
+
+        statistics.put("CANCELLED_CONSIGNMENT_CUSTOMER", customers.stream()
+                .filter(customer -> customer.getRequireType() == RequireTypeEnum.CONSIGNMENT && customer.getBuildings().stream()
+                        .anyMatch(building -> {
+                            ConsignmentStatusHistory lastHistory = building.getConsignmentStatusHistories()
+                                    .stream()
+                                    .reduce((first, second) -> second)
+                                    .orElse(null);
+                            return lastHistory != null && lastHistory.getStatus() == ConsignmentStatus.CANCELLED;
+                        })
+                ).count());
+
+        statistics.put("INCOMPLETE_CONSIGNMENT_CUSTOMER", customers.stream()
+                .filter(customer -> customer.getRequireType() == RequireTypeEnum.CONSIGNMENT && customer.getBuildings().stream()
+                        .anyMatch(building -> {
+                            ConsignmentStatusHistory lastHistory = building.getConsignmentStatusHistories()
+                                    .stream()
+                                    .reduce((first, second) -> second)
+                                    .orElse(null);
+                            return lastHistory != null && lastHistory.getStatus() == ConsignmentStatus.INCOMPLETE;
+                        })
+                ).count());
+
+        statistics.put("ADDITIONAL_INFO_CONSIGNMENT_CUSTOMER", customers.stream()
+                .filter(customer -> customer.getRequireType() == RequireTypeEnum.CONSIGNMENT && customer.getBuildings().stream()
+                        .anyMatch(building -> {
+                            ConsignmentStatusHistory lastHistory = building.getConsignmentStatusHistories()
+                                    .stream()
+                                    .reduce((first, second) -> second)
+                                    .orElse(null);
+                            return lastHistory != null && lastHistory.getStatus() == ConsignmentStatus.ADDITIONAL_INFO;
+                        })
+                ).count());
+
+        return statistics;
+    }
+
+    @Override
+    public Map<String, Object> getCustomerStatisticsByTime(Map<String, String> params) {
+        Specification<Customer> spec = getCustomerStatisticSpec(params);
+        String type = params.getOrDefault("type", "");
+        String startDateStr = params.getOrDefault("startDate", null);
+        String endDateStr = params.getOrDefault("endDate", null);
+
+        Map<String, BigDecimal> appointmentStatistics = new TreeMap<>();
+        if (type.equals("year")) {
+            int currentYear = LocalDate.now().getYear();
+            IntStream.rangeClosed(1, 12).forEach(month -> {
+                String key = YearMonth.of(currentYear, month).toString();
+                appointmentStatistics.put(key, BigDecimal.ZERO);
+            });
+        }
+        if (type.equals("month")) {
+            LocalDate now = LocalDate.now();
+            int currentMonth = now.getMonthValue();
+            int currentDateOfMonth;
+            int requestedMonth = Integer.parseInt(startDateStr.split("-")[1]);
+            YearMonth yearMonth = YearMonth.of(now.getYear(), requestedMonth);
+            if (currentMonth == requestedMonth) {
+                currentDateOfMonth = now.getDayOfMonth();
+            } else {
+                currentDateOfMonth = yearMonth.lengthOfMonth();
+            }
+            IntStream.rangeClosed(1, currentDateOfMonth).forEach(day -> {
+                String key = yearMonth.atDay(day).toString();
+                appointmentStatistics.put(key, BigDecimal.ZERO);
+            });
+        }
+
+        if (type.equals("quarter")) {
+            LocalDate startDate = dateUtils.parseDate(startDateStr, "quarter");
+            LocalDate endDate = startDate.plusMonths(3).withDayOfMonth(1).minusDays(1);
+            while (!startDate.isAfter(endDate)) {
+                String key = startDate.toString();
+                appointmentStatistics.put(key, BigDecimal.ZERO);
+                startDate = startDate.plusDays(1);
+            }
+        }
+
+        if (startDateStr != null && endDateStr != null && type.equals("date")) {
+            LocalDate startDate = dateUtils.parseDate(startDateStr, "date");
+            LocalDate endDate = dateUtils.parseDate(endDateStr, "date");
+            LocalDate currentDate = startDate;
+            while (!currentDate.isAfter(endDate)) {
+                String key = currentDate.toString();
+                appointmentStatistics.put(key, BigDecimal.ZERO);
+                currentDate = currentDate.plusDays(1);
+            }
+        }
+
+        if (spec == null) {
+            spec = Specification.where(null);
+        }
+
+
+        List<Customer> appointments = customerRepository.findAll(spec);
+
+        Map<String, Object> statistics = new HashMap<>(appointmentStatistics);
+
+        appointments.stream()
+                .collect(groupingBy(appointment -> {
+                    LocalDateTime createdAt = appointment.getCreatedAt();
+                    return switch (type) {
+                        case "month", "quarter", "date" -> createdAt.toLocalDate().toString();
+                        case "year" -> {
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
+                            yield createdAt.format(formatter);
+                        }
+                        default -> throw new IllegalArgumentException("Invalid date type: " + type);
+                    };
+                }, counting()))
+                .forEach((key, count) -> statistics.put(key, count));
+
+        return statistics;
+    }
+
+    @Override
+    public Map<String, Object> getCustomerStatisticsByTimeAndTypeConsignment(Map<String, String> params) {
+        Specification<Customer> spec = getCustomerStatisticSpec(params);
+        String type = params.getOrDefault("type", "");
+        String startDateStr = params.getOrDefault("startDate", null);
+        String endDateStr = params.getOrDefault("endDate", null);
+
+        Map<String, BigDecimal> appointmentStatistics = new TreeMap<>();
+        if (type.equals("year")) {
+            int currentYear = LocalDate.now().getYear();
+            IntStream.rangeClosed(1, 12).forEach(month -> {
+                String key = YearMonth.of(currentYear, month).toString();
+                appointmentStatistics.put(key, BigDecimal.ZERO);
+            });
+        }
+        if (type.equals("month")) {
+            LocalDate now = LocalDate.now();
+            int currentMonth = now.getMonthValue();
+            int currentDateOfMonth;
+            int requestedMonth = Integer.parseInt(startDateStr.split("-")[1]);
+            YearMonth yearMonth = YearMonth.of(now.getYear(), requestedMonth);
+            if (currentMonth == requestedMonth) {
+                currentDateOfMonth = now.getDayOfMonth();
+            } else {
+                currentDateOfMonth = yearMonth.lengthOfMonth();
+            }
+            IntStream.rangeClosed(1, currentDateOfMonth).forEach(day -> {
+                String key = yearMonth.atDay(day).toString();
+                appointmentStatistics.put(key, BigDecimal.ZERO);
+            });
+        }
+
+        if (type.equals("quarter")) {
+            LocalDate startDate = dateUtils.parseDate(startDateStr, "quarter");
+            LocalDate endDate = startDate.plusMonths(3).withDayOfMonth(1).minusDays(1);
+            while (!startDate.isAfter(endDate)) {
+                String key = startDate.toString();
+                appointmentStatistics.put(key, BigDecimal.ZERO);
+                startDate = startDate.plusDays(1);
+            }
+        }
+
+        if (startDateStr != null && endDateStr != null && type.equals("date")) {
+            LocalDate startDate = dateUtils.parseDate(startDateStr, "date");
+            LocalDate endDate = dateUtils.parseDate(endDateStr, "date");
+            LocalDate currentDate = startDate;
+            while (!currentDate.isAfter(endDate)) {
+                String key = currentDate.toString();
+                appointmentStatistics.put(key, BigDecimal.ZERO);
+                currentDate = currentDate.plusDays(1);
+            }
+        }
+
+        if (spec == null) {
+            spec = Specification.where(null);
+        }
+
+
+        List<Customer> appointments = customerRepository.findAll(spec);
+
+        Map<String, Object> statistics = new HashMap<>(appointmentStatistics);
+
+        appointments.stream()
+                .filter(appointment -> appointment.getRequireType() == RequireTypeEnum.CONSIGNMENT)
+                .collect(groupingBy(appointment -> {
+                    LocalDateTime createdAt = appointment.getCreatedAt();
+                    return switch (type) {
+                        case "month", "quarter", "date" -> createdAt.toLocalDate().toString();
+                        case "year" -> {
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
+                            yield createdAt.format(formatter);
+                        }
+                        default -> throw new IllegalArgumentException("Invalid date type: " + type);
+                    };
+                }, counting()))
+                .forEach((key, count) -> statistics.put(key, count));
+
+        return statistics;
+    }
+
+    @Override
+    public Map<String, Object> getCustomerStatisticsByTimeAndTypePotential(Map<String, String> params) {
+        Specification<Customer> spec = getCustomerStatisticSpec(params);
+        String type = params.getOrDefault("type", "");
+        String startDateStr = params.getOrDefault("startDate", null);
+        String endDateStr = params.getOrDefault("endDate", null);
+
+        Map<String, BigDecimal> appointmentStatistics = new TreeMap<>();
+        if (type.equals("year")) {
+            int currentYear = LocalDate.now().getYear();
+            IntStream.rangeClosed(1, 12).forEach(month -> {
+                String key = YearMonth.of(currentYear, month).toString();
+                appointmentStatistics.put(key, BigDecimal.ZERO);
+            });
+        }
+        if (type.equals("month")) {
+            LocalDate now = LocalDate.now();
+            int currentMonth = now.getMonthValue();
+            int currentDateOfMonth;
+            int requestedMonth = Integer.parseInt(startDateStr.split("-")[1]);
+            YearMonth yearMonth = YearMonth.of(now.getYear(), requestedMonth);
+            if (currentMonth == requestedMonth) {
+                currentDateOfMonth = now.getDayOfMonth();
+            } else {
+                currentDateOfMonth = yearMonth.lengthOfMonth();
+            }
+            IntStream.rangeClosed(1, currentDateOfMonth).forEach(day -> {
+                String key = yearMonth.atDay(day).toString();
+                appointmentStatistics.put(key, BigDecimal.ZERO);
+            });
+        }
+
+        if (type.equals("quarter")) {
+            LocalDate startDate = dateUtils.parseDate(startDateStr, "quarter");
+            LocalDate endDate = startDate.plusMonths(3).withDayOfMonth(1).minusDays(1);
+            while (!startDate.isAfter(endDate)) {
+                String key = startDate.toString();
+                appointmentStatistics.put(key, BigDecimal.ZERO);
+                startDate = startDate.plusDays(1);
+            }
+        }
+
+        if (startDateStr != null && endDateStr != null && type.equals("date")) {
+            LocalDate startDate = dateUtils.parseDate(startDateStr, "date");
+            LocalDate endDate = dateUtils.parseDate(endDateStr, "date");
+            LocalDate currentDate = startDate;
+            while (!currentDate.isAfter(endDate)) {
+                String key = currentDate.toString();
+                appointmentStatistics.put(key, BigDecimal.ZERO);
+                currentDate = currentDate.plusDays(1);
+            }
+        }
+
+        if (spec == null) {
+            spec = Specification.where(null);
+        }
+
+
+        List<Customer> appointments = customerRepository.findAll(spec);
+
+        Map<String, Object> statistics = new HashMap<>(appointmentStatistics);
+
+        appointments.stream()
+                .filter(appointment -> appointment.getRequireType() == RequireTypeEnum.RENT && appointment.getStatus() != null) // Chỉ lấy customer rent
+                .collect(groupingBy(appointment -> {
+                    LocalDateTime createdAt = appointment.getCreatedAt();
+                    return switch (type) {
+                        case "month", "quarter", "date" -> createdAt.toLocalDate().toString();
+                        case "year" -> {
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
+                            yield createdAt.format(formatter);
+                        }
+                        default -> throw new IllegalArgumentException("Invalid date type: " + type);
+                    };
+                }, counting()))
+                .forEach((key, count) -> statistics.put(key, count));
+
+        return statistics;
+    }
+
+
+    private Specification<Customer> getCustomerStatisticSpec(Map<String, String> params) {
+        Specification<Customer> spec = Specification.where(null);
+
+        if (params.containsKey("startDate") && params.containsKey("type")) {
+            String visitTimeStr = params.get("startDate");
+            String type = params.get("type");
+            LocalDate visitTime = dateUtils.parseDate(visitTimeStr, type);
+            spec = spec.and((root, query, cb) -> {
+                LocalDate endDate;
+                if (type.equalsIgnoreCase("date")) {
+                    endDate = visitTime.plusDays(1);
+                } else if (type.equalsIgnoreCase("month")) {
+                    endDate = visitTime.withDayOfMonth(visitTime.lengthOfMonth()).plusDays(1);
+                } else if (type.equalsIgnoreCase("quarter")) {
+                    endDate = visitTime.plusMonths(3).withDayOfMonth(1).minusDays(1).plusDays(1);
+                } else if (type.equalsIgnoreCase("year")) {
+                    endDate = visitTime.withDayOfYear(visitTime.lengthOfYear()).plusDays(1);
+                } else {
+                    throw new IllegalArgumentException("Invalid date type: " + type);
+                }
+                return cb.between(root.get("createdAt"), visitTime.atStartOfDay(), endDate.atStartOfDay());
+            });
+        }
+
+        if (params.containsKey("startDate") && params.containsKey("endDate")) {
+            String visitTimeStr = params.get("startDate");
+            LocalDate visitTime = dateUtils.parseDate(visitTimeStr, "date");
+            String endVisitTimeStr = params.get("endDate");
+            LocalDate endVisitTime = dateUtils.parseDate(endVisitTimeStr, "date").plusDays(1);
+            spec = spec.and((root, query, cb) -> cb.between(root.get("createdAt"), visitTime.atStartOfDay(), endVisitTime.atStartOfDay()));
+
+        }
+
+        return spec;
+
     }
 
     private Specification<Customer> getCustomerSpec(Map<String, String> params) {

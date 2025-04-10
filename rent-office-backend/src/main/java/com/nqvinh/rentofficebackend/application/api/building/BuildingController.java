@@ -124,4 +124,13 @@ public class BuildingController {
                 .payload(buildingService.getStaffsByBuildingId(buildingId))
                 .build();
     }
+
+    @GetMapping(UrlConstant.BUILDING_STATISTICS)
+    public ApiResponse<Map<String, Object>> getBuildingStatistics(@RequestParam Map<String, String> params) {
+        return ApiResponse.<Map<String, Object>>builder()
+                .status(HttpStatus.OK.value())
+                .message("Get building statistics successfully")
+                .payload(buildingService.getBuildingStatistics(params))
+                .build();
+    }
 }

@@ -24,4 +24,8 @@ public interface BuildingService {
     //giao toà nhà cho nhân viên quản lý
     void assignmentBuildingToStaffs(AssignBuildingDto assignBuildingDto);
     List<UserDto> getStaffsByBuildingId(Long buildingId);
+
+    //thống kê
+    Map<String, Object> getBuildingStatistics(Map<String, String> params);
+//    Map<String, Object> getBuildingStatisticsTop10(Map<String, String> params);
 }
