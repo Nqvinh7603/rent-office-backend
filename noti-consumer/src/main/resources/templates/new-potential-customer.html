@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Xác nhận yêu cầu tư vấn</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+    </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: Helvetica, Arial, sans-serif;">
+<div style="width: 100%; max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);">
+
+    <!-- Header -->
+    <div style="text-align: center; background: linear-gradient(90deg, #3498db, #2980b9); color: white; padding: 30px; border-radius: 10px 10px 0 0;">
+        <h2 style="margin: 0; font-size: 24px;">Xác nhận yêu cầu tư vấn</h2>
+    </div>
+
+    <!-- Nội dung chính -->
+    <div style="margin: 20px; color: #333; line-height: 1.5;">
+        <p>Thân gửi <b th:text="${customerName}"></b>,</p>
+        <p>Cảm ơn quý khách đã gửi yêu cầu tư vấn về thuê văn phòng. Chúng tôi đã nhận được thông tin của quý khách và sẽ liên hệ trong thời gian sớm nhất.</p>
+
+        <h3>📌 Thông tin yêu cầu:</h3>
+        <ul>
+            <li><b>Họ và tên:</b> <span th:text="${customerName}"></span></li>
+            <li><b>Số điện thoại:</b> <span th:text="${phoneNumber}"></span></li>
+            <li><b>Nhu cầu:</b> <span th:text="${note}" th:utext="${note}"></span></li>
+        </ul>
+
+        <p>Chúng tôi sẽ liên hệ với quý khách trong vòng 24 giờ để hỗ trợ thông tin chi tiết.</p>
+
+        <div style="text-align: center; margin: 20px 0;">
+            <a th:href="'tel:' + ${phoneNumber}" style="background-color: #3498db; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; display: inline-block;">
+                Gọi ngay
+            </a>
+        </div>
+
+        <p>Nếu quý khách có bất kỳ thắc mắc nào, vui lòng liên hệ với chúng tôi.</p>
+
+        <p>
+            📞 <strong>Hotline:</strong> 0919 463 436<br>
+            📧 <strong>Email hỗ trợ:</strong> support@cyberealcompany.com
+        </p>
+
+        <p>Cảm ơn quý khách đã tin tưởng dịch vụ của chúng tôi!</p>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #777;">
+        <p>&copy; [[${#dates.format(#dates.createNow(), 'yyyy')}]] Cyber Real. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>
