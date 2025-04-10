@@ -19,13 +19,6 @@
         <p>Thân gửi <b th:text="${customerName}"></b>,</p>
         <p>Chúng tôi đã xem xét yêu cầu ký gửi tài sản của quý khách và nhận thấy có một số thông tin cần bổ sung trước khi xét duyệt.</p>
 
-        <h3>📌 Thông tin tài sản:</h3>
-        <ul>
-            <li><b>Giá đề xuất:</b> <span th:text="${#numbers.formatDecimal(price, 0, 'COMMA', 2, 'POINT')}"></span> VND/m²</li>
-            <li><b>Địa chỉ:</b> <span th:text="${street}"></span>, <span th:text="${ward}"></span>, <span th:text="${district}"></span>, <span th:text="${city}"></span></li>
-            <li><b>Mô tả tài sản:</b> <span th:text="${description}" th:utext="${description}"></span></li>
-        </ul>
-
         <h3>📝 Nội dung cần bổ sung:</h3>
         <div style="background-color: #f8d7da; padding: 15px; border-radius: 5px; color: #721c24;">
             <p th:text="${additionalInfo}" th:utext="${additionalInfo}" ></p>

@@ -22,12 +22,6 @@
     <h3 style="color: #d9534f;">🔴 Lý do từ chối:</h3>
     <p><b th:text="${rejectedReason}" th:utext="${rejectedReason}"></b></p>
 
-    <h3>📌 Thông tin tài sản ký gửi:</h3>
-    <ul>
-      <li><b>Giá đề xuất:</b> <span th:text="${#numbers.formatDecimal(price, 0, 'COMMA', 2, 'POINT')}"></span> VND/m²</li>
-      <li><b>Địa chỉ:</b> <span th:text="${street}"></span>,<span th:text="${ward}"></span>, <span th:text="${district}"></span>, <span th:text="${city}"></span></li>
-    </ul>
-
     <div style="height: 1px; background-color: #e0e0e0; margin: 20px 0;"></div>
 
     <p>Nếu quý khách có bất kỳ câu hỏi hoặc cần chỉnh sửa thông tin tài sản để gửi lại yêu cầu, vui lòng liên hệ với chúng tôi.</p>
