@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Xác nhận lịch hẹn</title>
+  <style>
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+  </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: Helvetica, Arial, sans-serif;">
+<div style="width: 100%; max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);">
+
+  <!-- Header -->
+  <div style="text-align: center; background: linear-gradient(90deg, #3498db, #2980b9); color: white; padding: 30px; border-radius: 10px 10px 0 0;">
+    <h2 style="margin: 0; font-size: 24px;">Xác nhận lịch hẹn</h2>
+  </div>
+
+  <!-- Nội dung chính -->
+  <div style="margin: 20px; color: #333; line-height: 1.5;">
+    <p>Thân gửi <b th:text="${customerName}"></b>,</p>
+
+    <p>Chúng tôi xác nhận rằng Quý khách đã đặt lịch hẹn thành công với <strong>Cyber Real</strong>. Chúng tôi rất mong được phục vụ Quý khách đúng thời gian đã hẹn.</p>
+
+    <p>Trong trường hợp Quý khách cần hỗ trợ, vui lòng liên hệ:</p>
+
+    <p>
+      📞 <strong>Hotline:</strong> 0919 463 436<br>
+      📧 <strong>Email hỗ trợ:</strong> support@cyberealcompany.com
+    </p>
+
+    <p>Trân trọng,</p>
+    <p><strong>[Tên Công Ty]</strong></p>
+  </div>
+
+  <!-- Footer -->
+  <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #777;">
+    <p>&copy; [[${#dates.format(#dates.createNow(), 'yyyy')}]] Cyber Real. All rights reserved.</p>
+  </div>
+</div>
+</body>
+</html>
