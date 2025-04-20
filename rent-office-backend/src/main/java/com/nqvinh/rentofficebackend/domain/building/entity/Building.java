@@ -98,7 +98,4 @@ public class Building extends BaseEntity {
 
     @OneToMany(mappedBy = "building", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     List<AppointmentBuilding> appointmentBuildings;
-
-    @Column(name = "search_vector", columnDefinition = "tsvector")
-    String searchVector;
 }

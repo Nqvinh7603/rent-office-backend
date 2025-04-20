@@ -47,15 +47,15 @@ public class BuildingImageServiceImpl implements BuildingImageService {
 
     }
 
-   @Override
+    @Override
     public void deleteBuildingImages(Building building, List<String> deletedImages) {
         List<BuildingImage> images = building.getBuildingImages();
         List<BuildingImage> imagesToRemove = new ArrayList<>();
         deletedImages.forEach(deletedImage -> {
             images.stream()
-                  .filter(image -> image.getImgUrl().equals(deletedImage))
-                  .findFirst()
-                  .ifPresent(imagesToRemove::add);
+                    .filter(image -> image.getImgUrl().equals(deletedImage))
+                    .findFirst()
+                    .ifPresent(imagesToRemove::add);
             try {
                 cloudinaryUtils.deleteFileFromCloudinary(deletedImage);
             } catch (IOException e) {
@@ -63,12 +63,12 @@ public class BuildingImageServiceImpl implements BuildingImageService {
             }
         });
         images.removeAll(imagesToRemove);
-       building.setBuildingImages(images);
+        building.setBuildingImages(images);
     }
 
     @Override
     @SneakyThrows
-    public List<String> uploadBuildingImages(CustomerReqDto customerReqDto, List<MultipartFile> buildingImages){
+    public List<String> uploadBuildingImages(CustomerReqDto customerReqDto, List<MultipartFile> buildingImages) {
         if (buildingImages == null || buildingImages.isEmpty()) return new ArrayList<>();
         return imageService.handleImageUpload(
                 buildingImages,
@@ -89,30 +89,30 @@ public class BuildingImageServiceImpl implements BuildingImageService {
                     newBuilding.setBuildingType(newBuilding.getBuildingType());
 
                     List<BuildingUnit> buildingUnits = buildingDto.getBuildingUnits().stream()
-                                .map(buildingUnitDto -> {
-                                    BuildingUnit buildingUnit = BuildingUnit.builder()
+                            .map(buildingUnitDto -> {
+                                BuildingUnit buildingUnit = BuildingUnit.builder()
                                         .unitName(buildingUnitDto.getUnitName())
                                         .floor(buildingUnitDto.getFloor())
                                         .building(newBuilding)
                                         .build();
 
-                                    buildingUnit.setRentAreas(buildingUnitDto.getRentAreas().stream()
+                                buildingUnit.setRentAreas(buildingUnitDto.getRentAreas().stream()
                                         .map(rentAreaDto -> RentArea.builder()
-                                            .area(rentAreaDto.getArea())
-                                            .buildingUnit(buildingUnit)
-                                            .build())
+                                                .area(rentAreaDto.getArea())
+                                                .buildingUnit(buildingUnit)
+                                                .build())
                                         .collect(Collectors.toList()));
 
-                                    buildingUnit.setRentalPricing(buildingUnitDto.getRentalPricing().stream()
+                                buildingUnit.setRentalPricing(buildingUnitDto.getRentalPricing().stream()
                                         .map(rentalPricingDto -> RentalPricing.builder()
-                                            .price(rentalPricingDto.getPrice())
-                                            .buildingUnit(buildingUnit)
-                                            .build())
+                                                .price(rentalPricingDto.getPrice())
+                                                .buildingUnit(buildingUnit)
+                                                .build())
                                         .collect(Collectors.toList()));
 
-                                    return buildingUnit;
-                                })
-                                .collect(Collectors.toList());
+                                return buildingUnit;
+                            })
+                            .collect(Collectors.toList());
 
                     List<PaymentPolicy> paymentPolicies = buildingDto.getPaymentPolicies().stream()
                             .map(paymentPolicyDto -> PaymentPolicy.builder()
@@ -122,24 +122,24 @@ public class BuildingImageServiceImpl implements BuildingImageService {
                                     .build())
                             .collect(Collectors.toList());
 
-                   List<Fee> fees = buildingDto.getFees().stream()
-                                .map(feeDto -> {
-                                    Fee fee = Fee.builder()
+                    List<Fee> fees = buildingDto.getFees().stream()
+                            .map(feeDto -> {
+                                Fee fee = Fee.builder()
                                         .feeType(FeeType.builder().feeTypeId(feeDto.getFeeType().getFeeTypeId()).build())
                                         .building(newBuilding)
                                         .build();
-                                    List<FeePricing> feePricingList = feeDto.getFeePricing().stream()
+                                List<FeePricing> feePricingList = feeDto.getFeePricing().stream()
                                         .map(feePricingDto -> FeePricing.builder()
-                                            .priceValue(feePricingDto.getPriceValue())
-                                            .priceUnit(feePricingDto.getPriceUnit())
-                                            .description(feePricingDto.getDescription())
-                                            .fee(fee)
-                                            .build())
+                                                .priceValue(feePricingDto.getPriceValue())
+                                                .priceUnit(feePricingDto.getPriceUnit())
+                                                .description(feePricingDto.getDescription())
+                                                .fee(fee)
+                                                .build())
                                         .collect(Collectors.toList());
-                                    fee.setFeePricing(feePricingList);
-                                    return fee;
-                                })
-                                .collect(Collectors.toList());
+                                fee.setFeePricing(feePricingList);
+                                return fee;
+                            })
+                            .collect(Collectors.toList());
 
                     List<ConsignmentStatusHistory> buildingStatusHistories = buildingDto.getConsignmentStatusHistories().stream()
                             .map(buildingStatusHistoryDto -> ConsignmentStatusHistory.builder()

@@ -154,7 +154,16 @@ public class NotificationServiceImpl implements NotificationService {
         ).collect(Collectors.toList());
         notificationRepository.saveAll(notifications);
 
-
+        var notificationEvent = NotiEvent.builder()
+                .status(false)
+                //.customerId(assignCustomerDto.getCustomer().getCustomerId())
+                .userId(assignBuildingDto.getUsers().stream().map(UserDto::getUserId).collect(Collectors.toList()))
+                .message(message)
+                .createdAt(LocalDateTime.now())
+                .code(MessageCode.NOTIFICATION_ASSIGN_BUILDING.getCode())
+                .type(MailType.NOTIFICATION_ASSIGN_BUILDING.getType())
+                .build();
+        notiProducer.sendNotiAssignCustomer(notificationEvent);
 
 
     }
