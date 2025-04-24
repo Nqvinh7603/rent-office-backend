@@ -63,4 +63,6 @@ public class UserDto {
     String checked;
 
     List<NotificationDto> notifications;
+
+    Long customerId;
 }

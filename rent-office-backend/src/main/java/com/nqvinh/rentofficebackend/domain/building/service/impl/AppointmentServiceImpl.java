@@ -83,7 +83,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private boolean isAdmin(UserDto userDto) {
         User user = userMapper.toEntity(userDto);
         String roleName = user.getRole().getRoleName();
-        return roleName.equals("ADMIN") || roleName.equals("MANAGER");
+        return roleName.equals("ADMIN") ;
     }
 
     @Transactional
@@ -165,7 +165,12 @@ public class AppointmentServiceImpl implements AppointmentService {
     public Map<LocalDateTime, List<AppointmentBuildingCalendarDto>> getAllAppointmentCalendars() {
         UserDto currentUser = userService.getLoggedInUser();
         boolean isAdmin = isAdmin(currentUser);
-        return appointmentBuildingRepository.findAllAssignedWithPrivilege(currentUser.getUserId(), isAdmin).stream()
+
+        return appointmentBuildingRepository.findAllAssignedWithPrivilege(currentUser.getUserId(), isAdmin || currentUser.getCustomerId() != null).stream()
+                .filter(appointmentBuilding -> isAdmin ||
+                         (currentUser.getCustomerId() != null &&
+                          appointmentBuilding.getAppointment().getCustomer().getCustomerId().equals(currentUser.getCustomerId())) ||
+                         (currentUser.getRole().getRoleName().equals("EMPLOYEE")))
                 .collect(groupingBy(AppointmentBuilding::getVisitTime, mapping(appointmentBuildingCalendarMapper::toDto, toList())));
     }
 

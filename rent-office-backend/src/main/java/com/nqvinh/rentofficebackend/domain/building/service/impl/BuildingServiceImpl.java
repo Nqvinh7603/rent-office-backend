@@ -124,12 +124,21 @@ public class BuildingServiceImpl implements BuildingService {
         Specification<Building> spec = getCustomerSpec(params);
 
         if (!isAdmin(currentUser)) {
+            if(isEmployee(currentUser)){
             spec = spec.and((root, query, criteriaBuilder) -> {
                 Join<Customer, Building> customerJoin = root.join("customer", JoinType.INNER);
                 Join<Customer, User> userJoin = customerJoin.join("users", JoinType.INNER);
                 return criteriaBuilder.equal(userJoin.get("userId"), currentUser.getUserId());
-            });
+            });}
+           if (isLessor(currentUser)) {
+                spec = spec.and((root, query, criteriaBuilder) -> {
+                    Join<Customer, Building> customerJoin = root.join("customer", JoinType.INNER);
+                    return criteriaBuilder.equal(customerJoin.get("customerId"), currentUser.getCustomerId());
+                });
+            }
         }
+
+
 
         Pageable pageable = paginationUtils.buildPageable(params);
         org.springframework.data.domain.Page<Building> buildingPage = buildingRepository.findAll(spec, pageable);
@@ -141,6 +150,17 @@ public class BuildingServiceImpl implements BuildingService {
         User user = userMapper.toEntity(userDto);
         String roleName = user.getRole().getRoleName();
         return roleName.equals("ADMIN") || roleName.equals("MANAGER");
+    }
+    private boolean isLessor(UserDto userDto) {
+        User user = userMapper.toEntity(userDto);
+        String roleName = user.getRole().getRoleName();
+        return roleName.equals("LESSOR");
+    }
+
+    private boolean isEmployee(UserDto userDto) {
+        User user = userMapper.toEntity(userDto);
+        String roleName = user.getRole().getRoleName();
+        return roleName.equals("EMPLOYEE");
     }
 
     @Override
