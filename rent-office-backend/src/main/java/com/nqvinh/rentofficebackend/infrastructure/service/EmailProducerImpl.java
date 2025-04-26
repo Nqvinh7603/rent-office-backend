@@ -91,7 +91,18 @@ public class EmailProducerImpl implements EmailProducer {
 
     @Override
     public void sendMailNewPotentialCustomer(MailEvent mail) {
-
+        try{
+            var message = MessageBuilder.build(
+                    serviceId,
+                    EventType.EVENT,
+                    MessageCode.MAIL_CREATE_CUSTOMER_POTENTIAL.getCode(),
+                    mail
+            );
+            kafkaTemplate.send(emailTopic, message);
+            log.info("Produced a message to topic: {}, value: {}", emailTopic, message);
+        } catch (Exception e) {
+            log.error("Failed to produce the message to topic: {}", emailTopic, e);
+        }
     }
 
     @Override
